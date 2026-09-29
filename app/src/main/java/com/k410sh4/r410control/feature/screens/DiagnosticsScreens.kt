@@ -244,6 +244,10 @@ fun LabScreen(
 ) {
     val enabled by settings.labMode.collectAsState()
     val services by vm.gattServices.collectAsState()
+    DisposableEffect(enabled) {
+        if (enabled) vm.startLabSession() else vm.stopLabSession()
+        onDispose { vm.stopLabSession() }
+    }
     val status by vm.gattStatus.collectAsState()
     val context = LocalContext.current
     val reportLauncher = rememberLauncherForActivityResult(
