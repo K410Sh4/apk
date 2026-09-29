@@ -293,11 +293,13 @@ class R410ConnectionManager @Inject constructor(
     }
 
     private fun cancelDiscovery() {
-        if (adapter == null) return
+        val bluetoothAdapter = adapter ?: return
         if (Build.VERSION.SDK_INT >= 31 &&
             ContextCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED
         ) return
-        runCatching { if (adapter.isDiscovering) adapter.cancelDiscovery() }
+        runCatching {
+            if (bluetoothAdapter.isDiscovering) bluetoothAdapter.cancelDiscovery()
+        }
     }
 
     private fun hasConnectPermission(): Boolean =
