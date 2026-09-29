@@ -432,6 +432,10 @@ private fun CapabilitySummary(c: DeviceCapabilities) {
         "Battery R" to c.batteryRight,
         "Battery Case" to c.batteryCase,
         "Proximity" to c.proximity,
+        "Charging" to c.chargingState,
+        "Ambient Level" to c.ambientLevel,
+        "ANC Intensity" to c.ancIntensity,
+        "ANC One Earbud" to c.ancOneEarbud,
         "Firmware" to c.firmwareInfo
     )
     list.forEach { (name, cap) ->
