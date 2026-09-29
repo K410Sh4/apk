@@ -65,11 +65,34 @@ class ControlCenterViewModel @Inject constructor(
     fun disconnect() = repo.disconnect()
 
     fun setNoiseMode(mode: NoiseMode) = send(R410Command.SetNoiseMode(mode))
+    fun setAmbientLevel(level: Int) = send(R410Command.SetAmbientLevel(level))
+    fun setAncLevelHigh(enabled: Boolean) = send(R410Command.SetAncLevelHigh(enabled))
+    fun setAncOneEarbud(enabled: Boolean) = send(R410Command.SetAncOneEarbud(enabled))
     fun setEqPreset(preset: EqPreset?, enabled: Boolean = true) = send(R410Command.SetEqPreset(preset, enabled))
     fun lockTouch(locked: Boolean) = send(R410Command.LockTouch(locked))
     fun setTouchHold(left: TouchHoldAction, right: TouchHoldAction) = send(R410Command.SetTouchHold(left, right))
-    fun findStart() = send(R410Command.FindStart)
+    fun findLeft() = findWithMute(leftMuted = false, rightMuted = true)
+    fun findRight() = findWithMute(leftMuted = true, rightMuted = false)
+    fun findBoth() = findWithMute(leftMuted = false, rightMuted = false)
+
     fun findStop() = send(R410Command.FindStop)
+
+    private fun findWithMute(leftMuted: Boolean, rightMuted: Boolean) {
+        if (demoMode.value) {
+            _message.tryEmit("DEMO DEVICE: nenhum comando real foi enviado.")
+            return
+        }
+        viewModelScope.launch {
+            repo.send(R410Command.FindStart)
+                .onFailure {
+                    _message.emit(it.message ?: "Não foi possível iniciar Find My Buds")
+                    return@launch
+                }
+            kotlinx.coroutines.delay(120)
+            repo.send(R410Command.MuteEarbuds(leftMuted, rightMuted))
+                .onFailure { _message.emit(it.message ?: "Não foi possível selecionar o lado") }
+        }
+    }
 
     private fun send(command: R410Command) {
         if (demoMode.value) {
