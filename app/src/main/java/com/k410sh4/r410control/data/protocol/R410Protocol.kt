@@ -297,7 +297,7 @@ class DeviceStatusDecoder : PacketDecoder {
                         placementRight = Placement.from(placement and 0x0F),
                         batteryCase = p[7].u8OrNull(),
                         eqModeRaw = p[9].toInt() and 0xFF,
-                        touchLocked = (touchFlags and 0x80) == 0x80,
+                        touchLocked = (touchFlags and 0x80) != 0x80,
                         touchLeft = l,
                         touchRight = r,
                         noiseMode = mode,
