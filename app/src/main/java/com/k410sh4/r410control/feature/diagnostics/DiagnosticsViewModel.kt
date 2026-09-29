@@ -86,7 +86,9 @@ class DiagnosticsViewModel @Inject constructor(
                 row("bleGatt", c.bleGatt), row("anc", c.anc), row("ambient", c.ambient), row("eq", c.eq),
                 row("touchControls", c.touchControls), row("batteryLeft", c.batteryLeft),
                 row("batteryRight", c.batteryRight), row("batteryCase", c.batteryCase),
-                row("proximity", c.proximity), row("firmwareInfo", c.firmwareInfo),
+                row("proximity", c.proximity), row("chargingState", c.chargingState),
+                row("ambientLevel", c.ambientLevel), row("ancIntensity", c.ancIntensity),
+                row("ancOneEarbud", c.ancOneEarbud), row("firmwareInfo", c.firmwareInfo),
                 row("findMyBuds", c.findMyBuds), row("microphone", c.microphone), row("spatialAudio", c.spatialAudio)
             ).joinToString(",\n"))
             append("\n  }\n}")
