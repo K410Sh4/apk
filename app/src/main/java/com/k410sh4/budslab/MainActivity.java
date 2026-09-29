@@ -59,6 +59,7 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
     private String placementR = "--";
     private String noiseMode = "--";
     private String firmware = "--";
+    private String mainConnection = "--";
 
     private final SimpleDateFormat clock =
             new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
@@ -439,10 +440,30 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
         if (t.batteryL >= 0) batteryL = t.batteryL + "%";
         if (t.batteryR >= 0) batteryR = t.batteryR + "%";
         if (t.batteryCase != null) batteryCase = t.batteryCase;
-        if (t.placementL != null) placementL = t.placementL;
-        if (t.placementR != null) placementR = t.placementR;
-        if (t.noiseMode != null) noiseMode = t.noiseMode;
+
+        if (t.placementL != null && !t.placementL.equals(placementL)) {
+            if (!"--".equals(placementL)) {
+                appendLog("EVENT → Bud esquerdo: " + placementL + " → " + t.placementL);
+            }
+            placementL = t.placementL;
+        }
+
+        if (t.placementR != null && !t.placementR.equals(placementR)) {
+            if (!"--".equals(placementR)) {
+                appendLog("EVENT → Bud direito: " + placementR + " → " + t.placementR);
+            }
+            placementR = t.placementR;
+        }
+
+        if (t.noiseMode != null && !t.noiseMode.equals(noiseMode)) {
+            if (!"--".equals(noiseMode)) {
+                appendLog("EVENT → Controle de ruído: " + noiseMode + " → " + t.noiseMode);
+            }
+            noiseMode = t.noiseMode;
+        }
+
         if (t.firmware != null && !t.firmware.isEmpty()) firmware = t.firmware;
+        if (t.mainConnection != null) mainConnection = t.mainConnection;
 
         renderTelemetry();
     }
@@ -455,6 +476,7 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
                         + "R: " + batteryR + "  [" + placementR + "]\n"
                         + "Estojo: " + batteryCase + "\n"
                         + "Ruído: " + noiseMode + "\n"
+                        + "Principal: " + mainConnection + "\n"
                         + "Firmware: " + firmware
         );
     }
