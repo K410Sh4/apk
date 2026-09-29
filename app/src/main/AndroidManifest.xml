@@ -11,10 +11,13 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
         android:name=".R410App"
         android:allowBackup="true"
+        android:icon="@drawable/ic_launcher_r410"
+        android:roundIcon="@drawable/ic_launcher_r410"
         android:label="R410 Control Center"
         android:supportsRtl="true"
         android:theme="@style/Theme.R410ControlCenter">
