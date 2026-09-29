@@ -617,6 +617,9 @@ fun FindMyBudsScreen(snapshot: R410Snapshot, vm: ControlCenterViewModel) {
     var pendingTarget by remember { mutableStateOf<String?>(null) }
     var activeTarget by remember { mutableStateOf<String?>(null) }
     val wearing = snapshot.placementLeft == Placement.WEARING || snapshot.placementRight == Placement.WEARING
+    val wearStateKnown = snapshot.placementLeft !in setOf(Placement.UNKNOWN, Placement.DISCONNECTED) &&
+        snapshot.placementRight !in setOf(Placement.UNKNOWN, Placement.DISCONNECTED)
+    val safeToRing = wearStateKnown && !wearing
 
     ToolPage("Find My Buds", "Experimental • audible locator command") {
         item { CapabilityBadge(snapshot.capabilities.findMyBuds) }
@@ -624,9 +627,12 @@ fun FindMyBudsScreen(snapshot: R410Snapshot, vm: ControlCenterViewModel) {
             GlassCard(Modifier.fillMaxWidth()) {
                 Text("Safety gate", fontWeight = FontWeight.Bold)
                 Text(
-                    if (wearing) "Remove both earbuds from your ears before starting the locator."
-                    else "Earbuds are not reported as being worn. A confirmation is required before sound is emitted.",
-                    color = if (wearing) Red else TextMuted
+                    when {
+                        !wearStateKnown -> "Wear-state is unknown. Locator is blocked until both earbuds report a safe state."
+                        wearing -> "Remove both earbuds from your ears before starting the locator."
+                        else -> "Earbuds are not reported as being worn. A confirmation is required before sound is emitted."
+                    },
+                    color = if (safeToRing) TextMuted else Red
                 )
             }
         }
@@ -635,17 +641,17 @@ fun FindMyBudsScreen(snapshot: R410Snapshot, vm: ControlCenterViewModel) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(
                         onClick = { pendingTarget = "LEFT" },
-                        enabled = !wearing,
+                        enabled = safeToRing,
                         modifier = Modifier.fillMaxWidth()
                     ) { Text("Find Left") }
                     Button(
                         onClick = { pendingTarget = "RIGHT" },
-                        enabled = !wearing,
+                        enabled = safeToRing,
                         modifier = Modifier.fillMaxWidth()
                     ) { Text("Find Right") }
                     Button(
                         onClick = { pendingTarget = "BOTH" },
-                        enabled = !wearing,
+                        enabled = safeToRing,
                         modifier = Modifier.fillMaxWidth()
                     ) { Text("Find Both") }
                 }
