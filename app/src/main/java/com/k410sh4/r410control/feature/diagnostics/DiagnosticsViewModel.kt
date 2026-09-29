@@ -6,6 +6,7 @@ import com.k410sh4.r410control.core.audio.AudioInspector
 import com.k410sh4.r410control.core.audio.MicrophoneAnalyzer
 import com.k410sh4.r410control.core.bluetooth.BleExplorer
 import com.k410sh4.r410control.data.protocol.R410Protocol
+import com.k410sh4.r410control.data.settings.SettingsStore
 import com.k410sh4.r410control.domain.model.*
 import com.k410sh4.r410control.domain.repository.R410Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,8 +20,16 @@ class DiagnosticsViewModel @Inject constructor(
     private val repo: R410Repository,
     private val ble: BleExplorer,
     private val audio: AudioInspector,
-    private val microphone: MicrophoneAnalyzer
+    private val microphone: MicrophoneAnalyzer,
+    private val settings: SettingsStore
 ) : ViewModel() {
+    private val _labSessionActive = MutableStateFlow(false)
+    val labSessionActive: StateFlow<Boolean> = _labSessionActive.asStateFlow()
+    private val labEnabled = settings.labMode.stateIn(
+        viewModelScope,
+        SharingStarted.Eagerly,
+        false
+    )
     val logs = repo.logs
     val classicServices = repo.classicServices
     val gattServices = ble.services
@@ -43,7 +52,18 @@ class DiagnosticsViewModel @Inject constructor(
     fun inspectGatt() = repo.preferredDevice()?.let(ble::inspect)
     fun closeGatt() = ble.close()
     fun readGatt(service: UUID, characteristic: UUID) = ble.read(service, characteristic)
-    fun writeGatt(service: UUID, characteristic: UUID, payload: ByteArray) = ble.write(service, characteristic, payload)
+    fun startLabSession() {
+        if (labEnabled.value) _labSessionActive.value = true
+    }
+
+    fun stopLabSession() {
+        _labSessionActive.value = false
+    }
+
+    fun writeGatt(service: UUID, characteristic: UUID, payload: ByteArray): Boolean {
+        if (!labEnabled.value || !_labSessionActive.value) return false
+        return ble.write(service, characteristic, payload)
+    }
     fun startMic() = microphone.start()
     fun stopMic() = microphone.stop()
 
@@ -92,6 +112,7 @@ class DiagnosticsViewModel @Inject constructor(
 
     override fun onCleared() {
         microphone.stop()
+        stopLabSession()
         ble.close()
         super.onCleared()
     }
