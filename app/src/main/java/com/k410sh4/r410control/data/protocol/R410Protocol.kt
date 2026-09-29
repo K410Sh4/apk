@@ -20,8 +20,11 @@ object R410Protocol {
         const val STATUS_UPDATED = 96
         const val EXTENDED_STATUS_UPDATED = 97
         const val VERSION_INFO_LONG = 104
+        const val SET_ANC_WITH_ONE_EARBUD = 111
         const val NOISE_CONTROLS_UPDATE = 119
         const val NOISE_CONTROLS = 120
+        const val NOISE_REDUCTION_LEVEL = 131
+        const val AMBIENT_VOLUME = 132
         const val EQUALIZER = 134
         const val MANAGER_INFO = 136
         const val LOCK_TOUCHPAD = 144
@@ -42,8 +45,11 @@ object R410Protocol {
         Id.STATUS_UPDATED -> "STATUS_UPDATED"
         Id.EXTENDED_STATUS_UPDATED -> "EXTENDED_STATUS_UPDATED"
         Id.VERSION_INFO_LONG -> "VERSION_INFO_LONG"
+        Id.SET_ANC_WITH_ONE_EARBUD -> "SET_ANC_WITH_ONE_EARBUD"
         Id.NOISE_CONTROLS_UPDATE -> "NOISE_CONTROLS_UPDATE"
         Id.NOISE_CONTROLS -> "NOISE_CONTROLS"
+        Id.NOISE_REDUCTION_LEVEL -> "NOISE_REDUCTION_LEVEL"
+        Id.AMBIENT_VOLUME -> "AMBIENT_VOLUME"
         Id.EQUALIZER -> "EQUALIZER"
         Id.MANAGER_INFO -> "MANAGER_INFO"
         Id.LOCK_TOUCHPAD -> "LOCK_TOUCHPAD"
@@ -200,6 +206,36 @@ sealed class R410Command(
             else "Controle de ruído ainda não confirmado"
     }
 
+    data class SetAncLevelHigh(val enabled: Boolean) : R410Command(
+        R410Protocol.Id.NOISE_REDUCTION_LEVEL, 2_000,
+        setOf(R410Protocol.Id.EXTENDED_STATUS_UPDATED)
+    ) {
+        override fun payload() = byteArrayOf(enabled.toByte01())
+        override fun validation(snapshot: R410Snapshot): String? =
+            if (snapshot.capabilities.ancIntensity.status == CapabilityStatus.SUPPORTED) null
+            else "Nível de ANC ainda não confirmado neste firmware"
+    }
+
+    data class SetAmbientLevel(val level: Int) : R410Command(
+        R410Protocol.Id.AMBIENT_VOLUME, 2_000,
+        setOf(R410Protocol.Id.EXTENDED_STATUS_UPDATED)
+    ) {
+        override fun payload() = byteArrayOf(level.coerceIn(0, 2).toByte())
+        override fun validation(snapshot: R410Snapshot): String? =
+            if (snapshot.capabilities.ambientLevel.status == CapabilityStatus.SUPPORTED) null
+            else "Nível de ambiente ainda não confirmado neste firmware"
+    }
+
+    data class SetAncOneEarbud(val enabled: Boolean) : R410Command(
+        R410Protocol.Id.SET_ANC_WITH_ONE_EARBUD, 2_000,
+        setOf(R410Protocol.Id.EXTENDED_STATUS_UPDATED)
+    ) {
+        override fun payload() = byteArrayOf(enabled.toByte01())
+        override fun validation(snapshot: R410Snapshot): String? =
+            if (snapshot.capabilities.ancOneEarbud.status == CapabilityStatus.SUPPORTED) null
+            else "ANC com um fone ainda não confirmado neste firmware"
+    }
+
     data class SetEqPreset(val preset: EqPreset?, val enabled: Boolean = true) : R410Command(
         R410Protocol.Id.EQUALIZER, 2_000, setOf(R410Protocol.Id.EXTENDED_STATUS_UPDATED)
     ) {
@@ -236,6 +272,12 @@ sealed class R410Command(
             ) "Retire os dois fones dos ouvidos antes do toque de localização." else null
     }
 
+    data class MuteEarbuds(val leftMuted: Boolean, val rightMuted: Boolean) : R410Command(
+        R410Protocol.Id.MUTE_EARBUD, 2_000, emptySet()
+    ) {
+        override fun payload() = byteArrayOf(leftMuted.toByte01(), rightMuted.toByte01())
+    }
+
     data object FindStop : R410Command(
         R410Protocol.Id.FIND_MY_EARBUDS_STOP, 2_000, emptySet()
     ) {
@@ -270,13 +312,20 @@ class DeviceStatusDecoder : PacketDecoder {
             R410Protocol.Id.STATUS_UPDATED -> if (p.size >= 7) {
                 DecodedProtocolEvent.SnapshotUpdate { old ->
                     val placement = p[5].toInt() and 0xFF
+                    val charging = if (p.size >= 8) p[7].toInt() and 0xFF else null
                     old.copy(
                         batteryLeft = p[1].u8OrNull(),
                         batteryRight = p[2].u8OrNull(),
                         placementLeft = Placement.from((placement shr 4) and 0x0F),
                         placementRight = Placement.from(placement and 0x0F),
                         batteryCase = p[6].u8OrNull(),
-                        mainConnection = if ((p[4].toInt() and 0xFF) == 1) "Left" else "Right"
+                        chargingLeft = charging?.let { (it and 0x10) != 0 },
+                        chargingRight = charging?.let { (it and 0x04) != 0 },
+                        chargingCase = charging?.let { (it and 0x01) != 0 },
+                        mainConnection = if ((p[4].toInt() and 0xFF) == 1) "Left" else "Right",
+                        capabilities = if (charging != null) old.capabilities.copy(
+                            chargingState = confirmed("Bits de carregamento presentes em STATUS_UPDATED")
+                        ) else old.capabilities
                     )
                 }
             } else null
@@ -289,6 +338,10 @@ class DeviceStatusDecoder : PacketDecoder {
                     val touchFlags = p[10].toInt() and 0xFF
                     val l = touchActionFromWire((touchByte shr 4) and 0x0F)
                     val r = touchActionFromWire(touchByte and 0x0F)
+                    val ambientLevel = p.getOrNull(23)?.toInt()?.and(0xFF)
+                    val ancLevelHigh = p.getOrNull(24)?.let { (it.toInt() and 0xFF) == 1 }
+                    val oneEarbud = p.getOrNull(28)?.let { (it.toInt() and 0xFF) == 1 }
+                    val charging = p.getOrNull(43)?.toInt()?.and(0xFF)
                     old.copy(
                         revision = p[0].toInt() and 0xFF,
                         batteryLeft = p[2].u8OrNull(),
@@ -301,6 +354,12 @@ class DeviceStatusDecoder : PacketDecoder {
                         touchLeft = l,
                         touchRight = r,
                         noiseMode = mode,
+                        ambientLevel = ambientLevel,
+                        ancLevelHigh = ancLevelHigh,
+                        noiseControlsOneEarbud = oneEarbud,
+                        chargingLeft = charging?.let { (it and 0x10) != 0 },
+                        chargingRight = charging?.let { (it and 0x04) != 0 },
+                        chargingCase = charging?.let { (it and 0x01) != 0 },
                         mainConnection = if ((p[5].toInt() and 0xFF) == 1) "Left" else "Right",
                         capabilities = old.capabilities.copy(
                             spp = confirmed("Samsung SPP_NEW conectado"),
@@ -311,6 +370,10 @@ class DeviceStatusDecoder : PacketDecoder {
                             batteryCase = if (p[7].u8OrNull() != null) confirmed("Bateria do case recebida") else old.capabilities.batteryCase,
                             proximity = confirmed("Estados in-ear recebidos"),
                             firmwareInfo = confirmed("Status/version protocol ativo"),
+                            chargingState = if (charging != null) confirmed("Campo de carregamento recebido do SM-R410") else old.capabilities.chargingState,
+                            ambientLevel = if (ambientLevel != null) confirmed("AmbientSoundVolume recebido do SM-R410") else old.capabilities.ambientLevel,
+                            ancIntensity = if (ancLevelHigh != null) confirmed("NoiseReductionLevel recebido do SM-R410") else old.capabilities.ancIntensity,
+                            ancOneEarbud = if (oneEarbud != null) confirmed("NoiseControlsWithOneEarbud recebido do SM-R410") else old.capabilities.ancOneEarbud,
                             eq = Capability(CapabilityStatus.SUPPORTED, EvidenceSource.PROTOCOL_DOCUMENTED, "EQ preset protocolado"),
                             touchControls = Capability(CapabilityStatus.SUPPORTED, EvidenceSource.PROTOCOL_DOCUMENTED, "Touch map/lock protocolados"),
                             findMyBuds = Capability(CapabilityStatus.EXPERIMENTAL, EvidenceSource.PROTOCOL_DOCUMENTED, "Comando existe; requer confirmação antes de tocar")
