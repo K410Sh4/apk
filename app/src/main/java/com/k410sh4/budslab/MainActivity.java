@@ -37,7 +37,7 @@ import java.util.Locale;
 import java.util.Set;
 
 public class MainActivity extends Activity implements BudsConnection.Callback {
-    private static final int REQUEST_BLUETOOTH_CONNECT = 410;
+    private static final int REQUEST_BLUETOOTH_PERMISSIONS = 410;
     private static final int MAX_LOG_CHARS = 60_000;
 
     private BluetoothAdapter bluetoothAdapter;
@@ -45,11 +45,21 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
 
     private Spinner deviceSpinner;
     private TextView statusView;
+    private TextView telemetryView;
     private TextView logView;
     private Button connectButton;
 
     private BudsConnection connection;
     private volatile boolean sppConnected;
+
+    private String batteryL = "--";
+    private String batteryR = "--";
+    private String batteryCase = "--";
+    private String placementL = "--";
+    private String placementR = "--";
+    private String noiseMode = "--";
+    private String firmware = "--";
+
     private final SimpleDateFormat clock =
             new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault());
 
@@ -69,7 +79,7 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
             return;
         }
 
-        ensureBluetoothPermission();
+        ensureBluetoothPermissions();
     }
 
     private View buildUi() {
@@ -87,8 +97,8 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
 
         TextView subtitle = new TextView(this);
         subtitle.setText(
-                "Leitor experimental do canal Samsung SPP. "
-                        + "V1 passiva: não envia reset, FOTA ou comandos de fábrica."
+                "V0.3: telemetria do Galaxy Buds Core via Samsung SPP, "
+                        + "com handshake de sessão e sem comandos destrutivos."
         );
         subtitle.setTextSize(14f);
         subtitle.setPadding(0, dp(6), 0, dp(14));
@@ -117,8 +127,15 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
         statusView = new TextView(this);
         statusView.setText("Status: inicializando...");
         statusView.setTypeface(Typeface.DEFAULT_BOLD);
-        statusView.setPadding(0, dp(10), 0, dp(10));
+        statusView.setPadding(0, dp(10), 0, dp(6));
         root.addView(statusView);
+
+        telemetryView = new TextView(this);
+        telemetryView.setTypeface(Typeface.MONOSPACE);
+        telemetryView.setTextSize(14f);
+        telemetryView.setPadding(dp(8), dp(8), dp(8), dp(8));
+        renderTelemetry();
+        root.addView(telemetryView);
 
         LinearLayout row2 = horizontalRow();
 
@@ -150,16 +167,15 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
 
         TextView hint = new TextView(this);
         hint.setText(
-                "Dica: pareie o Buds Core no Android antes. "
-                        + "Se o SPP falhar, feche temporariamente o Galaxy Wearable. "
-                        + "O áudio de teste usa volume digital baixo, mas ajuste o volume do celular confortavelmente."
+                "Se o SPP não abrir, force a parada do Galaxy Wearable antes do teste. "
+                        + "O app não envia reset, FOTA ou comandos de fábrica."
         );
         hint.setTextSize(13f);
         hint.setPadding(0, dp(8), 0, dp(8));
         root.addView(hint);
 
         TextView logTitle = new TextView(this);
-        logTitle.setText("Pacotes recebidos");
+        logTitle.setText("Log de protocolo");
         logTitle.setTypeface(Typeface.DEFAULT_BOLD);
         root.addView(logTitle);
 
@@ -196,15 +212,27 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
         return p;
     }
 
-    private void ensureBluetoothPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                && checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)
-                != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(
-                    new String[]{Manifest.permission.BLUETOOTH_CONNECT},
-                    REQUEST_BLUETOOTH_CONNECT
-            );
-            return;
+    private void ensureBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            List<String> missing = new ArrayList<>();
+
+            if (checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)
+                    != PackageManager.PERMISSION_GRANTED) {
+                missing.add(Manifest.permission.BLUETOOTH_CONNECT);
+            }
+
+            if (checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN)
+                    != PackageManager.PERMISSION_GRANTED) {
+                missing.add(Manifest.permission.BLUETOOTH_SCAN);
+            }
+
+            if (!missing.isEmpty()) {
+                requestPermissions(
+                        missing.toArray(new String[0]),
+                        REQUEST_BLUETOOTH_PERMISSIONS
+                );
+                return;
+            }
         }
 
         refreshPairedDevices();
@@ -218,25 +246,32 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode == REQUEST_BLUETOOTH_CONNECT) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == REQUEST_BLUETOOTH_PERMISSIONS) {
+            boolean granted = true;
+            for (int result : grantResults) {
+                granted &= result == PackageManager.PERMISSION_GRANTED;
+            }
+
+            if (granted) {
                 refreshPairedDevices();
             } else {
-                setStatus("Permissão 'Dispositivos próximos' é necessária.");
+                setStatus("Permissões de Bluetooth/Dispositivos próximos são necessárias.");
             }
         }
     }
 
-    private boolean hasBluetoothPermission() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.S
-                || checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    private boolean hasBluetoothPermissions() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true;
+
+        return checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)
+                == PackageManager.PERMISSION_GRANTED
+                && checkSelfPermission(Manifest.permission.BLUETOOTH_SCAN)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
     private void refreshPairedDevices() {
-        if (!hasBluetoothPermission()) {
-            ensureBluetoothPermission();
+        if (!hasBluetoothPermissions()) {
+            ensureBluetoothPermissions();
             return;
         }
 
@@ -266,7 +301,7 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
 
             List<String> labels = new ArrayList<>();
             for (BluetoothDevice device : pairedDevices) {
-                labels.add(safeName(device) + "  •  " + device.getAddress());
+                labels.add(safeName(device));
             }
 
             if (labels.isEmpty()) {
@@ -312,8 +347,8 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
             return;
         }
 
-        if (!hasBluetoothPermission()) {
-            ensureBluetoothPermission();
+        if (!hasBluetoothPermissions()) {
+            ensureBluetoothPermissions();
             return;
         }
 
@@ -331,8 +366,7 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
 
         appendLog(
                 "CONNECT → " + safeName(selected)
-                        + " [" + selected.getAddress() + "]\n"
-                        + "UUID → " + BudsProtocol.SPP_NEW_UUID
+                        + "\nUUID → " + BudsProtocol.SPP_NEW_UUID
         );
 
         connection = new BudsConnection(bluetoothAdapter, selected, this);
@@ -355,7 +389,14 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
     public void onStatus(String text) {
         runOnUiThread(() -> {
             String lower = text.toLowerCase(Locale.ROOT);
-            sppConnected = lower.startsWith("spp conectado");
+
+            if (lower.startsWith("spp conectado")) {
+                sppConnected = true;
+            } else if (lower.startsWith("sessão spp encerrada")
+                    || lower.startsWith("falha")
+                    || lower.startsWith("desconectado")) {
+                sppConnected = false;
+            }
 
             setStatus(text);
             connectButton.setEnabled(true);
@@ -371,17 +412,51 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
 
     @Override
     public void onPacket(BudsProtocol.Frame frame) {
-        runOnUiThread(() -> appendLog(
-                "FRAME → " + frame.summary()
-                        + "\nRAW → " + BudsProtocol.hex(frame.raw)
-        ));
+        runOnUiThread(() -> {
+            applyTelemetry(frame);
+
+            String text = "FRAME → " + frame.summary();
+
+            if (frame.id != 205) {
+                text += "\nRAW → " + BudsProtocol.hex(frame.raw);
+            } else {
+                text += "\nRAW → [ocultado: identificador do dispositivo]";
+            }
+
+            appendLog(text);
+        });
     }
 
     @Override
     public void onRawChunk(byte[] bytes) {
-        runOnUiThread(() -> appendLog(
-                "RX " + bytes.length + " B → " + BudsProtocol.hex(bytes)
-        ));
+        runOnUiThread(() -> appendLog("RX → " + bytes.length + " byte(s)"));
+    }
+
+    private void applyTelemetry(BudsProtocol.Frame frame) {
+        BudsProtocol.Telemetry t = BudsProtocol.parseTelemetry(frame);
+        if (t == null) return;
+
+        if (t.batteryL >= 0) batteryL = t.batteryL + "%";
+        if (t.batteryR >= 0) batteryR = t.batteryR + "%";
+        if (t.batteryCase != null) batteryCase = t.batteryCase;
+        if (t.placementL != null) placementL = t.placementL;
+        if (t.placementR != null) placementR = t.placementR;
+        if (t.noiseMode != null) noiseMode = t.noiseMode;
+        if (t.firmware != null && !t.firmware.isEmpty()) firmware = t.firmware;
+
+        renderTelemetry();
+    }
+
+    private void renderTelemetry() {
+        if (telemetryView == null) return;
+
+        telemetryView.setText(
+                "L: " + batteryL + "  [" + placementL + "]\n"
+                        + "R: " + batteryR + "  [" + placementR + "]\n"
+                        + "Estojo: " + batteryCase + "\n"
+                        + "Ruído: " + noiseMode + "\n"
+                        + "Firmware: " + firmware
+        );
     }
 
     private void playTone(double frequency) {
