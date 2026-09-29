@@ -335,7 +335,7 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
                         + "UUID → " + BudsProtocol.SPP_NEW_UUID
         );
 
-        connection = new BudsConnection(selected, this);
+        connection = new BudsConnection(bluetoothAdapter, selected, this);
         connectButton.setEnabled(false);
         connection.connect();
     }
@@ -362,6 +362,11 @@ public class MainActivity extends Activity implements BudsConnection.Callback {
             connectButton.setText(sppConnected ? "Desconectar" : "Conectar SPP");
             appendLog(text);
         });
+    }
+
+    @Override
+    public void onDiagnostic(String text) {
+        runOnUiThread(() -> appendLog("DIAG → " + text));
     }
 
     @Override
