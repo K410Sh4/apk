@@ -51,6 +51,17 @@ class R410ProtocolTest {
     }
 
     @Test
+    fun unknownNoiseModeRemainsUnknown() {
+        assertEquals(NoiseMode.UNKNOWN, NoiseMode.from(99))
+    }
+
+    @Test
+    fun locatorRejectsUnknownWearState() {
+        val result = R410Command.FindStart.validation(R410Snapshot())
+        assertNotNull(result)
+    }
+
+    @Test
     fun advancedCommandsEncodeExpectedPayloads() {
         val ambient = R410Command.SetAmbientLevel(2).encode()
         assertEquals(R410Protocol.Id.AMBIENT_VOLUME, ambient[3].toInt() and 0xFF)
