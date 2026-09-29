@@ -11,7 +11,6 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -34,12 +33,15 @@ jobs:
           gradle-version: "9.6.0"
           cache-provider: basic
 
+      - name: Unit tests
+        run: gradle --no-daemon :app:testDebugUnitTest
+
       - name: Build debug APK
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: BudsLab-debug-apk
+          name: R410-Control-Center-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
