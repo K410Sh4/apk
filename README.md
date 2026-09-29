@@ -191,7 +191,7 @@ Requirements:
 
 - JDK 17
 - Gradle 9.6
-- Android SDK platform 37
+- Android SDK platform 36
 - Android build-tools 36.0.0
 
 From the repository:
