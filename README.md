@@ -35,6 +35,10 @@ Confirmed with a physical SM-R410:
 - SKU information
 - ANC state
 - Ambient state
+- ambient level field
+- ANC sensitivity field
+- noise control with one earbud field
+- left/right/case charging-state bits
 - live status changes
 - Samsung status / usage / metering frames
 
@@ -84,11 +88,12 @@ Shows the real device snapshot:
 - capability-aware feature cards
 
 ### Noise Control
-Uses the documented SM-R410-compatible `NOISE_CONTROLS` message for:
+Uses documented SM-R410-compatible messages for:
 
-- ANC
-- Off
-- Ambient
+- ANC / Off / Ambient
+- Ambient level (0–2 on the Buds Core profile)
+- ANC high sensitivity
+- Noise control with one earbud
 
 The app waits for device state feedback rather than pretending a request succeeded.
 
@@ -115,7 +120,7 @@ Exposes only the mappings currently backed by the StandardTouchMap:
 Arbitrary remapping of single/double/triple tap is not claimed.
 
 ### Battery Intelligence
-Stores battery samples in Room and calculates local discharge/runtime estimates. Estimates are clearly labeled as app-calculated estimates.
+Stores battery samples in Room, exposes decoded charging-state bits, and calculates local discharge/runtime estimates. Estimates are clearly labeled as app-calculated estimates.
 
 ### Audio Engine
 Inspects Android audio routes and A2DP/HFP state. Codec or latency fields stay unknown if the public Android path does not expose a reliable value.
@@ -143,6 +148,9 @@ Structured logs and protocol monitor:
 - UINT8
 - JSON export
 - TXT export
+
+### Find My Buds
+Supports **Left**, **Right**, and **Both** using the documented locator plus per-side mute command. The UI refuses to start the locator when an earbud is reported as being worn and always requires confirmation.
 
 ### Lab Mode
 Disabled by default.
