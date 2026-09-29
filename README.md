@@ -20,7 +20,7 @@ The original Java proof-of-concept successfully connected to a real SM-R410 and 
 - Android audio / HFP microphone diagnostics
 
 Target runtime: **Android 16 / API 36**  
-Compile SDK: **API 37** because current stable AndroidX/Compose libraries require it.
+Compile SDK: **API 36**. The project pins the latest stable Compose/AndroidX line compatible with the stable Android 16 SDK rather than requiring Android 17 preview SDKs.
 
 ## Real SM-R410 protocol observations
 
