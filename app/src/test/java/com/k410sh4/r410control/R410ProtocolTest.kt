@@ -36,8 +36,34 @@ class R410ProtocolTest {
         assertEquals(100, snapshot.batteryLeft)
         assertEquals(100, snapshot.batteryRight)
         assertEquals(NoiseMode.ANC, snapshot.noiseMode)
+        assertEquals(0, snapshot.ambientLevel)
+        assertEquals(false, snapshot.ancLevelHigh)
+        assertEquals(true, snapshot.noiseControlsOneEarbud)
+        assertEquals(false, snapshot.chargingLeft)
+        assertEquals(false, snapshot.chargingRight)
+        assertEquals(false, snapshot.chargingCase)
         assertEquals(CapabilityStatus.SUPPORTED, snapshot.capabilities.anc.status)
         assertEquals(CapabilityStatus.SUPPORTED, snapshot.capabilities.proximity.status)
+        assertEquals(CapabilityStatus.SUPPORTED, snapshot.capabilities.ambientLevel.status)
+        assertEquals(CapabilityStatus.SUPPORTED, snapshot.capabilities.ancIntensity.status)
+        assertEquals(CapabilityStatus.SUPPORTED, snapshot.capabilities.ancOneEarbud.status)
+        assertEquals(CapabilityStatus.SUPPORTED, snapshot.capabilities.chargingState.status)
+    }
+
+    @Test
+    fun advancedCommandsEncodeExpectedPayloads() {
+        val ambient = R410Command.SetAmbientLevel(2).encode()
+        assertEquals(R410Protocol.Id.AMBIENT_VOLUME, ambient[3].toInt() and 0xFF)
+        assertEquals(2, ambient[4].toInt() and 0xFF)
+
+        val anc = R410Command.SetAncLevelHigh(true).encode()
+        assertEquals(R410Protocol.Id.NOISE_REDUCTION_LEVEL, anc[3].toInt() and 0xFF)
+        assertEquals(1, anc[4].toInt() and 0xFF)
+
+        val mute = R410Command.MuteEarbuds(leftMuted = false, rightMuted = true).encode()
+        assertEquals(R410Protocol.Id.MUTE_EARBUD, mute[3].toInt() and 0xFF)
+        assertEquals(0, mute[4].toInt() and 0xFF)
+        assertEquals(1, mute[5].toInt() and 0xFF)
     }
 
     @Test
