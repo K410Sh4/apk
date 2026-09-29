@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.k410sh4.r410control"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.k410sh4.r410control"
