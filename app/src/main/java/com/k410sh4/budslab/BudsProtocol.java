@@ -50,6 +50,7 @@ public final class BudsProtocol {
         MESSAGE_NAMES.put(135, "GAME_MODE");
         MESSAGE_NAMES.put(136, "MANAGER_INFO");
         MESSAGE_NAMES.put(145, "TOUCH_UPDATED");
+        MESSAGE_NAMES.put(147, "SET_TOUCHPAD_OTHER_OPTION");
         MESSAGE_NAMES.put(158, "CHECK_FIT_RESULT");
         MESSAGE_NAMES.put(163, "MUTE_STATUS_UPDATED");
         MESSAGE_NAMES.put(202, "OVERHEAT");
@@ -139,7 +140,8 @@ public final class BudsProtocol {
                     placementName((p[5] >> 4) & 0x0F),
                     placementName(p[5] & 0x0F),
                     null,
-                    null
+                    null,
+                    mainConnectionName(p[4] & 0xFF)
             );
         }
 
@@ -152,13 +154,23 @@ public final class BudsProtocol {
                     placementName((p[6] >> 4) & 0x0F),
                     placementName(p[6] & 0x0F),
                     noiseModeName(p[12] & 0xFF),
+                    null,
+                    mainConnectionName(p[5] & 0xFF)
+            );
+        }
+
+        if (frame.id == 119 && frame.payload.length >= 1) {
+            return new Telemetry(
+                    -1, -1, null, null, null,
+                    noiseModeName(frame.payload[0] & 0xFF),
+                    null,
                     null
             );
         }
 
         if (frame.id == ID_VERSION_INFO_LONG && frame.payload.length >= 3) {
             String firmware = parseFirmware(frame.payload);
-            return new Telemetry(-1, -1, null, null, null, null, firmware);
+            return new Telemetry(-1, -1, null, null, null, null, firmware, null);
         }
 
         return null;
@@ -182,6 +194,17 @@ public final class BudsProtocol {
                 return "estojo fechado";
             default:
                 return "estado " + value;
+        }
+    }
+
+    private static String mainConnectionName(int value) {
+        switch (value) {
+            case 0:
+                return "direito";
+            case 1:
+                return "esquerdo";
+            default:
+                return "lado " + value;
         }
     }
 
@@ -235,6 +258,7 @@ public final class BudsProtocol {
         public final String placementR;
         public final String noiseMode;
         public final String firmware;
+        public final String mainConnection;
 
         Telemetry(
                 int batteryL,
@@ -243,7 +267,8 @@ public final class BudsProtocol {
                 String placementL,
                 String placementR,
                 String noiseMode,
-                String firmware
+                String firmware,
+                String mainConnection
         ) {
             this.batteryL = batteryL;
             this.batteryR = batteryR;
@@ -252,6 +277,7 @@ public final class BudsProtocol {
             this.placementR = placementR;
             this.noiseMode = noiseMode;
             this.firmware = firmware;
+            this.mainConnection = mainConnection;
         }
     }
 
