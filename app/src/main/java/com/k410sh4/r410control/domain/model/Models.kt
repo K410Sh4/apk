@@ -63,10 +63,10 @@ enum class Placement(val code: Int) {
 }
 
 enum class NoiseMode(val wire: Int) {
-    OFF(0), ANC(1), AMBIENT(2), ADAPTIVE(3);
+    OFF(0), ANC(1), AMBIENT(2), ADAPTIVE(3), UNKNOWN(-1);
 
     companion object {
-        fun from(code: Int) = entries.firstOrNull { it.wire == code } ?: OFF
+        fun from(code: Int) = entries.firstOrNull { it.wire == code } ?: UNKNOWN
     }
 }
 
