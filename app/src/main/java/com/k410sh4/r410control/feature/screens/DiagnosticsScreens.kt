@@ -10,6 +10,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
@@ -59,14 +60,19 @@ fun DiagnosticsScreen(snapshot: R410Snapshot, vm: DiagnosticsViewModel) {
     ) {
         item { SectionTitle("Bluetooth Diagnostics", "Protocol, Android state and structured logs") }
         item {
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                listOf("Protocol", "Logs").forEachIndexed { index, label ->
-                    SegmentedButton(
-                        selected = tab == index,
-                        onClick = { tab = index },
-                        shape = SegmentedButtonDefaults.itemShape(index, 2)
-                    ) { Text(label) }
-                }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(
+                    selected = tab == 0,
+                    onClick = { tab = 0 },
+                    label = { Text("Protocol") },
+                    modifier = Modifier.weight(1f)
+                )
+                FilterChip(
+                    selected = tab == 1,
+                    onClick = { tab = 1 },
+                    label = { Text("Logs") },
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
 
