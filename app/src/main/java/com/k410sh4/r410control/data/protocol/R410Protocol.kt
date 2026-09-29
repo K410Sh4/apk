@@ -83,7 +83,8 @@ object R410Protocol {
             while (cursor < bytes.size) {
                 val start = (cursor until bytes.size).firstOrNull {
                     bytes[it].toInt() and 0xFF == SOM
-                } ?: run {
+                }
+                if (start == null) {
                     consumed = bytes.size
                     break
                 }
