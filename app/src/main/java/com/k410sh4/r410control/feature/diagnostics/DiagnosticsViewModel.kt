@@ -73,6 +73,12 @@ class DiagnosticsViewModel @Inject constructor(
         }
     }
 
+    fun exportPacketsTxt(): String = _packets.value.reversed().joinToString("\n\n") { p ->
+        val payload = R410Protocol.hex(p.payload)
+        p.timestamp.toString() + "\n" + p.direction + "\n" + p.transport + "\n" +
+            p.channel + "\nHEX: " + payload
+    }
+
     fun exportPacketsJson(): String = buildString {
         append("[\n")
         append(_packets.value.reversed().joinToString(",\n") { p ->
