@@ -134,7 +134,7 @@ public final class BudsConnection {
     private void sessionLoop(InputStream input, OutputStream output) throws IOException {
         byte[] chunk = new byte[1024];
         BudsProtocol.StreamDecoder decoder = new BudsProtocol.StreamDecoder();
-        boolean managerInfoSent = false;
+        boolean bootstrapSent = false;
 
         while (running && !disconnectRequested) {
             int count = input.read(chunk);
@@ -152,14 +152,19 @@ public final class BudsConnection {
             for (BudsProtocol.Frame frame : frames) {
                 callback.onPacket(frame);
 
-                if (!managerInfoSent
+                if (!bootstrapSent
                         && frame.id == BudsProtocol.ID_EXTENDED_STATUS_UPDATED) {
                     byte[] managerInfo = BudsProtocol.managerInfoRequest();
                     output.write(managerInfo);
                     output.flush();
-                    managerInfoSent = true;
+
+                    byte[] debugSku = BudsProtocol.debugSkuRequest();
+                    output.write(debugSku);
+                    output.flush();
+
+                    bootstrapSent = true;
                     callback.onDiagnostic(
-                            "TX MANAGER_INFO enviado para manter a sessão ativa."
+                            "TX bootstrap enviado: MANAGER_INFO [Samsung/SDK34] + DEBUG_SKU."
                     );
                 }
             }
