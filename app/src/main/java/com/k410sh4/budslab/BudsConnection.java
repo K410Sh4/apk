@@ -7,6 +7,7 @@ import android.os.ParcelUuid;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Locale;
 
@@ -23,6 +24,7 @@ public final class BudsConnection {
     private final Callback callback;
 
     private volatile boolean running;
+    private volatile boolean disconnectRequested;
     private volatile BluetoothSocket socket;
     private Thread worker;
 
@@ -42,6 +44,7 @@ public final class BudsConnection {
             return;
         }
 
+        disconnectRequested = false;
         worker = new Thread(this::runConnection, "BudsLab-RFCOMM");
         worker.start();
     }
@@ -51,15 +54,7 @@ public final class BudsConnection {
 
         try {
             dumpCachedUuids();
-
-            try {
-                if (adapter != null && adapter.isDiscovering()) {
-                    callback.onDiagnostic("Bluetooth discovery estava ativo; cancelando antes do RFCOMM.");
-                    adapter.cancelDiscovery();
-                }
-            } catch (SecurityException e) {
-                callback.onDiagnostic("Não foi possível cancelar discovery: " + safeMessage(e));
-            }
+            cancelDiscoveryIfPossible();
 
             IOException secureFailure = null;
 
@@ -70,39 +65,33 @@ public final class BudsConnection {
             try {
                 BluetoothSocket secure =
                         device.createRfcommSocketToServiceRecord(BudsProtocol.SPP_NEW_UUID);
-                connectSocket(secure, "secure");
+                openAndRun(secure, "secure");
                 return;
             } catch (IOException e) {
                 secureFailure = e;
-                callback.onDiagnostic(
-                        "RFCOMM seguro falhou: " + safeMessage(e)
-                );
                 closeSocket();
+                callback.onDiagnostic("RFCOMM seguro falhou antes da sessão: " + safeMessage(e));
             }
 
-            if (!running) {
-                callback.onDiagnostic(
-                        "Tentativa 2/2: RFCOMM inseguro → " + BudsProtocol.SPP_NEW_UUID
+            if (disconnectRequested) return;
+
+            callback.onDiagnostic(
+                    "Tentativa 2/2: RFCOMM inseguro → " + BudsProtocol.SPP_NEW_UUID
+            );
+
+            try {
+                BluetoothSocket insecure =
+                        device.createInsecureRfcommSocketToServiceRecord(
+                                BudsProtocol.SPP_NEW_UUID
+                        );
+                openAndRun(insecure, "insecure");
+            } catch (IOException e) {
+                closeSocket();
+                callback.onStatus(
+                        "Falha ao abrir o SPP. "
+                                + "Secure: " + safeMessage(secureFailure)
+                                + " | Insecure: " + safeMessage(e)
                 );
-
-                try {
-                    BluetoothSocket insecure =
-                            device.createInsecureRfcommSocketToServiceRecord(
-                                    BudsProtocol.SPP_NEW_UUID
-                            );
-                    connectSocket(insecure, "insecure");
-                    return;
-                } catch (IOException e) {
-                    closeSocket();
-
-                    callback.onStatus(
-                            "Falha nas duas rotas RFCOMM. "
-                                    + "Secure: " + safeMessage(secureFailure)
-                                    + " | Insecure: " + safeMessage(e)
-                                    + ". Force a parada do Galaxy Wearable/gerenciador do Buds "
-                                    + "e tente novamente com os dois fones fora do estojo."
-                    );
-                }
             }
 
         } catch (SecurityException e) {
@@ -113,12 +102,9 @@ public final class BudsConnection {
         }
     }
 
-    private void connectSocket(BluetoothSocket candidate, String mode) throws IOException {
+    private void openAndRun(BluetoothSocket candidate, String mode) throws IOException {
         socket = candidate;
-
-        callback.onStatus(
-                "Abrindo RFCOMM Samsung (" + mode + ")..."
-        );
+        callback.onStatus("Abrindo RFCOMM Samsung (" + mode + ")...");
 
         candidate.connect();
 
@@ -128,9 +114,72 @@ public final class BudsConnection {
         );
 
         try {
-            readLoop(candidate.getInputStream());
+            sessionLoop(candidate.getInputStream(), candidate.getOutputStream());
+            if (!disconnectRequested) {
+                callback.onStatus(
+                        "Sessão SPP encerrada pelo dispositivo. A conexão chegou a funcionar."
+                );
+            }
+        } catch (IOException e) {
+            if (!disconnectRequested) {
+                callback.onStatus(
+                        "Sessão SPP encerrada após conectar: " + safeMessage(e)
+                );
+            }
         } finally {
             running = false;
+        }
+    }
+
+    private void sessionLoop(InputStream input, OutputStream output) throws IOException {
+        byte[] chunk = new byte[1024];
+        BudsProtocol.StreamDecoder decoder = new BudsProtocol.StreamDecoder();
+        boolean managerInfoSent = false;
+
+        while (running && !disconnectRequested) {
+            int count = input.read(chunk);
+            if (count < 0) {
+                callback.onDiagnostic("InputStream retornou EOF.");
+                break;
+            }
+            if (count == 0) continue;
+
+            byte[] exact = new byte[count];
+            System.arraycopy(chunk, 0, exact, 0, count);
+            callback.onRawChunk(exact);
+
+            List<BudsProtocol.Frame> frames = decoder.feed(exact, exact.length);
+            for (BudsProtocol.Frame frame : frames) {
+                callback.onPacket(frame);
+
+                if (!managerInfoSent
+                        && frame.id == BudsProtocol.ID_EXTENDED_STATUS_UPDATED) {
+                    byte[] managerInfo = BudsProtocol.managerInfoRequest();
+                    output.write(managerInfo);
+                    output.flush();
+                    managerInfoSent = true;
+                    callback.onDiagnostic(
+                            "TX MANAGER_INFO enviado para manter a sessão ativa."
+                    );
+                }
+            }
+        }
+    }
+
+    private void cancelDiscoveryIfPossible() {
+        if (adapter == null) return;
+
+        try {
+            if (adapter.isDiscovering()) {
+                callback.onDiagnostic(
+                        "Bluetooth discovery estava ativo; cancelando antes do RFCOMM."
+                );
+                adapter.cancelDiscovery();
+            }
+        } catch (SecurityException e) {
+            callback.onDiagnostic(
+                    "Sem permissão para consultar/cancelar discovery: " + safeMessage(e)
+            );
         }
     }
 
@@ -154,8 +203,7 @@ public final class BudsConnection {
                 String value = uuid.getUuid().toString().toLowerCase(Locale.ROOT);
                 text.append("\n• ").append(value);
 
-                if (BudsProtocol.SPP_NEW_UUID.toString()
-                        .equalsIgnoreCase(value)) {
+                if (BudsProtocol.SPP_NEW_UUID.toString().equalsIgnoreCase(value)) {
                     expected = true;
                 }
             }
@@ -175,31 +223,9 @@ public final class BudsConnection {
         }
     }
 
-    private void readLoop(InputStream input) throws IOException {
-        byte[] chunk = new byte[1024];
-        BudsProtocol.StreamDecoder decoder = new BudsProtocol.StreamDecoder();
-
-        while (running) {
-            int count = input.read(chunk);
-            if (count < 0) {
-                callback.onDiagnostic("InputStream retornou EOF.");
-                break;
-            }
-            if (count == 0) continue;
-
-            byte[] exact = new byte[count];
-            System.arraycopy(chunk, 0, exact, 0, count);
-            callback.onRawChunk(exact);
-
-            List<BudsProtocol.Frame> frames = decoder.feed(exact, exact.length);
-            for (BudsProtocol.Frame frame : frames) {
-                callback.onPacket(frame);
-            }
-        }
-    }
-
     public synchronized void disconnect() {
         boolean wasRunning = running;
+        disconnectRequested = true;
         running = false;
         closeSocket();
 
