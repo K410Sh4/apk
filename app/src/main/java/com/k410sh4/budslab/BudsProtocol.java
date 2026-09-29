@@ -23,6 +23,7 @@ public final class BudsProtocol {
     public static final int ID_EXTENDED_STATUS_UPDATED = 97;
     public static final int ID_VERSION_INFO_LONG = 104;
     public static final int ID_MANAGER_INFO = 136;
+    public static final int ID_DEBUG_SKU = 34;
 
     private static final Map<Integer, String> MESSAGE_NAMES = new HashMap<>();
 
@@ -77,10 +78,13 @@ public final class BudsProtocol {
     }
 
     public static byte[] managerInfoRequest() {
-        int sdk = Math.max(1, Math.min(255, Build.VERSION.SDK_INT));
-        // [protocol revision, client type, Android SDK]
-        // Client type 2 = Other/third-party.
-        return encodeRequest(ID_MANAGER_INFO, new byte[]{1, 2, (byte) sdk});
+        // Match GalaxyBudsClient's ManagerInfoEncoder exactly:
+        // [protocol revision=1, client type=Samsung(1), Android SDK=34]
+        return encodeRequest(ID_MANAGER_INFO, new byte[]{1, 1, 34});
+    }
+
+    public static byte[] debugSkuRequest() {
+        return encodeRequest(ID_DEBUG_SKU, new byte[0]);
     }
 
     public static byte[] encodeRequest(int id, byte[] payload) {
