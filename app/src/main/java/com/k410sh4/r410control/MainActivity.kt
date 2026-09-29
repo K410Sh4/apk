@@ -7,7 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.k410sh4.r410control.feature.control.ControlCenterViewModel
 import com.k410sh4.r410control.feature.diagnostics.DiagnosticsViewModel
 import com.k410sh4.r410control.feature.settings.SettingsViewModel
