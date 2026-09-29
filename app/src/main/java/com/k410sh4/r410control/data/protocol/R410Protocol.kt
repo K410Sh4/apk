@@ -266,10 +266,15 @@ sealed class R410Command(
         R410Protocol.Id.FIND_MY_EARBUDS_START, 2_000, emptySet()
     ) {
         override fun payload() = byteArrayOf()
-        override fun validation(snapshot: R410Snapshot): String? =
+        override fun validation(snapshot: R410Snapshot): String? {
+            val unknown = snapshot.placementLeft in setOf(Placement.UNKNOWN, Placement.DISCONNECTED) ||
+                snapshot.placementRight in setOf(Placement.UNKNOWN, Placement.DISCONNECTED)
+            if (unknown) return "Estado de uso desconhecido; o localizador foi bloqueado por segurança."
             if (snapshot.placementLeft == Placement.WEARING ||
                 snapshot.placementRight == Placement.WEARING
-            ) "Retire os dois fones dos ouvidos antes do toque de localização." else null
+            ) return "Retire os dois fones dos ouvidos antes do toque de localização."
+            return null
+        }
     }
 
     data class MuteEarbuds(val leftMuted: Boolean, val rightMuted: Boolean) : R410Command(
