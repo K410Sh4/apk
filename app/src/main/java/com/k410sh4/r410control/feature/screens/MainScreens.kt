@@ -225,10 +225,18 @@ private fun FeatureRow(
 @Composable
 fun NoiseControlScreen(snapshot: R410Snapshot, vm: ControlCenterViewModel) {
     var applying by remember { mutableStateOf<NoiseMode?>(null) }
+    var ambientLevel by remember(snapshot.ambientLevel) {
+        mutableFloatStateOf((snapshot.ambientLevel ?: 0).coerceIn(0, 2).toFloat())
+    }
+
     LaunchedEffect(snapshot.noiseMode) {
         if (applying == snapshot.noiseMode) applying = null
     }
+
     val supported = snapshot.capabilities.anc.status == CapabilityStatus.SUPPORTED
+    val ambientLevelSupported = snapshot.capabilities.ambientLevel.status == CapabilityStatus.SUPPORTED
+    val ancLevelSupported = snapshot.capabilities.ancIntensity.status == CapabilityStatus.SUPPORTED
+    val oneEarbudSupported = snapshot.capabilities.ancOneEarbud.status == CapabilityStatus.SUPPORTED
 
     ToolPage("Noise Control", "Device-side control over Samsung SPP") {
         item {
@@ -259,13 +267,65 @@ fun NoiseControlScreen(snapshot: R410Snapshot, vm: ControlCenterViewModel) {
         }
         item {
             GlassCard(Modifier.fillMaxWidth()) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Column {
+                        Text("Ambient Level", fontWeight = FontWeight.Bold)
+                        Text(
+                            if (ambientLevelSupported) "SM-R410 range: 0–2" else "Not exposed by current firmware",
+                            color = TextMuted,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    CapabilityBadge(snapshot.capabilities.ambientLevel, compact = true)
+                }
+                if (ambientLevelSupported) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(ambientLevel.toInt().toString(), style = MaterialTheme.typography.headlineSmall)
+                    Slider(
+                        value = ambientLevel,
+                        onValueChange = { ambientLevel = it },
+                        onValueChangeFinished = { vm.setAmbientLevel(ambientLevel.toInt()) },
+                        valueRange = 0f..2f,
+                        steps = 1
+                    )
+                }
+            }
+        }
+        item {
+            GlassCard(Modifier.fillMaxWidth()) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("ANC high sensitivity", fontWeight = FontWeight.Bold)
+                        Text("NoiseReductionLevel from the device protocol", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                    }
+                    if (ancLevelSupported) {
+                        Switch(
+                            checked = snapshot.ancLevelHigh == true,
+                            onCheckedChange = vm::setAncLevelHigh
+                        )
+                    } else CapabilityBadge(snapshot.capabilities.ancIntensity, compact = true)
+                }
+                HorizontalDivider(Modifier.padding(vertical = 10.dp), color = Color.White.copy(alpha = .07f))
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Noise control with one earbud", fontWeight = FontWeight.Bold)
+                        Text("Firmware-reported capability", color = TextMuted, style = MaterialTheme.typography.bodySmall)
+                    }
+                    if (oneEarbudSupported) {
+                        Switch(
+                            checked = snapshot.noiseControlsOneEarbud == true,
+                            onCheckedChange = vm::setAncOneEarbud
+                        )
+                    } else CapabilityBadge(snapshot.capabilities.ancOneEarbud, compact = true)
+                }
+            }
+        }
+        item {
+            GlassCard(Modifier.fillMaxWidth()) {
                 ValueRow("Current", snapshot.noiseMode?.name ?: "UNKNOWN")
-                ValueRow("Ambient level", "Not hardware-confirmed")
-                Text(
-                    "Ambient intensity is intentionally not exposed until its exact SM-R410 behavior is validated.",
-                    color = TextMuted,
-                    style = MaterialTheme.typography.bodySmall
-                )
+                ValueRow("Ambient level", snapshot.ambientLevel?.toString() ?: "UNKNOWN")
+                ValueRow("ANC sensitivity", snapshot.ancLevelHigh?.let { if (it) "HIGH" else "NORMAL" } ?: "UNKNOWN")
+                ValueRow("One-earbud control", snapshot.noiseControlsOneEarbud?.let { if (it) "ALLOWED" else "DISABLED" } ?: "UNKNOWN")
             }
         }
     }
@@ -499,7 +559,9 @@ fun SensorScreen(snapshot: R410Snapshot, state: R410ConnectionState) {
                 ValueRow("RIGHT", placementLabel(snapshot.placementRight), Icons.Rounded.Headphones)
                 ValueRow("Connection", state.name, Icons.Rounded.Bluetooth)
                 ValueRow("Case / Hall", if (snapshot.placementLeft == Placement.CASE || snapshot.placementRight == Placement.CASE) "Case placement observed" else "UNKNOWN")
-                ValueRow("Charging", "UNKNOWN — not yet decoded")
+                ValueRow("Left charging", snapshot.chargingLeft?.let { if (it) "YES" else "NO" } ?: "UNKNOWN")
+                ValueRow("Right charging", snapshot.chargingRight?.let { if (it) "YES" else "NO" } ?: "UNKNOWN")
+                ValueRow("Case charging", snapshot.chargingCase?.let { if (it) "YES" else "NO" } ?: "UNKNOWN")
             }
         }
         item {
@@ -552,8 +614,8 @@ fun DeviceInfoScreen(snapshot: R410Snapshot, vm: DiagnosticsViewModel) {
 
 @Composable
 fun FindMyBudsScreen(snapshot: R410Snapshot, vm: ControlCenterViewModel) {
-    var confirm by remember { mutableStateOf(false) }
-    var active by remember { mutableStateOf(false) }
+    var pendingTarget by remember { mutableStateOf<String?>(null) }
+    var activeTarget by remember { mutableStateOf<String?>(null) }
     val wearing = snapshot.placementLeft == Placement.WEARING || snapshot.placementRight == Placement.WEARING
 
     ToolPage("Find My Buds", "Experimental • audible locator command") {
@@ -563,40 +625,61 @@ fun FindMyBudsScreen(snapshot: R410Snapshot, vm: ControlCenterViewModel) {
                 Text("Safety gate", fontWeight = FontWeight.Bold)
                 Text(
                     if (wearing) "Remove both earbuds from your ears before starting the locator."
-                    else "Earbuds are not reported as being worn. You can request the locator after confirmation.",
+                    else "Earbuds are not reported as being worn. A confirmation is required before sound is emitted.",
                     color = if (wearing) Red else TextMuted
                 )
             }
         }
         item {
-            if (!active) {
-                Button(
-                    onClick = { confirm = true },
-                    enabled = !wearing,
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("Find Both") }
+            if (activeTarget == null) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { pendingTarget = "LEFT" },
+                        enabled = !wearing,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Find Left") }
+                    Button(
+                        onClick = { pendingTarget = "RIGHT" },
+                        enabled = !wearing,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Find Right") }
+                    Button(
+                        onClick = { pendingTarget = "BOTH" },
+                        enabled = !wearing,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("Find Both") }
+                }
             } else {
-                Button(
-                    onClick = { vm.findStop(); active = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = Red),
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("STOP") }
+                GlassCard(Modifier.fillMaxWidth()) {
+                    Text("Locator active: " + activeTarget, color = Amber, fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(10.dp))
+                    Button(
+                        onClick = { vm.findStop(); activeTarget = null },
+                        colors = ButtonDefaults.buttonColors(containerColor = Red),
+                        modifier = Modifier.fillMaxWidth()
+                    ) { Text("STOP") }
+                }
             }
         }
     }
-    if (confirm) {
+
+    pendingTarget?.let { target ->
         AlertDialog(
-            onDismissRequest = { confirm = false },
-            title = { Text("Emit locator sound?") },
-            text = { Text("The Buds may emit an audible locator tone. Confirm they are not being worn.") },
+            onDismissRequest = { pendingTarget = null },
+            title = { Text("Emit locator sound on $target?") },
+            text = { Text("The selected Buds may emit an audible locator tone. Confirm no selected earbud is being worn.") },
             confirmButton = {
                 TextButton(onClick = {
-                    confirm = false
-                    vm.findStart()
-                    active = true
+                    pendingTarget = null
+                    when (target) {
+                        "LEFT" -> vm.findLeft()
+                        "RIGHT" -> vm.findRight()
+                        else -> vm.findBoth()
+                    }
+                    activeTarget = target
                 }) { Text("CONFIRM") }
             },
-            dismissButton = { TextButton(onClick = { confirm = false }) { Text("Cancel") } }
+            dismissButton = { TextButton(onClick = { pendingTarget = null }) { Text("Cancel") } }
         )
     }
 }
