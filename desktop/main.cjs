@@ -36,7 +36,7 @@ function resolveLocalURL(value){
   try{
     const u=new URL(value);
     if(u.protocol!==SCHEME+":"||u.hostname!==HOST||u.port)return null;
-    const relative=decodeURIComponent(u.pathname).replace(/^\/+,"");
+    const relative=decodeURIComponent(u.pathname).replace(/^\/+/,"");
     if(!relative||relative.includes("\\")||relative.includes("\0"))return null;
     return updater.resolve(relative,PORTAL_ROOT);
   }catch(_){return null;}
