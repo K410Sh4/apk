@@ -123,6 +123,31 @@
                 <span class="field-help">Sons gerados localmente, sem arquivos externos.</span>
               </div>
             </section>
+            <section class="settings-panel" id="atualizacoes" aria-labelledby="ota-title">
+              <div class="settings-panel-header">
+                <span class="settings-section-icon" aria-hidden="true">↻</span>
+                <div><h2 id="ota-title">Atualizações OTA</h2><p>Novas páginas e aplicativos sem reinstalar o APK.</p></div>
+              </div>
+              <div class="ota-version-row">
+                <div><span>Versão do conteúdo</span><strong id="ota-current">0.5.0</strong></div>
+                <div><span>Nova versão disponível</span><strong id="ota-available">—</strong></div>
+              </div>
+              <div class="sound-switch-row">
+                <div><strong>Verificar e baixar automaticamente</strong><p>Quando houver internet, prepara as atualizações em segundo plano. São ativadas ao reabrir o aplicativo.</p></div>
+                <label class="switch-control">
+                  <input type="checkbox" id="ota-auto" aria-label="Verificar e baixar atualizações automaticamente" checked>
+                  <span class="switch-track" aria-hidden="true"></span>
+                </label>
+              </div>
+              <p class="ota-status" id="ota-status" role="status" aria-live="polite">Verificando disponibilidade do sistema OTA…</p>
+              <div class="ota-actions">
+                <button type="button" id="ota-check" class="secondary-button">↻ Verificar agora</button>
+                <button type="button" id="ota-install" class="primary-button" hidden>Baixar e instalar</button>
+                <button type="button" id="ota-apply" class="primary-button" hidden>Aplicar atualização</button>
+                <button type="button" id="ota-reset" class="reset-button">Restaurar conteúdo do APK</button>
+              </div>
+              <p class="field-help ota-hint">A instalação inicial funciona offline. OTA exige internet e atualiza somente HTML, CSS, JavaScript e outros recursos web. Para mudanças no Android nativo, ainda é necessário instalar um APK assinado.</p>
+            </section>
             <div class="settings-bottom">
               <span id="settings-status" role="status" aria-live="polite">Preferências salvas automaticamente.</span>
               <button type="button" id="reset-settings" class="reset-button" data-no-click-sound>↺ Restaurar padrões</button>
