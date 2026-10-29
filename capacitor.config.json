@@ -1,0 +1,10 @@
+{
+  "appId": "com.k410sh4.appspace",
+  "appName": "AppSpace",
+  "webDir": "web",
+  "backgroundColor": "#0b101b",
+  "android": {
+    "path": "mobile/android",
+    "backgroundColor": "#0b101b"
+  }
+}
