@@ -62,11 +62,20 @@
       <main class="studio-center">
         <div class="studio-canvas-head">
           <div><span class="studio-kicker">ÁREA DE CRIAÇÃO</span><h1>Seu espaço de criação</h1><p>Arraste os elementos para personalizar sua etiqueta.</p></div>
+          <div class="studio-view-switch" role="group" aria-label="Visualização do projeto">
+            <button type="button" data-view-mode="label" aria-pressed="true">Editar etiqueta</button>
+            <button type="button" data-view-mode="a4" aria-pressed="false">Folha A4</button>
+          </div>
           <div class="studio-zoom"><label for="zoom">Zoom</label><input id="zoom" type="range" min="60" max="160" step="10" value="100"><output id="zoom-output">100%</output></div>
         </div>
-        <div class="studio-stage" id="studio-stage">
+        <div class="studio-stage" id="studio-stage" data-view="label">
           <div class="studio-canvas-frame" id="studio-canvas-frame">
             <svg id="label-canvas" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prévia editável da etiqueta" viewBox="0 0 60 40"></svg>
+          </div>
+          <div class="studio-a4-frame" id="studio-a4-frame" hidden>
+            <div class="studio-a4-header"><strong>FOLHA A4</strong><span>210 × 297 mm · proporção real</span></div>
+            <svg id="a4-preview" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparação proporcional entre sua etiqueta e a folha A4" viewBox="0 0 210 297"></svg>
+            <p>Visualização proporcional, não escala física da tela. Para impressão, use papel A4 e 100%.</p>
           </div>
         </div>
         <div class="studio-canvas-foot"><span id="canvas-size">60 × 40 mm</span><span id="selection-status">Toque em um item para editar</span></div>
@@ -76,6 +85,12 @@
             <button type="button" class="studio-button secondary" id="download-png">PNG (300 DPI)</button>
             <button type="button" class="studio-button secondary" id="download-sheet">Folha A4 (SVG)</button>
             <button type="button" class="studio-button primary" id="print-sheet">Imprimir A4</button>
+            <button type="button" class="studio-button secondary" id="find-printers">Impressoras Wi-Fi</button>
+          </div>
+          <div class="studio-printer-help" id="printer-help" role="status" aria-live="polite">
+            Ao escolher Impressoras Wi-Fi, o Android abre o seletor de impressão do sistema.
+            Impressoras são descobertas pelos serviços de impressão instalados no celular, sem cabo USB.
+            Em versões antigas do APK, use Exportar SVG até instalar a versão com suporte nativo.
           </div>
         </section>
       </main>
