@@ -1,4 +1,4 @@
 {
-  "version": "0.7.1",
-  "notes": "Etiqueta Studio: correção de texto e cores SVG, prévia A4 em proporção real, seleção de impressoras Wi-Fi pelo Android e ajuste de barra superior."
+  "version": "0.7.2",
+  "notes": "Etiqueta Studio: texto/cores SVG corrigidos, folha A4 proporcional e impressão nativa via Wi-Fi no APK Android 0.7.0."
 }
