@@ -1,4 +1,4 @@
 {
-  "version": "0.6.3",
-  "notes": "Estoque: Etiqueta Studio, editor visual offline com medidas em mm, modelos, Code39, imagens, SVG/PNG, folha A4, impressão e projetos JSON."
+  "version": "0.7.1",
+  "notes": "Etiqueta Studio: correção de texto e cores SVG, prévia A4 em proporção real, seleção de impressoras Wi-Fi pelo Android e ajuste de barra superior."
 }
