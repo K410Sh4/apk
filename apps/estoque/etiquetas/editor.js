@@ -149,17 +149,20 @@ function makeSheetPages(){
   const total=Math.ceil(count/layout.perPage);
   const pages=[];
   for(let page=0;page<total;page++){
-    const paper=s("svg",{xmlns:NS,width:"210mm",height:"297mm",viewBox:"0 0 210 297"});
+    const paper=s("svg",{xmlns:NS,width:"210mm",height:"297mm",viewBox:"0 0 210 297",stroke:"none"});
     paper.append(s("rect",{width:210,height:297,fill:"#ffffff"}));
     const labels=Math.min(layout.perPage,count-page*layout.perPage);
     for(let i=0;i<labels;i++){
-      const pos=layout.positions[i],wrapper=s("g",{transform:`translate(${pos.x} ${pos.y})`});
+      const pos=layout.positions[i],clipId="label-clip-"+page+"-"+i;
+      const defs=s("defs"),clip=s("clipPath",{id:clipId});
+      clip.append(s("rect",{width:doc.width,height:doc.height}));defs.append(clip);paper.append(defs);
+      const wrapper=s("g",{transform:`translate(${pos.x} ${pos.y})`,
+        "clip-path":"url(#"+clipId+")"});
       const local=s("svg");draw(local,doc);
-      // Um SVG aninhado mantém suas dimensões e unidades em milímetros.
-      local.removeAttribute("width");local.removeAttribute("height");
-      local.setAttribute("x","0");local.setAttribute("y","0");
-      local.setAttribute("width",doc.width);local.setAttribute("height",doc.height);
-      wrapper.append(local);paper.append(wrapper);
+      // Manter todas as geometrias como coordenadas físicas da folha A4.
+      // SVG aninhado herdava a regra global svg{width:20px;height:20px}.
+      while(local.firstChild)wrapper.append(local.firstChild);
+      paper.append(wrapper);
     }
     pages.push(paper);
   }
@@ -195,7 +198,7 @@ function updateInspector(){
   const item=current();
   $("selection-empty").hidden=Boolean(item);
   $("selection-props").hidden=!item;
-  $("selection-status").textContent=item?TYPE_NAMES[item.type]+" selecionado · arraste para mover":"Toque em um elemento para editar";
+  $("selection-status").textContent=viewMode==="a4"?"Proporção A4 · volte à edição para mover":item?TYPE_NAMES[item.type]+" selecionado · arraste para mover":"Toque em um elemento para editar";
   if(!item)return;
   $("selected-type").textContent=TYPE_NAMES[item.type];
   $("field-text-row").hidden=!["text","barcode"].includes(item.type);
