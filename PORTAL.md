@@ -1,4 +1,4 @@
-# AppSpace — portal local de aplicativos (v0.3)
+# AppSpace — portal local de aplicativos (v0.4)
 
 Portal em **HTML, CSS e JavaScript puro**. Foi adicionado ao repositório `apk` sem remover ou alterar o projeto Android R410 Control Center que já existia.
 
@@ -182,3 +182,47 @@ Abra **Configurações** pelo ícone de engrenagem no topo, pelo menu lateral do
 Em `main`, a pipeline `AppSpace - Android APK + Windows EXE` compila os novos arquivos. Para compilar Android localmente após atualização de arquivos, rode `npm run mobile:sync` no projeto nativo já criado; para uma instalação limpa, `npm run mobile:add` gera a plataforma. Verifique se `configuracoes.html` foi incluído em `web/`.
 
 **Não alteramos** a aplicação de diagnóstico Samsung/R410 que já existia na pasta `app/`.
+
+## Pastas de aplicativos (v0.4)
+
+A tela inicial agora exibe **Pastas de aplicativos**, antes da biblioteca de apps:
+
+1. **Estoque**: `apps/estoque/index.html` — destinada a inventário, produtos e organização de materiais.
+2. **Edição de vídeo**: `apps/edicao-de-video/index.html` — destinada a ferramentas de edição, atalhos e recursos audiovisuais.
+
+Cada pasta é uma página independente e acessível por toque ou clique, com uma mensagem de pasta vazia (`0 aplicativos`) até que os primeiros projetos sejam criados. **Não há ainda ferramentas de controle de estoque ou edição de vídeo implementadas.** O card provisório **Primeiro app**, criado na versão anterior, permanece na seção de aplicativos da Home.
+
+### Organização do projeto
+
+```text
+index.html
+configuracoes.html
+assets/
+  portal.css               # Estilos principais (existente)
+  personalization.css      # Preferências visuais (existente)
+  settings.css             # Configurações (existente)
+  folders.css              # Pastas e seus cards (novo)
+  portal.js                # Busca por pastas e aplicativos (atualizado)
+apps/
+  estoque/
+    index.html             # Página da pasta Estoque
+  edicao-de-video/
+    index.html             # Página da pasta Edição de vídeo
+  primeiro-app/
+    index.html             # Card provisório anterior, preservado
+```
+
+### Como adicionar aplicativos a uma pasta
+
+Para criar um app na categoria Estoque, por exemplo:
+
+1. Crie `apps/estoque/controle-de-produtos/index.html`.
+2. Adicione um card com o link `./controle-de-produtos/index.html` à página `apps/estoque/index.html`, substituindo o aviso de pasta vazia.
+3. Atualize o contador de aplicativos da pasta para a quantidade real.
+4. Conserve os caminhos relativos para os recursos compartilhados (`../../../assets/...`) e teste as rotas sem internet.
+
+Para Edição de vídeo, siga o mesmo procedimento sob `apps/edicao-de-video/`. O nome da pasta usa hífens por compatibilidade entre sistemas de arquivos, mas o título visível mantém o acento: **Edição de vídeo**.
+
+A pesquisa da Home agora considera pastas e apps e ignora diferenças de maiúsculas e acentos; o contador de pastas (`02`) é independente do contador de cards de aplicativos (`01`). Configurações de cores e efeitos visuais continuam aplicadas também às páginas das pastas.
+
+`scripts/build-web.cjs` copia recursivamente `apps/` para o Capacitor. O Electron já inclui `apps/**/*` na configuração do pacote. `scripts/verify.cjs` confirma os links das duas pastas e sua presença no pacote web.
