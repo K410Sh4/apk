@@ -1,0 +1,70 @@
+/* AppSpace v0.4 — pastas de aplicativos. Mantém aparência, temas e efeitos do portal. */
+.folder-collection { scroll-margin-top:30px; margin-bottom:47px; }
+.folder-section-head { margin-bottom:21px; }
+.folder-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:19px; }
+.folder-card { display:flex;flex-direction:column;overflow:hidden;min-width:0;min-height:216px;position:relative;border-radius:19px;border:1px solid var(--stroke);background:var(--surface);transition:transform .2s,border-color .2s,box-shadow .2s; }
+.folder-card:hover { transform:translateY(-4px);border-color:rgba(var(--accent-rgb),.52);box-shadow:var(--shadow); }
+.folder-card-art { display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-height:106px;padding:22px 22px 8px;position:relative;overflow:hidden;isolation:isolate; }
+.folder-card-art::before { content:"";position:absolute;z-index:-1;width:190px;height:160px;right:-26px;top:-70px;border-radius:50%;filter:blur(42px);opacity:.23; }
+.folder-card--stock .folder-card-art::before { background:#49d9b8; }
+.folder-card--video .folder-card-art::before { background:#ba88ff; }
+.folder-big-icon { position:relative;z-index:1;display:grid;place-items:center;width:59px;height:59px;flex:0 0 59px;border-radius:17px; }
+.folder-card--stock .folder-big-icon { background:linear-gradient(135deg,rgba(44,195,159,.26),rgba(26,162,133,.08));color:#5ce0bc; }
+.folder-card--video .folder-big-icon { background:linear-gradient(135deg,rgba(160,117,251,.28),rgba(126,86,201,.08));color:#bda0ff; }
+.folder-big-icon svg,.folder-header-icon svg { width:35px;height:35px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round; }
+.folder-index { color:var(--subtle);font-size:10px;font-weight:850;letter-spacing:1.8px; }
+.folder-card-details { flex:1;display:flex;flex-direction:column;gap:5px;padding:0 22px 19px; }
+.folder-card-details h3 { margin:0;font-size:20px;letter-spacing:-.6px;line-height:1.25; }
+.folder-card-details p { margin:4px 0 8px;color:var(--muted);font-size:11px;line-height:1.7;max-width:340px; }
+.folder-card-footer { margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 22px;border-top:1px solid var(--stroke); }
+.folder-card-footer span:first-child { font-size:11px;color:var(--muted);font-weight:650; }
+.folder-card-footer .card-arrow { flex:0 0 25px; }
+.folder-nav-count { margin-left:auto;color:var(--subtle);font-size:11px;font-weight:650; }
+.folder-meta,.folder-eyebrow { display:inline-flex;align-items:center;gap:8px; }
+.folder-eyebrow { color:var(--accent);font-size:10px;letter-spacing:1.7px;font-weight:800; }
+.folder-back { color:var(--muted);font-size:12px;font-weight:700;display:inline-flex;margin:1px 0 24px; }
+.folder-back:hover { color:var(--accent); }
+.folder-header { display:flex;align-items:center;gap:24px;min-height:225px;padding:clamp(25px,4vw,45px);border:1px solid var(--stroke);border-radius:23px;background:radial-gradient(circle at 90% 25%,rgba(81,203,171,.09),transparent 50%),var(--surface); }
+.folder-header--video { background:radial-gradient(circle at 90% 25%,rgba(159,119,239,.13),transparent 50%),var(--surface); }
+.folder-header-icon { width:96px;height:96px;display:grid;place-items:center;flex:0 0 96px;border-radius:26px;background:rgba(72,211,170,.1);color:#4bdbb4; }
+.folder-header--video .folder-header-icon { background:rgba(163,127,247,.12);color:#b69cff; }
+.folder-header-icon svg { width:51px;height:51px; }
+.folder-header-copy h1 { margin:7px 0;font-size:clamp(30px,3.5vw,45px);letter-spacing:-1.6px;line-height:1.16; }
+.folder-header-copy p { max-width:540px;margin:8px 0 15px;font-size:13px;color:var(--muted);line-height:1.75; }
+.folder-meta { color:var(--muted);font-size:11px;font-weight:650; }
+.folder-meta .online-dot { width:6px;height:6px; }
+.folder-contents { margin-top:39px; }
+.folder-empty { min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 20px;border:1px dashed rgba(var(--accent-rgb),.27);border-radius:18px;background:var(--surface); }
+.folder-empty-icon { width:62px;height:62px;display:grid;place-items:center;color:var(--accent);background:rgba(var(--accent-rgb),.09);border-radius:17px;margin-bottom:18px; }
+.folder-empty-icon svg { width:31px;height:31px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round; }
+.folder-empty h3 { font-size:17px;margin:0 0 6px; }
+.folder-empty p { max-width:470px;margin:0 0 22px;color:var(--muted);font-size:12px;line-height:1.75; }
+:root[data-density="compact"] .folder-card { min-height:167px; }
+:root[data-density="compact"] .folder-card-art { padding:14px 16px 3px;min-height:77px; }
+:root[data-density="compact"] .folder-big-icon { width:47px;height:47px;flex-basis:47px; }
+:root[data-density="compact"] .folder-card-details { padding:0 16px 12px; }
+:root[data-density="compact"] .folder-card-details p { margin:0; }
+:root[data-density="compact"] .folder-card-footer { padding:8px 16px; }
+:root[data-effects="off"] .folder-card { transition:none;box-shadow:none; }
+:root[data-effects="off"] .folder-card:hover { transform:none;box-shadow:none; }
+@media (max-width:850px) { .folder-header { min-height:210px; } }
+@media (max-width:620px) {
+  .folder-collection { margin-bottom:34px; }
+  .folder-grid { grid-template-columns:1fr;gap:12px; }
+  .folder-card { min-height:0; }
+  .folder-card-art { min-height:85px;padding:16px 17px 5px; }
+  .folder-big-icon { width:48px;height:48px;flex-basis:48px;border-radius:13px; }
+  .folder-big-icon svg { width:29px;height:29px; }
+  .folder-card-details { padding:0 17px 13px; }
+  .folder-card-details h3 { font-size:18px; }
+  .folder-card-details p { margin:2px 0 6px; }
+  .folder-card-footer { padding:10px 17px; }
+  .folder-header { gap:16px;align-items:flex-start;flex-direction:column;padding:23px 20px;border-radius:18px;min-height:unset; }
+  .folder-header-icon { width:67px;height:67px;flex-basis:67px;border-radius:18px; }
+  .folder-header-icon svg { width:37px;height:37px; }
+  .folder-header-copy h1 { font-size:34px; }
+  .folder-header-copy p { font-size:12px; }
+  .folder-contents { margin-top:28px; }
+  .folder-empty { padding:30px 20px;min-height:275px; }
+}
+@media (prefers-reduced-motion:reduce) { .folder-card:hover { transform:none !important; } }
