@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="./assets/personalization.css">
   <link rel="stylesheet" href="./assets/settings.css">
   <link rel="stylesheet" href="./assets/launcher.css">
+  <link rel="stylesheet" href="./assets/mobile-navigation.css">
   <script src="./assets/portal.js" defer></script>
   <script src="./assets/ota.js" defer></script>
   <script src="./assets/desktop-updates.js" defer></script>
@@ -72,6 +73,45 @@
         </div>
         <div class="settings-layout">
           <div class="settings-panels">
+            <section class="settings-panel mobile-navigation-settings" id="navegacao-mobile" aria-labelledby="mobile-navigation-title">
+              <div class="settings-panel-header">
+                <span class="settings-section-icon" aria-hidden="true">▦</span>
+                <div>
+                  <h2 id="mobile-navigation-title">Navegação mobile</h2>
+                  <p>Escolha como o AppSpace aparece no celular. O computador não muda.</p>
+                </div>
+              </div>
+              <fieldset class="settings-fieldset last">
+                <legend>Modelo de navegação</legend>
+                <div class="option-row mobile-nav-choices">
+                  <label class="choice-tile mobile-mode-choice">
+                    <input type="radio" name="mobileNavStyle" value="classic" data-setting="mobileNavStyle">
+                    <span class="mobile-mode-preview mobile-mode-preview--classic" aria-hidden="true">
+                      <i class="mobile-mode-top"></i>
+                      <i class="mobile-mode-feature"></i>
+                      <i class="mobile-mode-card"></i>
+                      <i class="mobile-mode-card"></i>
+                      <i class="mobile-mode-bottom"></i>
+                    </span>
+                    <span>Clássico</span>
+                    <small>Layout original com cards e seções</small>
+                  </label>
+                  <label class="choice-tile mobile-mode-choice">
+                    <input type="radio" name="mobileNavStyle" value="minimal" data-setting="mobileNavStyle">
+                    <span class="mobile-mode-preview mobile-mode-preview--minimal" aria-hidden="true">
+                      <i class="mobile-mode-top"></i>
+                      <i class="mobile-mode-search"></i>
+                      <i class="mobile-mode-icon"></i><i class="mobile-mode-icon"></i>
+                      <i class="mobile-mode-icon"></i><i class="mobile-mode-icon"></i>
+                      <i class="mobile-mode-bottom"></i>
+                    </span>
+                    <span>Minimalista</span>
+                    <small>Ícones, busca e apenas 3 abas</small>
+                  </label>
+                </div>
+                <p class="field-help mobile-mode-help">A mudança é salva automaticamente. No modo minimalista, a grade aparece no celular mesmo que a biblioteca do PC esteja configurada em Cards.</p>
+              </fieldset>
+            </section>
             <section class="settings-panel" aria-labelledby="appearance-title">
               <div class="settings-panel-header"><span class="settings-section-icon" aria-hidden="true">✦</span><div><h2 id="appearance-title">Aparência</h2><p>Personalize o visual do seu portal.</p></div></div>
               <fieldset class="settings-fieldset">
