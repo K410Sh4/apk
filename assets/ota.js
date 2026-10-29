@@ -4,7 +4,7 @@
  */
 (() => {
   "use strict";
-  const NATIVE_VERSION = "0.5.0";
+  const NATIVE_VERSION = "0.6.0";
   const MANIFEST_URL = "https://raw.githubusercontent.com/K410Sh4/apk/main/ota/latest.json";
   const PREF_KEY = "appspace.ota.auto";
   const VERSION = /^\d+\.\d+\.\d+$/;
