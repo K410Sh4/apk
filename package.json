@@ -1,6 +1,6 @@
 {
   "name": "appspace-portal",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "AppSpace: portal offline de aplicativos para desktop Electron e Android Capacitor",
   "main": "desktop/main.cjs",
@@ -38,7 +38,8 @@
       "desktop/**/*",
       "index.html",
       "assets/**/*",
-      "apps/**/*"
+      "apps/**/*",
+      "configuracoes.html"
     ],
     "win": {
       "target": [
