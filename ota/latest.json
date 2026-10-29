@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.5.1",
+  "version": "0.5.2",
   "minNative": "0.5.0",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.5.1/appspace-web-v0.5.1.zip",
-  "sha256": "c456f7a8bd67fa00ac8905c45b1b3d7ab6da42363d2b535c01ab2b65e4b2dc86",
-  "notes": "Primeira atualização OTA de teste: distribuição do AppSpace web sem reinstalar o APK."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.5.2/appspace-web-v0.5.2.zip",
+  "sha256": "cc502300b35c3ef20568d915c20bacc05c0758bb01d5b4511ea1369e87a5305a",
+  "notes": "Nova grade de ícones estilo Android, escolha entre Cards e Grade de apps, ordenação A-Z/Z-A e busca; preferências persistentes."
 }
