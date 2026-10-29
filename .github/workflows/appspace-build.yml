@@ -1,0 +1,92 @@
+name: AppSpace - Android APK + Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "assets/**"
+      - "apps/**"
+      - "package.json"
+      - "capacitor.config.json"
+      - "desktop/**"
+      - "scripts/**"
+      - ".github/workflows/appspace-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validar portal
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verificar páginas e assets
+        run: npm run check
+
+  android:
+    name: Compilar APK Android
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Instalar Android SDK 36
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+      - name: Instalar dependências
+        run: ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm install --no-audit --no-fund
+      - name: Gerar plataforma Android isolada
+        run: npm run mobile:add
+      - name: Gerar APK de depuração
+        working-directory: mobile/android
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon
+      - name: Publicar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppSpace-Android-APK
+          path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  windows:
+    name: Compilar executável Windows
+    needs: validate
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Instalar dependências
+        run: npm install --no-audit --no-fund
+      - name: Gerar executável portátil
+        run: npm run desktop:exe
+      - name: Publicar EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppSpace-Windows-EXE
+          path: dist/electron/*.exe
+          if-no-files-found: error
+          retention-days: 14
