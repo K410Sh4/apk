@@ -181,26 +181,40 @@
   if (year) year.textContent = String(new Date().getFullYear());
 
   const search = document.getElementById("app-search");
-  const cards = [...document.querySelectorAll(".app-card")];
+  const appCards = [...document.querySelectorAll(".app-card")];
+  const folderCards = [...document.querySelectorAll(".folder-card")];
   const emptyState = document.getElementById("search-empty");
 
   if (search && emptyState) {
-    const total = String(cards.length).padStart(2, "0");
-    document.querySelectorAll(".section-count, .nav-count").forEach((element) => {
-      element.textContent = total;
+    const appTotal = String(appCards.length).padStart(2, "0");
+    const folderTotal = String(folderCards.length).padStart(2, "0");
+    document.querySelectorAll(".section-count:not(.folder-count), .nav-count").forEach((element) => {
+      element.textContent = appTotal;
+    });
+    document.querySelectorAll(".folder-count, .folder-nav-count").forEach((element) => {
+      element.textContent = folderTotal;
     });
 
+    const foldersSection = document.getElementById("pastas");
+    const librarySection = document.querySelector(".library");
     const normalize = (value) => value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
     function filterApps() {
       const term = normalize(search.value);
-      let visible = 0;
-      for (const card of cards) {
-        const matches = normalize(card.dataset.search || card.textContent).includes(term);
-        card.hidden = !matches;
-        if (matches) visible += 1;
-      }
-      emptyState.hidden = visible !== 0;
+      const countMatches = (cards) => {
+        let visible = 0;
+        for (const card of cards) {
+          const matches = normalize(card.dataset.search || card.textContent).includes(term);
+          card.hidden = !matches;
+          if (matches) visible += 1;
+        }
+        return visible;
+      };
+      const matchingApps = countMatches(appCards);
+      const matchingFolders = countMatches(folderCards);
+      if (foldersSection) foldersSection.hidden = Boolean(term) && matchingFolders === 0;
+      if (librarySection) librarySection.hidden = Boolean(term) && matchingApps === 0 && matchingFolders > 0;
+      emptyState.hidden = matchingApps + matchingFolders !== 0;
     }
 
     search.addEventListener("input", filterApps);
