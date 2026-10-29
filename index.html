@@ -8,6 +8,7 @@
   <title>AppSpace — Seu hub de aplicativos</title>
   <link rel="stylesheet" href="./assets/portal.css">
   <link rel="stylesheet" href="./assets/personalization.css">
+  <link rel="stylesheet" href="./assets/folders.css">
   <script src="./assets/portal.js" defer></script>
 </head>
 <body class="page-home">
@@ -24,6 +25,10 @@
           <a href="./index.html" aria-current="page" class="nav-link active">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>
             <span>Início</span>
+          </a>
+          <a href="#pastas" class="nav-link">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h5l2.1 2.2h6a2 2 0 0 1 2 2v8.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 9h17"/></svg>
+            <span>Pastas</span><span class="folder-nav-count">02</span>
           </a>
           <a href="#apps" class="nav-link">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
@@ -59,7 +64,7 @@
           <div class="breadcrumbs"><span>Workspace</span><span class="crumb-divider">/</span><strong>Visão geral</strong></div>
         </div>
         <div class="topbar-actions">
-          <span class="version-chip">BETA 0.3</span>
+          <span class="version-chip">BETA 0.4</span>
           <a href="./configuracoes.html" class="settings-link" aria-label="Abrir configurações" title="Configurações"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg></a>
           <button type="button" class="theme-toggle" data-theme-toggle aria-label="Ativar tema claro" title="Alternar tema">
             <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
@@ -91,6 +96,40 @@
           <div class="stat"><span class="stat-icon purple" aria-hidden="true">▦</span><div><strong>01 <small>app</small></strong><span>planejado</span></div></div>
           <div class="stat"><span class="stat-icon blue" aria-hidden="true">◎</span><div><strong>100<small>%</small></strong><span>local e offline</span></div></div>
           <div class="stat"><span class="stat-icon orange" aria-hidden="true">⌘</span><div><strong>PC <small>+</small> Mobile</strong><span>design responsivo</span></div></div>
+        </section>
+
+        <section class="folder-collection" id="pastas" aria-labelledby="folders-title">
+          <div class="section-head folder-section-head">
+            <div>
+              <span class="section-kicker">ORGANIZAÇÃO</span>
+              <h2 id="folders-title">Pastas de aplicativos <span class="section-count folder-count">02</span></h2>
+              <p>Separe seus projetos por categoria e encontre tudo com facilidade.</p>
+            </div>
+          </div>
+          <div class="folder-grid">
+            <a class="folder-card folder-card--stock" href="./apps/estoque/index.html" data-search="pasta estoque inventário inventario produtos materiais armazém almoxarifado">
+              <div class="folder-card-art">
+                <span class="folder-big-icon" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 5 17 9v20l-17 9-17-9V14z"/><path d="m7 14 17 9 17-9M24 23v20M16 9l17 9m-15 9h6"/></svg></span>
+                <span class="folder-index">PASTA 01</span>
+              </div>
+              <div class="folder-card-details">
+                <h3>Estoque</h3>
+                <p>Projetos de inventário, produtos e organização de materiais.</p>
+              </div>
+              <div class="folder-card-footer"><span>0 aplicativos · Pasta vazia</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+            </a>
+            <a class="folder-card folder-card--video" href="./apps/edicao-de-video/index.html" data-search="pasta edição de vídeo edicao video audiovisual davinci resolve atalhos roteiros montagem">
+              <div class="folder-card-art">
+                <span class="folder-big-icon" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="10" width="38" height="28" rx="5"/><path d="M5 18h38M14 10l-7 8m19-8-7 8m19-8-7 8M20 24l10 5-10 5z"/></svg></span>
+                <span class="folder-index">PASTA 02</span>
+              </div>
+              <div class="folder-card-details">
+                <h3>Edição de vídeo</h3>
+                <p>Ferramentas de edição, atalhos, roteiros e recursos audiovisuais.</p>
+              </div>
+              <div class="folder-card-footer"><span>0 aplicativos · Pasta vazia</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+            </a>
+          </div>
         </section>
 
         <section class="library" id="apps" aria-labelledby="library-title">
@@ -146,9 +185,9 @@
 
       <nav class="mobile-nav" aria-label="Navegação móvel">
         <a href="./index.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Início</span></a>
+        <a href="#pastas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h5l2.1 2.2h6a2 2 0 0 1 2 2v8.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 9h17"/></svg><span>Pastas</span></a>
         <a href="#apps"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Apps</span></a>
         <a href="./configuracoes.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg><span>Ajustes</span></a>
-        <a href="#sobre"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>Sobre</span></a>
       </nav>
     </div>
   </div>
