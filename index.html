@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b101b">
+  <meta name="description" content="Seu espaço de aplicativos web. Um portal local, leve e responsivo para computador e celular.">
+  <title>AppSpace — Seu hub de aplicativos</title>
+  <link rel="stylesheet" href="./assets/portal.css">
+  <script src="./assets/portal.js" defer></script>
+</head>
+<body class="page-home">
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Barra lateral">
+      <a class="brand" href="./index.html" aria-label="AppSpace, página inicial">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+        <span class="brand-type">app<span>space</span><small>YOUR APP UNIVERSE</small></span>
+      </a>
+
+      <div class="sidebar-group">
+        <span class="nav-caption">WORKSPACE</span>
+        <nav class="side-nav" aria-label="Navegação principal">
+          <a href="./index.html" aria-current="page" class="nav-link active">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg>
+            <span>Início</span>
+          </a>
+          <a href="#apps" class="nav-link">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            <span>Aplicativos</span><span class="nav-count">01</span>
+          </a>
+          <a href="#sobre" class="nav-link">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg>
+            <span>Sobre o portal</span>
+          </a>
+        </nav>
+      </div>
+
+      <div class="sidebar-bottom">
+        <div class="sidebar-note">
+          <span class="note-art" aria-hidden="true">✦</span>
+          <strong>Seu espaço criativo</strong>
+          <p>Cada novo app terá seu próprio lugar por aqui.</p>
+        </div>
+        <div class="offline-label"><span class="online-dot" aria-hidden="true"></span> Pronto para uso local</div>
+      </div>
+    </aside>
+
+    <div class="main-column">
+      <header class="topbar">
+        <div class="topbar-left">
+          <a class="mobile-brand" href="./index.html" aria-label="AppSpace, página inicial">
+            <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+            <span>app<b>space</b></span>
+          </a>
+          <div class="breadcrumbs"><span>Workspace</span><span class="crumb-divider">/</span><strong>Visão geral</strong></div>
+        </div>
+        <div class="topbar-actions">
+          <span class="version-chip">BETA 0.1</span>
+          <button type="button" class="theme-toggle" data-theme-toggle aria-label="Ativar tema claro" title="Alternar tema">
+            <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 15.5A8.8 8.8 0 0 1 8.5 3.7 8.8 8.8 0 1 0 20.3 15.5Z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main class="main-content" id="inicio">
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <span class="eyebrow"><span class="eyebrow-spark" aria-hidden="true">✦</span> SEU HUB DIGITAL</span>
+            <h1 id="hero-title">Um universo de <span>possibilidades.</span></h1>
+            <p>Todos os seus aplicativos em um único lugar. Simples, organizado e feito para funcionar no computador ou no celular.</p>
+            <div class="hero-actions">
+              <a class="primary-button" href="#apps">Explorar aplicativos <span aria-hidden="true">↗</span></a>
+              <span class="hero-hint"><span aria-hidden="true">●</span> Funciona sem internet</span>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+            <div class="hero-glow"></div>
+            <div class="hero-symbol"><span class="symbol-tile tile-a"></span><span class="symbol-tile tile-b"></span><span class="symbol-tile tile-c"></span><span class="symbol-tile tile-d"></span></div>
+            <span class="orbit-star star-one">✦</span><span class="orbit-star star-two">✦</span>
+          </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Resumo do portal">
+          <div class="stat"><span class="stat-icon purple" aria-hidden="true">▦</span><div><strong>01 <small>app</small></strong><span>planejado</span></div></div>
+          <div class="stat"><span class="stat-icon blue" aria-hidden="true">◎</span><div><strong>100<small>%</small></strong><span>local e offline</span></div></div>
+          <div class="stat"><span class="stat-icon orange" aria-hidden="true">⌘</span><div><strong>PC <small>+</small> Mobile</strong><span>design responsivo</span></div></div>
+        </section>
+
+        <section class="library" id="apps" aria-labelledby="library-title">
+          <div class="section-head">
+            <div><span class="section-kicker">BIBLIOTECA</span><h2 id="library-title">Seus aplicativos <span class="section-count">01</span></h2><p>Explore as ferramentas disponíveis e os próximos lançamentos.</p></div>
+            <label class="search-field">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+              <span class="sr-only">Pesquisar aplicativos</span>
+              <input type="search" id="app-search" placeholder="Buscar aplicativo..." autocomplete="off">
+              <kbd>/</kbd>
+            </label>
+          </div>
+
+          <div class="app-grid" id="app-grid">
+            <a class="app-card" href="./apps/primeiro-app/index.html" data-search="primeiro app aplicativo futuro em breve planejado ferramenta projeto">
+              <div class="card-top">
+                <span class="app-logo" aria-hidden="true"><span class="logo-inner">✦</span></span>
+                <span class="status-pill"><span class="status-dot"></span> Em breve</span>
+              </div>
+              <div class="app-preview" aria-hidden="true">
+                <div class="preview-grid"></div>
+                <div class="preview-window">
+                  <div class="window-bar"><i></i><i></i><i></i><span></span></div>
+                  <div class="window-body">
+                    <div class="window-sidebar"><span></span><span></span><span></span></div>
+                    <div class="window-content"><div class="window-title"></div><div class="window-lines"><i></i><i></i></div><div class="window-tiles"><span></span><span></span><span></span></div></div>
+                  </div>
+                </div>
+                <span class="preview-glint">01</span>
+              </div>
+              <div class="card-body">
+                <span class="app-category">PROJETO 001 · WEB APP</span>
+                <h3>Primeiro app</h3>
+                <p>Um novo aplicativo está a caminho. Este espaço está reservado para o próximo projeto.</p>
+              </div>
+              <div class="card-footer"><span>Ver projeto</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+            </a>
+          </div>
+
+          <div id="search-empty" class="empty-state" hidden>
+            <span class="empty-icon" aria-hidden="true">⌕</span><strong>Nenhum aplicativo encontrado</strong><p>Tente buscar por outro nome.</p>
+          </div>
+        </section>
+
+        <section class="next-step" id="sobre">
+          <span class="next-icon" aria-hidden="true">＋</span>
+          <div><h2>Feito para evoluir com suas ideias.</h2><p>Novos aplicativos poderão ser adicionados como páginas independentes, mantendo tudo organizado neste portal.</p></div>
+          <span class="next-label">PRONTO PARA EXPANDIR</span>
+        </section>
+
+        <footer class="site-footer"><span>© <span id="year">2026</span> AppSpace. Seu universo de aplicativos.</span><span>HTML + CSS + JavaScript · Sem dependências</span></footer>
+      </main>
+
+      <nav class="mobile-nav" aria-label="Navegação móvel">
+        <a href="./index.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Início</span></a>
+        <a href="#apps"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Apps</span></a>
+        <a href="#sobre"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>Sobre</span></a>
+      </nav>
+    </div>
+  </div>
+</body>
+</html>
