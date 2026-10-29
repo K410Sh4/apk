@@ -6,12 +6,15 @@
   const LEGACY_THEME_KEY = "appspace.theme";
   const DEFAULTS = Object.freeze({
     theme: "dark", accent: "violet", density: "comfortable",
+    libraryView: "cards", librarySort: "default",
     effects: "normal", sound: false, volume: 30
   });
   const OPTIONS = {
     theme: ["dark", "light"],
     accent: ["violet", "blue", "mint", "pink"],
     density: ["comfortable", "compact"],
+    libraryView: ["cards", "launcher"],
+    librarySort: ["default", "az", "za"],
     effects: ["normal", "reduced", "off"]
   };
   const root = document.documentElement;
@@ -63,6 +66,8 @@
     root.dataset.theme = prefs.theme;
     root.dataset.accent = prefs.accent;
     root.dataset.density = prefs.density;
+    root.dataset.libraryView = prefs.libraryView;
+    root.dataset.librarySort = prefs.librarySort;
     root.dataset.effects = prefs.effects;
     const light = prefs.theme === "light";
     const themeMeta = document.querySelector('meta[name="theme-color"]');
@@ -91,6 +96,7 @@
   function setPreference(key, value, { feedback = true } = {}) {
     prefs = validate({ ...prefs, [key]: value });
     applyPreferences();
+    if (key === "libraryView" || key === "librarySort") refreshLibraryView();
     const stored = safeSet(KEY, JSON.stringify(prefs));
     if (feedback) updateStatus(stored ? "Alterações salvas neste dispositivo." :
       "Preferências aplicadas, mas o navegador bloqueou o armazenamento local.");
@@ -147,7 +153,7 @@
       setPreference(key, next);
       if (key === "sound" && next === true) {
         if (!playSound("confirm")) updateStatus("Sons ativados. Se não ouvir, verifique o volume do dispositivo.");
-      } else if (key === "accent" || key === "theme" || key === "density" || key === "effects") {
+      } else if (key === "accent" || key === "theme" || key === "density" || key === "effects" || key === "libraryView" || key === "librarySort") {
         playSound("tap");
       }
     });
@@ -162,6 +168,7 @@
   if (resetButton) resetButton.addEventListener("click", () => {
     prefs = { ...DEFAULTS };
     applyPreferences();
+    refreshLibraryView();
     const stored = safeSet(KEY, JSON.stringify(prefs));
     // Elimina a migração do tema antigo em sessões futuras, sem apagar outras informações.
     safeSet(LEGACY_THEME_KEY, "dark");
@@ -185,6 +192,93 @@
   const folderCards = [...document.querySelectorAll(".folder-card")];
   const emptyState = document.getElementById("search-empty");
 
+  // Uma única fonte de verdade: os próprios links das pastas e aplicativos.
+  // A grade é montada a partir desses links e nunca duplica cards manualmente.
+  const launcher = document.getElementById("launcher");
+  const launcherGrid = document.getElementById("launcher-grid");
+  const launcherSearch = document.getElementById("launcher-search");
+  const launcherEmpty = document.getElementById("launcher-empty");
+  const launcherOrder = document.getElementById("launcher-order");
+  const normalize = (value) => String(value).toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  const sortCollator = new Intl.Collator("pt-BR", { sensitivity: "base", numeric: true });
+
+  [...folderCards, ...appCards].forEach((card, index) => {
+    card.dataset.originalIndex = String(index);
+  });
+
+  function getTitle(card) {
+    return card.querySelector("h3")?.textContent?.trim() || card.getAttribute("aria-label") || "";
+  }
+
+  function compareCards(a, b) {
+    if (prefs.librarySort === "az" || prefs.librarySort === "za") {
+      const result = sortCollator.compare(getTitle(a), getTitle(b));
+      return (prefs.librarySort === "za" ? -result : result) ||
+        Number(a.dataset.originalIndex) - Number(b.dataset.originalIndex);
+    }
+    return Number(a.dataset.originalIndex) - Number(b.dataset.originalIndex);
+  }
+
+  function arrangeCards(cards) {
+    if (!cards.length) return;
+    const parent = cards[0].parentElement;
+    if (!parent) return;
+    [...cards].sort(compareCards).forEach((card) => parent.appendChild(card));
+  }
+
+  function createLauncherTile(card, isFolder) {
+    const tile = document.createElement("a");
+    tile.className = "launcher-tile " + (isFolder ? "launcher-tile--folder" : "launcher-tile--app");
+    if (card.classList.contains("folder-card--stock")) tile.classList.add("launcher-tile--stock");
+    if (card.classList.contains("folder-card--video")) tile.classList.add("launcher-tile--video");
+    tile.href = card.getAttribute("href") || "./index.html";
+    tile.dataset.search = card.dataset.search || getTitle(card);
+    const icon = document.createElement("span");
+    icon.className = "launcher-tile-icon";
+    icon.setAttribute("aria-hidden", "true");
+    const folderGlyph = isFolder ? card.querySelector(".folder-big-icon svg") : null;
+    if (folderGlyph) icon.appendChild(folderGlyph.cloneNode(true));
+    else icon.textContent = "✦";
+    const name = document.createElement("span");
+    name.className = "launcher-tile-name";
+    name.textContent = getTitle(card);
+    const type = document.createElement("small");
+    type.className = "launcher-tile-type";
+    type.textContent = isFolder ? "Pasta" : "Aplicativo";
+    tile.append(icon, name, type);
+    tile.setAttribute("aria-label", "Abrir " + (isFolder ? "pasta " : "aplicativo ") + getTitle(card));
+    return tile;
+  }
+
+  function filterLauncher() {
+    if (!launcherGrid || !launcherEmpty) return;
+    const term = normalize(launcherSearch?.value || "");
+    let visible = 0;
+    launcherGrid.querySelectorAll(".launcher-tile").forEach((tile) => {
+      const matches = normalize(tile.dataset.search || tile.textContent).includes(term);
+      tile.hidden = !matches;
+      if (matches) visible++;
+    });
+    launcherEmpty.hidden = visible > 0;
+  }
+
+  function refreshLibraryView() {
+    const active = prefs.libraryView === "launcher";
+    if (launcher) launcher.hidden = !active;
+    if (launcherOrder) launcherOrder.textContent =
+      prefs.librarySort === "az" ? "A–Z" : prefs.librarySort === "za" ? "Z–A" : "Original";
+    arrangeCards(folderCards);
+    arrangeCards(appCards);
+    if (launcherGrid) {
+      launcherGrid.replaceChildren();
+      // A grade funciona como gaveta única; a ordem original coloca pastas antes de apps.
+      [...folderCards, ...appCards].sort(compareCards).forEach((card) => {
+        launcherGrid.appendChild(createLauncherTile(card, folderCards.includes(card)));
+      });
+      filterLauncher();
+    }
+  }
+
   if (search && emptyState) {
     const appTotal = String(appCards.length).padStart(2, "0");
     const folderTotal = String(folderCards.length).padStart(2, "0");
@@ -197,7 +291,8 @@
 
     const foldersSection = document.getElementById("pastas");
     const librarySection = document.querySelector(".library");
-    const normalize = (value) => value.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    // A busca existente e a busca do launcher usam a mesma normalização.
+
 
     function filterApps() {
       const term = normalize(search.value);
@@ -218,17 +313,21 @@
     }
 
     search.addEventListener("input", filterApps);
+    if (launcherSearch) launcherSearch.addEventListener("input", filterLauncher);
+    refreshLibraryView();
     document.addEventListener("keydown", (event) => {
       const target = event.target;
       const isEditing = target instanceof HTMLElement && (target.matches("input, textarea, select") || target.isContentEditable);
       if (event.key === "/" && !event.ctrlKey && !event.metaKey && !event.altKey && !isEditing) {
         event.preventDefault();
-        search.focus();
+        (prefs.libraryView === "launcher" && launcherSearch ? launcherSearch : search).focus();
       }
-      if (event.key === "Escape" && document.activeElement === search) {
-        search.value = "";
-        filterApps();
-        search.blur();
+      if (event.key === "Escape" && (document.activeElement === search || document.activeElement === launcherSearch)) {
+        const activeSearch = document.activeElement;
+        activeSearch.value = "";
+        if (activeSearch === launcherSearch) filterLauncher();
+        else filterApps();
+        activeSearch.blur();
       }
     });
   }
