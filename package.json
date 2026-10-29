@@ -1,6 +1,6 @@
 {
   "name": "appspace-portal",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "AppSpace: portal offline de aplicativos para desktop Electron e Android Capacitor",
   "main": "desktop/main.cjs",
@@ -10,8 +10,8 @@
     "desktop:exe": "electron-builder --win portable --publish never",
     "build:web": "node scripts/build-web.cjs",
     "check": "node scripts/verify.cjs",
-    "mobile:add": "npm run build:web && cap add android",
-    "mobile:sync": "npm run build:web && cap sync android",
+    "mobile:add": "npm run build:web && cap add android && node scripts/prepare-mobile-lan.cjs",
+    "mobile:sync": "npm run build:web && cap sync android && node scripts/prepare-mobile-lan.cjs",
     "mobile:open": "cap open android",
     "mobile:run": "npm run mobile:sync && cap run android"
   },
@@ -21,7 +21,8 @@
   "dependencies": {
     "@capacitor/core": "8.6.0",
     "@capacitor/android": "8.6.0",
-    "@capgo/capacitor-updater": "8.51.15"
+    "@capgo/capacitor-updater": "8.51.15",
+    "extract-zip": "2.0.1"
   },
   "devDependencies": {
     "@capacitor/cli": "8.6.0",
