@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="./assets/launcher.css">
   <script src="./assets/portal.js" defer></script>
   <script src="./assets/ota.js" defer></script>
+  <script src="./assets/desktop-updates.js" defer></script>
 </head>
 <body class="page-settings">
   <div class="app-shell">
@@ -181,6 +182,35 @@
                 <button type="button" id="ota-reset" class="reset-button">Restaurar conteúdo do APK</button>
               </div>
               <p class="field-help ota-hint">A instalação inicial funciona offline. OTA exige internet e atualiza somente HTML, CSS, JavaScript e outros recursos web. Para mudanças no Android nativo, ainda é necessário instalar um APK assinado.</p>
+            </section>
+            <section class="settings-panel" id="desktop-updates" aria-labelledby="desktop-title" hidden>
+              <div class="settings-panel-header">
+                <span class="settings-section-icon">↻</span>
+                <div><h2 id="desktop-title">AppSpace para Windows</h2>
+                <p>Atualizações web sem baixar outro executável.</p></div>
+              </div>
+              <div class="ota-version-row">
+                <div><span>Versão web ativa</span><strong id="desktop-version">—</strong></div>
+                <div><span>Origem dos arquivos</span><strong id="desktop-ota-new">—</strong></div>
+              </div>
+              <p class="ota-status" id="desktop-updates-message" role="status" aria-live="polite">Pronto para verificar atualizações.</p>
+              <div class="ota-actions">
+                <button type="button" id="desktop-ota-check" class="secondary-button">Verificar atualização</button>
+                <button type="button" id="desktop-ota-install" class="primary-button" hidden>Baixar e aplicar</button>
+                <button type="button" id="desktop-ota-reset" class="reset-button">Restaurar conteúdo original</button>
+              </div>
+              <p class="field-help ota-hint">Atualiza HTML/CSS/JavaScript via GitHub Releases com SHA-256. Alterações do Electron e dos componentes nativos exigem novo EXE.</p>
+              <div id="desktop-lan-details" hidden>
+                <div class="divider" style="height:1px;background:var(--stroke);margin:22px 0"></div>
+                <h3 style="font-size:14px;margin:0 0 8px">Conexão com o celular pela rede local</h3>
+                <p class="field-help">No AppSpace do celular, abra a pasta Sistema → PC Monitor e informe o IP e o código abaixo.</p>
+                <div class="ota-version-row">
+                  <div><span>Endereço do PC</span><strong id="desktop-lan-ip" style="font-size:16px">—</strong></div>
+                  <div><span>Código temporário</span><strong id="desktop-lan-code">—</strong></div>
+                </div>
+                <p id="desktop-lan-status" class="field-help">Aguardando coletor…</p>
+                <a class="secondary-button" href="./apps/sistema/pc-monitor/index.html">Abrir PC Monitor</a>
+              </div>
             </section>
             <div class="settings-bottom">
               <span id="settings-status" role="status" aria-live="polite">Preferências salvas automaticamente.</span>
