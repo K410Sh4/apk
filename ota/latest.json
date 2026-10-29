@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.5.2",
-  "minNative": "0.5.0",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.5.2/appspace-web-v0.5.2.zip",
-  "sha256": "cc502300b35c3ef20568d915c20bacc05c0758bb01d5b4511ea1369e87a5305a",
-  "notes": "Nova grade de ícones estilo Android, escolha entre Cards e Grade de apps, ordenação A-Z/Z-A e busca; preferências persistentes."
+  "version": "0.6.1",
+  "minNative": "0.6.0",
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.6.1/appspace-web-v0.6.1.zip",
+  "sha256": "02c240eac47bc4644cddeb1bcd02eafd59b9d6cd2c76f4a15fc7842a26cb2267",
+  "notes": "AppSpace PC Monitor: painel de CPU/RAM via Wi-Fi, pasta Sistema, layout responsivo e interface OTA no Windows."
 }
