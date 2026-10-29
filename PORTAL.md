@@ -263,3 +263,18 @@ Um pacote `0.5.1` poderá ser publicado como teste da primeira atualização sem
 - `npm run check` valida estrutura HTML, presença do atualizador e configuração Capacitor.
 - Os jobs do GitHub Actions validam a compilação Android com o plugin instalado.
 - É necessário instalar o APK no Android, abrir **Configurações → Atualizações OTA** e verificar a leitura do manifesto, o download e a ativação de um bundle novo; não confunda sucesso da compilação com teste de instalação OTA real.
+
+## Grade de aplicativos e ordenação (OTA 0.5.2)
+
+Em **Configurações → Aparência → Layout da biblioteca**, o usuário pode escolher entre:
+
+- **Cards** (padrão anterior): a Home preserva seções separadas de pastas e aplicativos, com descrições e prévias.
+- **Grade de apps**: uma gaveta única de aplicativos, inspirada no Android, com ícones grandes, nome, tipo (Pasta / Aplicativo), busca própria e quatro colunas em celulares comuns.
+
+**Ordenação:** Original (pastas primeiro, depois apps, pela ordem cadastral), Nome A–Z ou Nome Z–A. A grade ordena todas as pastas e aplicativos juntos; em modo cards, a ordenação acontece dentro de cada seção. As escolhas são salvas na mesma chave de preferências da versão anterior (`appspace.preferences.v1`) e continuam válidas nas demais páginas.
+
+A gaveta `#launcher` é montada via `assets/portal.js` a partir dos próprios links `.folder-card` e `.app-card` da Home, evitando duplicação manual e reaproveitando ícones e links existentes. O CSS fica em `assets/launcher.css`, com suporte a tema, densidade, redução de animações e dispositivos pequenos.
+
+Para testar pelo OTA sem reinstalar APK: instale a base Android 0.5.0, execute o workflow **AppSpace - Publicar pacote OTA** com versão `0.5.2` e, no celular, abra **Configurações → Atualizações OTA → Verificar agora**. Baixe/ative a atualização, reabra o aplicativo se necessário, configure **Grade de apps**, escolha **Nome A–Z** e confirme a persistência após reiniciar. Teste a busca por `estoque`, o retorno ao modo Cards e a operação offline.
+
+**Atenção:** o pacote OTA não altera o binário Android ou a assinatura. A execução bem-sucedida do workflow garante publicação de arquivos, não comprova sozinho a aplicação OTA num aparelho.
