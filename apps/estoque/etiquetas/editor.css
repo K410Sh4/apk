@@ -181,3 +181,9 @@ width:100%;min-width:0;min-height:35px;max-width:100%;border:1px solid var(--stu
  .studio-a4-frame{width:min(100%,315px)}
  .studio-a4-header{flex-wrap:wrap}
 }
+
+@media(max-width:850px){
+  html[data-appspace-native="true"] .studio-header{
+    padding-top:calc(9px + max(26px,env(safe-area-inset-top,0px)));
+  }
+}
