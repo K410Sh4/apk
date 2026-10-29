@@ -319,3 +319,16 @@ O PC e o celular precisam estar na mesma rede privada (ou rede com roteamento di
 - O sistema permanece offline para navegação; somente **consulta/publicação OTA** usa internet.
 
 **Validação:** GitHub Actions compila Android/Windows e executa verificações estruturais. A instalação em PC e Android reais, abertura do firewall, pareamento via Wi-Fi e atualização OTA no Windows/Android precisam ser testados em dispositivos físicos para confirmação.
+
+## Alternar navegação Clássica ↔ Minimalista no celular (OTA 0.6.2)
+
+Em **Configurações → Navegação mobile → Modelo de navegação** aparecem duas opções com prévia:
+
+- **Clássico** — padrão de todas as instalações existentes: mantém hero, indicadores, seções separadas, cards descritivos, rodapé e navegação original do AppSpace.
+- **Minimalista** — somente em telas com largura de até **850px**: a Home apresenta um catálogo em grade com busca; a barra inferior fica com apenas três destinos (**Início, Apps e Ajustes**); páginas de pastas têm cabeçalho e cards compactos; configurações permanecem completas, porém sem a coluna de prévia.
+
+A opção é persistida em `localStorage["appspace.preferences.v1"].mobileNavStyle`, com valores `classic` (padrão) e `minimal`. A configuração independe de `libraryView` (Cards/Grade): no **desktop**, Cards ou Grade continua respeitando a preferência do usuário; em **mobile minimalista**, o catálogo em grade é usado automaticamente, sem modificar a preferência de biblioteca.
+
+O código da navegação centralizada fica em `assets/portal.js` (`syncMobileNavigation`); as regras de layout ficam em `assets/mobile-navigation.css`. O CSS é carregado por todas as sete páginas públicas, incluindo PC Monitor e os aplicativos vazios. O menu original permanece intacto e volta ao selecionar **Clássico**. Em telas grandes a opção não interfere na experiência desktop.
+
+Teste: instalar a base **0.6.0**, atualizar o conteúdo via OTA **0.6.2**, selecionar Minimalista, conferir 3 abas e a grade na Home, navegar até **Sistema → PC Monitor**, voltar, mudar para Clássico, alternar modo Cards/Grade do PC e reabrir o aplicativo para confirmar persistência. O reset de preferências retorna ao Clássico.
