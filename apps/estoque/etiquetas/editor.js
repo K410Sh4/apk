@@ -85,9 +85,10 @@ function drawItem(group,o){
   }else if(o.type==="barcode"){
     const barcode=M.barcodeBits(o.text);
     if(barcode){
-      const unit=o.w/barcode.bits.length;
+      const quiet=Math.min(2.5,o.w*.065); // Zona de silêncio para o leitor óptico
+      const unit=(o.w-2*quiet)/barcode.bits.length;
       for(let i=0;i<barcode.bits.length;i++)if(barcode.bits[i]==="1")
-        group.append(s("rect",{x:o.x+i*unit,y:o.y,width:unit*1.012,height:o.h,fill:o.fill}));
+        group.append(s("rect",{x:o.x+quiet+i*unit,y:o.y,width:unit,height:o.h,fill:o.fill}));
     }else group.append(s("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:"none",stroke:"#ff6b6b","stroke-width":.3}));
   }else if(o.type==="text"){
     const x=o.align==="center"?o.x+o.w/2:o.align==="right"?o.x+o.w:o.x;
