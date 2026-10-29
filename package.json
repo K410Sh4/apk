@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron .",
     "desktop": "electron .",
-    "desktop:exe": "electron-builder --win portable",
+    "desktop:exe": "electron-builder --win portable --publish never",
     "build:web": "node scripts/build-web.cjs",
     "check": "node scripts/verify.cjs",
     "mobile:add": "npm run build:web && cap add android",
@@ -50,6 +50,6 @@
         }
       ]
     },
-    "artifactName": "AppSpace-${version}-${arch}-${ext}"
+    "artifactName": "AppSpace-${version}-${arch}.${ext}"
   }
 }
