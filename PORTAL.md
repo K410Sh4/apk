@@ -67,3 +67,84 @@ apk/
 ## Próximos passos sugeridos
 
 Definir o nome e a finalidade do primeiro aplicativo e substituir `apps/primeiro-app/index.html` pela interface real, mantendo o card da home como acesso permanente.
+
+## Empacotamento desktop e mobile (v0.2)
+
+O portal agora compartilha o **mesmo HTML/CSS/JS** entre três opções:
+
+| Destino | Tecnologia | Resultado |
+| --- | --- | --- |
+| Abrir localmente em navegador | HTML estático | `index.html` |
+| Windows 11 | Electron | janela desktop / executável portátil `.exe` |
+| Android | Capacitor + WebView | aplicativo `.apk` depois de compilar |
+
+> Electron **não** roda diretamente em Android. Capacitor é o invólucro mobile; nenhum servidor web é exigido depois da instalação.
+
+### Requisitos
+
+- Node.js **22+** e npm, para gerar/empacotar.
+- Windows para compilar `.exe` localmente (ou uma máquina de build Windows).
+- Android Studio, Android SDK e Java apropriado para compilar Android localmente. O Capacitor gera um projeto Android separado em `mobile/android/`, sem substituir `app/` (R410).
+- Internet durante a instalação das ferramentas e dependências; o **app instalado** executa as páginas embarcadas offline.
+
+### Primeira execução Electron
+
+No terminal, na raiz:
+
+```powershell
+npm install
+npm run desktop
+```
+
+Para tentar gerar o executável Windows portátil:
+
+```powershell
+npm run desktop:exe
+```
+
+O arquivo final fica em `dist/electron/` após uma compilação bem-sucedida. Ele ainda não está anexado ao repositório.
+
+### Primeira execução Android
+
+Na raiz:
+
+```powershell
+npm install
+npm run check
+npm run mobile:add
+npm run mobile:open
+```
+
+`mobile:add` deve ser executado **uma vez**. Após alterar HTML, CSS ou JS, atualize o aplicativo nativo:
+
+```powershell
+npm run mobile:sync
+```
+
+Abra e compile o projeto gerado em `mobile/android/` no Android Studio. Para testar no celular conectado:
+
+```powershell
+npm run mobile:run
+```
+
+Com o Gradle wrapper do projeto nativo gerado, o APK de depuração costuma ficar em `mobile/android/app/build/outputs/apk/debug/app-debug.apk`.
+
+### GitHub Actions
+
+O workflow **AppSpace — Android APK + Windows EXE** permite compilar remotamente Android e Windows pela aba Actions. Ao final de uma execução bem-sucedida, baixe os artefatos dos jobs. APK de depuração **não é APK de produção assinado para loja**.
+
+### Arquivos de empacotamento
+
+```text
+package.json                # Scripts e dependências Electron / Capacitor
+capacitor.config.json       # webDir=web; Android em mobile/android
+desktop/main.cjs            # Janela Electron isolada e navegação local
+scripts/build-web.cjs       # Copia index.html/assets/apps → web/
+scripts/verify.cjs          # Verificação de estrutura e cópia
+mobile/README.md            # Instruções do Android
+.github/workflows/appspace-build.yml  # Pipeline de compilação
+```
+
+A pasta `web/` é **gerada** e ignorada no Git. Não edite nela: edite `index.html`, `assets/` ou `apps/` na raiz e rode novamente `npm run mobile:sync`.
+
+**Estado da entrega:** código/configuração de empacotamento foram adicionados ao GitHub; uma compilação Android/Windows executada com sucesso e testes em dispositivos físicos ainda precisam ser confirmados. Não há APK/EXE pronto anexado por esta etapa.
