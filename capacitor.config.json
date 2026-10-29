@@ -5,7 +5,8 @@
   "backgroundColor": "#0b101b",
   "android": {
     "path": "mobile/android",
-    "backgroundColor": "#0b101b"
+    "backgroundColor": "#0b101b",
+    "allowMixedContent": true
   },
   "plugins": {
     "CapacitorUpdater": {
@@ -14,6 +15,9 @@
       "httpsOnly": true,
       "appReadyTimeout": 20000,
       "resetWhenUpdate": true
+    },
+    "CapacitorHttp": {
+      "enabled": true
     }
   }
 }
