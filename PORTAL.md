@@ -1,4 +1,4 @@
-# AppSpace — portal local de aplicativos (v0.5)
+# AppSpace — portal local de aplicativos (v0.6)
 
 Portal em **HTML, CSS e JavaScript puro**. Foi adicionado ao repositório `apk` sem remover ou alterar o projeto Android R410 Control Center que já existia.
 
@@ -278,3 +278,44 @@ A gaveta `#launcher` é montada via `assets/portal.js` a partir dos próprios li
 Para testar pelo OTA sem reinstalar APK: instale a base Android 0.5.0, execute o workflow **AppSpace - Publicar pacote OTA** com versão `0.5.2` e, no celular, abra **Configurações → Atualizações OTA → Verificar agora**. Baixe/ative a atualização, reabra o aplicativo se necessário, configure **Grade de apps**, escolha **Nome A–Z** e confirme a persistência após reiniciar. Teste a busca por `estoque`, o retorno ao modo Cards e a operação offline.
 
 **Atenção:** o pacote OTA não altera o binário Android ou a assinatura. A execução bem-sucedida do workflow garante publicação de arquivos, não comprova sozinho a aplicação OTA num aparelho.
+
+## PC Monitor LAN + atualização OTA no Windows (v0.6)
+
+O AppSpace agora também funciona como **servidor local de telemetria**, iniciando com o `AppSpace.exe` no PC. O Android pode mostrar os dados na nova pasta **Sistema → PC Monitor**. O próprio EXE permite verificar, baixar e ativar atualizações **HTML/CSS/JS** do GitHub Releases, sem baixar outro executável para cada ajuste de interface.
+
+### Arquitetura
+
+- `desktop/lan.cjs` — servidor HTTP local em `0.0.0.0:38473`; expõe **somente leitura** `GET /metrics`, `GET /health` e `POST /pair`.
+- `desktop/main.cjs` — integra serviço LAN ao Electron isolado; APIs internas de informações, OTA e métricas usam `appspace://portal/__api/...` e checagem de origem.
+- `desktop/updates.cjs` — baixa ZIP de release aprovado, compara SHA-256 com o manifesto, valida nomes/extensões/tamanhos e ativa arquivos na pasta de dados do usuário, com possibilidade de restaurar o conteúdo original. Não altera o `.exe`.
+- `assets/desktop-updates.js` — em **Configurações → AppSpace para Windows**, mostra a versão instalada, o botão de atualização web, o endereço IP LAN, um código temporário de seis dígitos e o botão de restauração.
+- `apps/sistema/index.html` — terceira pasta do AppSpace, com o card **PC Monitor**.
+- `apps/sistema/pc-monitor/index.html`, `assets/pc-monitor.js` e `assets/pc-monitor.css` — interface horizontal/móvel responsiva com CPU, RAM, tempo de atividade, estado de conexão e gráfico simples de histórico.
+- `scripts/prepare-mobile-lan.cjs` — após o Capacitor gerar o projeto Android, configura o acesso HTTP para IPs LAN usando o plugin `CapacitorHttp` (nativo).
+- `scripts/test-lan.cjs` — teste de autenticação, pareamento e métricas locais.
+
+### Passos para conectar PC e celular
+
+1. No **Windows 11**, execute **AppSpace 0.6.0 (EXE)** e deixe a janela aberta.
+2. Em Configurações, veja **Endereço do PC** (ex.: `192.168.1.100:38473`) e **Código temporário**.
+3. Libere a conexão do Windows Firewall **somente em redes privadas de confiança**, quando solicitado, ou autorize a porta TCP 38473 somente para a rede privada.
+4. No celular, instale o **AppSpace Android 0.6.0** e abra **Sistema → PC Monitor**.
+5. Digite apenas o endereço IPv4 (sem porta) e o código de seis dígitos, e toque em **Conectar**.
+6. Os dados são consultados localmente a cada 1 segundo. O token de autorização é armazenado apenas no dispositivo. Após reiniciar o EXE, será necessário refazer o pareamento.
+
+O PC e o celular precisam estar na mesma rede privada (ou rede com roteamento direto entre eles), sem isolamento de clientes. O app não precisa de servidores externos para mostrar métricas. Se o Windows Firewall ou o roteador bloquear a porta, a conexão não funcionará.
+
+**Métricas V1:** uso e modelo de CPU, frequência reportada pelo sistema, total/uso de memória RAM e tempo ligado. GPU e temperatura são **indisponíveis** até integrar coletores de hardware com suporte a esses sensores; valores não são inventados. O monitor **não** estende o desktop e **não** permite executar comandos no computador.
+
+### Segurança e limites
+
+- A conexão local usa **HTTP sem TLS**, por isso use apenas Wi-Fi privado e confiável. O PIN de seis dígitos tem limite de tentativas; após o pareamento, o monitor usa token aleatório, mas tráfego LAN pode ser interceptado numa rede não confiável.
+- A API aceita origens conhecidas e o campo Host precisa indicar um IP local do próprio PC.
+- Não ative redirecionamento de portas do roteador para a TCP 38473 nem compartilhe o PIN publicamente.
+- As atualizações web do EXE são carregadas via GitHub Releases e verificadas com SHA-256, mas **alterações de código nativo Electron ou Android ainda exigem novos executáveis assinados**.
+- A build Android 0.6.0 inclui novo suporte nativo a HTTP LAN. A versão 0.5.x **não** consegue adquirir essa permissão por OTA: será necessário instalar o novo APK nativo.
+- O build atual ainda usa certificado **debug** para Android e não usa assinatura fixa no Windows. Para atualizar o binário sem reinstalar/desinstalar, uma etapa futura precisa configurar assinatura permanente e mecanismo específico para executáveis.
+- OTA no EXE exige que o programa esteja aberto; usa a mesma fonte de versões `ota/latest.json` que o Android. Pode-se publicar `0.6.1` ou superior no workflow **AppSpace - Publicar pacote OTA**.
+- O sistema permanece offline para navegação; somente **consulta/publicação OTA** usa internet.
+
+**Validação:** GitHub Actions compila Android/Windows e executa verificações estruturais. A instalação em PC e Android reais, abertura do firewall, pareamento via Wi-Fi e atualização OTA no Windows/Android precisam ser testados em dispositivos físicos para confirmação.
