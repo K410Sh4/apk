@@ -12,6 +12,15 @@ const home = text("index.html");
 const detail = text("apps/primeiro-app/index.html");
 const stock = text("apps/estoque/index.html");
 const video = text("apps/edicao-de-video/index.html");
+const system = text("apps/sistema/index.html");
+const monitor = text("apps/sistema/pc-monitor/index.html");
+const monitorJs = text("assets/pc-monitor.js");
+const monitorCss = text("assets/pc-monitor.css");
+const lan = text("desktop/lan.cjs");
+const desktopUpdater = text("desktop/updates.cjs");
+const electronMain = text("desktop/main.cjs");
+const desktopClient = text("assets/desktop-updates.js");
+const mobileLAN = text("scripts/prepare-mobile-lan.cjs");
 const foldersCss = text("assets/folders.css");
 const launcherCss = text("assets/launcher.css");
 const ota = text("assets/ota.js");
@@ -26,7 +35,7 @@ const pkg = JSON.parse(text("package.json"));
 
 assert.match(home, /<html lang="pt-BR"/, "HTML precisa da linguagem pt-BR");
 assert.equal(home.split('class="app-card"').length - 1, 1, "A tela inicial deve ter um card nesta etapa");
-assert.equal(home.split('class="folder-card ').length - 1, 2, "A Home deve ter duas pastas");
+assert.equal(home.split('class="folder-card ').length - 1, 3, "A Home deve ter três pastas");
 assert.match(home, /href="\.\/apps\/estoque\/index\.html"/);
 assert.match(home, /href="\.\/apps\/edicao-de-video\/index\.html"/);
 assert.match(home, /id="pastas"/);
@@ -88,12 +97,16 @@ assert.match(launcherCss, /data-library-view="launcher"/);
 assert.equal(cfg.webDir, "web");
 assert.equal(cfg.android.path, "mobile/android");
 assert.equal(pkg.main, "desktop/main.cjs");
-assert.equal(pkg.version, "0.5.0");
+assert.equal(pkg.version, "0.6.0");
 assert.equal(pkg.dependencies["@capgo/capacitor-updater"], "8.51.15");
 assert.equal(cfg.plugins.CapacitorUpdater.autoUpdate, false);
 assert.equal(cfg.plugins.CapacitorUpdater.httpsOnly, true);
+assert.equal(cfg.plugins.CapacitorHttp.enabled, true);
+assert.equal(cfg.android.allowMixedContent, true);
+assert.equal(pkg.dependencies["extract-zip"], "2.0.1");
+assert.match(pkg.scripts["mobile:add"], /prepare-mobile-lan/);
 assert.equal(cfgOta.schema, 1);
-assert.match(cfgOta.version, /^0\.5\.\d+$/);
+assert.match(cfgOta.version, /^\d+\.\d+\.\d+$/);
 assert.ok(Number(cfgOta.version.split(".")[2]) >= 0, "Manifesto OTA com versão válida");
 assert.match(ota, /notifyAppReady/);
 assert.match(ota, /raw\.githubusercontent\.com\/K410Sh4\/apk\/main\/ota\/latest\.json/);
@@ -108,10 +121,36 @@ assert.match(settings, /id="ota-check"/);
 assert.match(settings, /id="ota-install"/);
 assert.match(settings, /id="ota-auto"/);
 assert.match(settings, /id="ota-reset"/);
+
+assert.match(home, /href="\.\/apps\/sistema\/index\.html"/);
+assert.match(system, /href="\.\/pc-monitor\/index\.html"/);
+assert.match(system, /<h1 id="folder-title">Sistema<\/h1>/);
+assert.match(monitor, /id="monitor-pair-form"/);
+assert.match(monitor, /id="monitor-dashboard"/);
+assert.match(monitor, /assets\/pc-monitor\.js/);
+assert.match(monitorCss, /monitor-metrics/);
+assert.match(monitorJs, /CapacitorHttp/);
+assert.match(monitorJs, /\/__api\/metrics/);
+assert.match(lan, /timingSafeEqual/);
+assert.match(lan, /\/metrics/);
+assert.match(lan, /\/pair/);
+assert.match(desktopUpdater, /sha256/);
+assert.match(desktopUpdater, /extract-zip/);
+assert.match(electronMain, /createDesktopUpdater/);
+assert.match(electronMain, /startLanServer/);
+assert.match(electronMain, /\/__api\/install/);
+assert.match(settings, /id="desktop-ota-check"/);
+assert.match(settings, /id="desktop-lan-code"/);
+assert.match(desktopClient, /\/__api\//);
+assert.match(mobileLAN, /appspace_lan_security/);
+for(const source of [monitorJs, lan, desktopUpdater, electronMain, desktopClient, mobileLAN]) {
+  new Function(source);
+}
+
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/portal.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 console.log("[AppSpace] Estrutura, links e cópia dos recursos: OK.");
