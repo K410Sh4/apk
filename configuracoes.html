@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b101b">
+  <meta name="description" content="Personalize cores, aparência e sons do seu AppSpace.">
+  <title>Configurações — AppSpace</title>
+  <link rel="stylesheet" href="./assets/portal.css">
+  <script src="./assets/portal.js" defer></script>
+</head>
+<body class="page-settings">
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Barra lateral">
+      <a class="brand" href="./index.html" aria-label="AppSpace, página inicial">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+        <span class="brand-type">app<span>space</span><small>YOUR APP UNIVERSE</small></span>
+      </a>
+      <div class="sidebar-group">
+        <span class="nav-caption">WORKSPACE</span>
+        <nav class="side-nav" aria-label="Navegação principal">
+          <a href="./index.html" class="nav-link">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Início</span>
+          </a>
+          <a href="./index.html#apps" class="nav-link">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Aplicativos</span><span class="nav-count">01</span>
+          </a>
+          <a href="./configuracoes.html" aria-current="page" class="nav-link active">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6l1.4 1.4m10 10 1.4 1.4m0-12.8L17 7m-10 10-1.4 1.4"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.6"/></svg><span>Configurações</span>
+          </a>
+          <a href="./index.html#sobre" class="nav-link">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>Sobre o portal</span>
+          </a>
+        </nav>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="sidebar-note"><span class="note-art" aria-hidden="true">✦</span><strong>Seu espaço, suas regras.</strong><p>Escolha a aparência e o som que combinam com você.</p></div>
+        <div class="offline-label"><span class="online-dot" aria-hidden="true"></span> Preferências neste dispositivo</div>
+      </div>
+    </aside>
+    <div class="main-column">
+      <header class="topbar">
+        <div class="topbar-left">
+          <a class="mobile-brand" href="./index.html" aria-label="AppSpace, página inicial">
+            <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>app<b>space</b></span>
+          </a>
+          <div class="breadcrumbs"><a href="./index.html">Workspace</a><span class="crumb-divider">/</span><strong>Configurações</strong></div>
+        </div>
+        <div class="topbar-actions">
+          <span class="version-chip">BETA 0.3</span>
+          <button type="button" class="theme-toggle" data-theme-toggle aria-label="Ativar tema claro" title="Alternar tema">
+            <svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+            <svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 15.5A8.8 8.8 0 0 1 8.5 3.7 8.8 8.8 0 1 0 20.3 15.5Z"/></svg>
+          </button>
+        </div>
+      </header>
+      <main class="main-content settings-main">
+        <div class="settings-heading">
+          <a href="./index.html" class="back-link">← Voltar ao início</a>
+          <span class="section-kicker">PERSONALIZAÇÃO</span>
+          <h1>Deixe com a sua <span>cara.</span></h1>
+          <p>Ajuste a aparência e os sons do AppSpace. As alterações são aplicadas na hora e mantidas neste dispositivo.</p>
+        </div>
+        <div class="settings-layout">
+          <div class="settings-panels">
+            <section class="settings-panel" aria-labelledby="appearance-title">
+              <div class="settings-panel-header"><span class="settings-section-icon" aria-hidden="true">✦</span><div><h2 id="appearance-title">Aparência</h2><p>Personalize o visual do seu portal.</p></div></div>
+              <fieldset class="settings-fieldset">
+                <legend>Tema</legend>
+                <div class="option-row">
+                  <label class="choice-tile theme-choice"><input type="radio" name="theme" value="dark" data-setting="theme"><span class="theme-illustration theme-dark" aria-hidden="true"><i></i><i></i><i></i></span><span>Escuro</span></label>
+                  <label class="choice-tile theme-choice"><input type="radio" name="theme" value="light" data-setting="theme"><span class="theme-illustration theme-light" aria-hidden="true"><i></i><i></i><i></i></span><span>Claro</span></label>
+                </div>
+              </fieldset>
+              <fieldset class="settings-fieldset">
+                <legend>Cor principal</legend>
+                <p class="field-help">Altera os botões, destaques e ícones do portal.</p>
+                <div class="accent-options">
+                  <label class="accent-choice"><input type="radio" name="accent" value="violet" data-setting="accent"><span class="swatch violet" aria-hidden="true"></span><span>Violeta</span></label>
+                  <label class="accent-choice"><input type="radio" name="accent" value="blue" data-setting="accent"><span class="swatch blue" aria-hidden="true"></span><span>Azul</span></label>
+                  <label class="accent-choice"><input type="radio" name="accent" value="mint" data-setting="accent"><span class="swatch mint" aria-hidden="true"></span><span>Menta</span></label>
+                  <label class="accent-choice"><input type="radio" name="accent" value="pink" data-setting="accent"><span class="swatch pink" aria-hidden="true"></span><span>Rosa</span></label>
+                </div>
+              </fieldset>
+              <fieldset class="settings-fieldset">
+                <legend>Densidade dos cards</legend>
+                <div class="option-row">
+                  <label class="choice-tile text-choice"><input type="radio" name="density" value="comfortable" data-setting="density"><span class="choice-icon" aria-hidden="true">▦</span><span>Confortável</span><small>Mais espaço</small></label>
+                  <label class="choice-tile text-choice"><input type="radio" name="density" value="compact" data-setting="density"><span class="choice-icon" aria-hidden="true">▤</span><span>Compacta</span><small>Mais apps na tela</small></label>
+                </div>
+              </fieldset>
+              <fieldset class="settings-fieldset last">
+                <legend>Efeitos visuais</legend>
+                <div class="option-row">
+                  <label class="choice-tile text-choice"><input type="radio" name="effects" value="normal" data-setting="effects"><span class="choice-icon" aria-hidden="true">✧</span><span>Normais</span><small>Brilho e animação</small></label>
+                  <label class="choice-tile text-choice"><input type="radio" name="effects" value="reduced" data-setting="effects"><span class="choice-icon" aria-hidden="true">◌</span><span>Reduzidos</span><small>Mais discretos</small></label>
+                  <label class="choice-tile text-choice"><input type="radio" name="effects" value="off" data-setting="effects"><span class="choice-icon" aria-hidden="true">–</span><span>Desligados</span><small>Sem movimento</small></label>
+                </div>
+              </fieldset>
+            </section>
+
+            <section class="settings-panel" aria-labelledby="audio-title">
+              <div class="settings-panel-header"><span class="settings-section-icon audio" aria-hidden="true">♫</span><div><h2 id="audio-title">Sons</h2><p>Pequenos efeitos para cada interação.</p></div></div>
+              <div class="sound-switch-row">
+                <div><strong>Sons de interface</strong><p>Som suave ao navegar, clicar e confirmar ações.</p></div>
+                <label class="switch-control"><input type="checkbox" id="sound-enabled" data-setting="sound" aria-label="Ativar sons de interface"><span class="switch-track" aria-hidden="true"></span></label>
+              </div>
+              <div class="volume-group" id="volume-group">
+                <div class="range-header"><label for="sound-volume">Volume</label><output id="volume-value" for="sound-volume">30%</output></div>
+                <input id="sound-volume" type="range" min="0" max="100" step="5" value="30" data-setting="volume">
+                <div class="range-limits"><span>Silencioso</span><span>Máximo</span></div>
+              </div>
+              <div class="sound-actions">
+                <button type="button" id="sound-preview" class="secondary-button" data-no-click-sound>♫ Ouvir exemplo</button>
+                <span class="field-help">Sons gerados localmente, sem arquivos externos.</span>
+              </div>
+            </section>
+            <div class="settings-bottom">
+              <span id="settings-status" role="status" aria-live="polite">Preferências salvas automaticamente.</span>
+              <button type="button" id="reset-settings" class="reset-button" data-no-click-sound>↺ Restaurar padrões</button>
+            </div>
+          </div>
+          <aside class="settings-preview" aria-label="Prévia das preferências">
+            <span class="section-kicker">PRÉVIA EM TEMPO REAL</span>
+            <div class="preview-card-outer">
+              <div class="preview-card-accent"><div class="preview-app-icon">✦</div><span class="status-pill"><span class="status-dot"></span> Em breve</span></div>
+              <div class="preview-card-text"><span class="app-category">PROJETO 001</span><strong>Primeiro app</strong><p>Seu novo aplicativo, do seu jeito.</p><span class="mini-preview-button">Ver projeto ↗</span></div>
+            </div>
+            <p>Suas escolhas aparecerão em todas as páginas do portal.</p>
+          </aside>
+        </div>
+        <footer class="site-footer"><span>AppSpace · Preferências armazenadas localmente</span><span>PC + Android · Offline</span></footer>
+      </main>
+      <nav class="mobile-nav" aria-label="Navegação móvel">
+        <a href="./index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Início</span></a>
+        <a href="./index.html#apps"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg><span>Apps</span></a>
+        <a href="./configuracoes.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg><span>Ajustes</span></a>
+        <a href="./index.html#sobre"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>Sobre</span></a>
+      </nav>
+    </div>
+  </div>
+</body>
+</html>
