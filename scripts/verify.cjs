@@ -23,6 +23,7 @@ const desktopClient = text("assets/desktop-updates.js");
 const mobileLAN = text("scripts/prepare-mobile-lan.cjs");
 const foldersCss = text("assets/folders.css");
 const launcherCss = text("assets/launcher.css");
+const mobileNavCss = text("assets/mobile-navigation.css");
 const ota = text("assets/ota.js");
 const cfgOta = JSON.parse(text("ota/latest.json"));
 const settings = text("configuracoes.html");
@@ -81,9 +82,18 @@ assert.match(js, /function createLauncherTile\(/);
 assert.match(js, /new Intl\.Collator\("pt-BR"/);
 assert.match(js, /libraryView: "cards"/);
 assert.match(js, /librarySort: "default"/);
+assert.match(js, /mobileNavStyle: "classic"/);
+assert.match(js, /mobileNavStyle: \["classic", "minimal"\]/);
+assert.match(js, /root\.dataset\.mobileNavStyle/);
+assert.match(js, /syncMobileNavigation\(\)/);
+assert.match(js, /mobileViewport\.addEventListener\("change", refreshLibraryView\)/);
 assert.match(js, /libraryView: \["cards", "launcher"\]/);
 assert.match(js, /librarySort: \["default", "az", "za"\]/);
 assert.match(settings, /data-setting="libraryView"/);
+assert.equal((settings.match(/data-setting="mobileNavStyle"/g) || []).length, 2);
+assert.match(settings, /name="mobileNavStyle" value="classic"/);
+assert.match(settings, /name="mobileNavStyle" value="minimal"/);
+assert.match(settings, /id="navegacao-mobile"/);
 assert.match(settings, /data-setting="librarySort"/);
 assert.match(settings, /value="launcher"/);
 assert.match(settings, /value="az"/);
@@ -94,6 +104,16 @@ assert.match(home, /assets\/launcher\.css/);
 assert.match(settings, /assets\/launcher\.css/);
 assert.match(launcherCss, /grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
 assert.match(launcherCss, /data-library-view="launcher"/);
+assert.match(mobileNavCss, /data-mobile-nav-style="minimal"/);
+assert.match(mobileNavCss, /max-width:850px/);
+assert.match(mobileNavCss, /minimal-bottom-nav/);
+assert.match(mobileNavCss, /body\.page-folder/);
+assert.match(mobileNavCss, /body\.page-settings/);
+assert.match(mobileNavCss, /body\.page-home/);
+for (const page of [home, settings, stock, video, system, detail, monitor]) {
+  assert.match(page, /assets\/mobile-navigation\.css/, "Estilo mobile ausente na página");
+}
+new Function(js);
 assert.equal(cfg.webDir, "web");
 assert.equal(cfg.android.path, "mobile/android");
 assert.equal(pkg.main, "desktop/main.cjs");
@@ -150,7 +170,7 @@ for(const source of [monitorJs, lan, desktopUpdater, electronMain, desktopClient
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
