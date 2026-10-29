@@ -7,7 +7,7 @@ const path = require("node:path");
 
 const root = path.resolve(__dirname, "..");
 const output = path.join(root, "web");
-const files = ["index.html"];
+const files = ["index.html", "configuracoes.html"];
 const directories = ["assets", "apps"];
 
 for (const file of files) {
