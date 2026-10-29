@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.6.1",
+  "version": "0.6.2",
   "minNative": "0.6.0",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.6.1/appspace-web-v0.6.1.zip",
-  "sha256": "02c240eac47bc4644cddeb1bcd02eafd59b9d6cd2c76f4a15fc7842a26cb2267",
-  "notes": "AppSpace PC Monitor: painel de CPU/RAM via Wi-Fi, pasta Sistema, layout responsivo e interface OTA no Windows."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.6.2/appspace-web-v0.6.2.zip",
+  "sha256": "ddd4d7eabe3cce1ea1a5c5d8625d502fd3b85dc42dede9298262c2100750e9f2",
+  "notes": "Navegação mobile selecionável: Clássico ou Minimalista, grade de apps, 3 abas e pastas compactas."
 }
