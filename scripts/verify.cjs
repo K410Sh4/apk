@@ -10,6 +10,9 @@ const text = (name) => fs.readFileSync(path.join(root, name), "utf8");
 
 const home = text("index.html");
 const detail = text("apps/primeiro-app/index.html");
+const settings = text("configuracoes.html");
+const personalization = text("assets/personalization.css");
+const settingsCss = text("assets/settings.css");
 const js = text("assets/portal.js");
 const css = text("assets/portal.css");
 const cfg = JSON.parse(text("capacitor.config.json"));
@@ -20,13 +23,31 @@ assert.equal(home.split('class="app-card"').length - 1, 1, "A tela inicial deve 
 assert.match(home, /href="\.\/apps\/primeiro-app\/index\.html"/);
 assert.match(detail, /href="\.\.\/\.\.\/index\.html#apps"/);
 assert.match(css, /@media \(max-width: 620px\)/);
+assert.match(home, /href="\.\/configuracoes\.html"/);
+assert.match(detail, /href="\.\.\/\.\.\/configuracoes\.html"/);
+assert.match(settings, /data-setting="accent"/);
+assert.match(settings, /data-setting="density"/);
+assert.match(settings, /data-setting="effects"/);
+assert.match(settings, /data-setting="sound"/);
+assert.match(settings, /data-setting="volume"/);
+assert.match(settings, /id="sound-preview"/);
+assert.match(personalization, /data-accent="blue"/);
+assert.match(settingsCss, /settings-panel/);
+assert.match(js, /appspace\.preferences\.v1/);
+assert.match(js, /AudioContext/);
+assert.match(js, /sound: false/);
+assert.match(js, /function playSound/);
+assert.match(home, /assets\/personalization\.css/);
+assert.match(detail, /assets\/personalization\.css/);
+assert.match(settings, /assets\/settings\.css/);
 assert.match(js, /function filterApps\(\)/);
 assert.equal(cfg.webDir, "web");
 assert.equal(cfg.android.path, "mobile/android");
 assert.equal(pkg.main, "desktop/main.cjs");
+assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "assets/portal.css", "assets/portal.js", "apps/primeiro-app/index.html"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/portal.js", "apps/primeiro-app/index.html"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 console.log("[AppSpace] Estrutura, links e cópia dos recursos: OK.");
