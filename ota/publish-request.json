@@ -1,4 +1,4 @@
 {
-  "version": "0.5.1",
-  "notes": "Primeira atualização OTA de teste: distribuição do AppSpace web sem reinstalar o APK."
+  "version": "0.5.2",
+  "notes": "Nova grade de ícones estilo Android, escolha entre Cards e Grade de apps, ordenação A-Z/Z-A e busca; preferências persistentes."
 }
