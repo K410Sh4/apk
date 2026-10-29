@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.6.2",
+  "version": "0.6.3",
   "minNative": "0.6.0",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.6.2/appspace-web-v0.6.2.zip",
-  "sha256": "ddd4d7eabe3cce1ea1a5c5d8625d502fd3b85dc42dede9298262c2100750e9f2",
-  "notes": "Navegação mobile selecionável: Clássico ou Minimalista, grade de apps, 3 abas e pastas compactas."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.6.3/appspace-web-v0.6.3.zip",
+  "sha256": "97789203b03254fba72841d9766c1378eb46d1f712fb81bee64c538c5ae08b85",
+  "notes": "Estoque: Etiqueta Studio, editor visual offline com medidas em mm, modelos, Code39, imagens, SVG/PNG, folha A4, impressão e projetos JSON."
 }
