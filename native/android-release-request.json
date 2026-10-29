@@ -1,0 +1,4 @@
+{
+  "version": "0.7.0",
+  "notes": "Corrige cores SVG e visualização proporcional A4 do Etiqueta Studio. Ativa seletor de impressoras Wi-Fi via PrintManager Android."
+}
