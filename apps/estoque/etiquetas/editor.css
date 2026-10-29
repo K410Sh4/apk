@@ -134,3 +134,50 @@ width:100%;min-width:0;min-height:35px;max-width:100%;border:1px solid var(--stu
  #print-root .print-page:last-child{break-after:auto;page-break-after:auto}
  #print-root svg{width:210mm!important;height:297mm!important;display:block!important}
 }
+
+/* FIX REA-VIS-001: o CSS global do AppSpace define stroke:currentColor e
+   width/height:20px para todos SVGs. Não deixar essas regras afetarem a arte. */
+#label-canvas,#a4-preview,
+#label-canvas svg,#a4-preview svg {
+  stroke:none;
+  stroke-width:0;
+  fill:#111827;
+  max-width:100%;
+}
+#label-canvas{width:100%!important;height:auto!important;aspect-ratio:var(--label-ratio,3 / 2)}
+#a4-preview{width:100%!important;height:auto!important;aspect-ratio:210 / 297;overflow:hidden}
+#label-canvas text,#label-canvas tspan,
+#a4-preview text,#a4-preview tspan { stroke:none;stroke-width:0;paint-order:normal; }
+#label-canvas .label-selection{stroke:#2e7bfa;stroke-width:.3;fill:none;}
+#label-canvas .label-resize{stroke:#2e7bfa;stroke-width:.4;fill:#fff;}
+.studio-view-switch{display:flex;align-items:center;gap:3px;
+  background:var(--studio-panel);border:1px solid var(--studio-border);
+  border-radius:11px;padding:3px}
+.studio-view-switch button{border:0;background:none;border-radius:8px;
+  padding:9px 11px;font-size:11px;font-weight:750;color:var(--muted);white-space:nowrap}
+.studio-view-switch button[aria-pressed="true"]{
+  background:rgba(var(--accent-rgb),.13);color:var(--accent)}
+.studio-a4-frame{display:flex;flex-direction:column;gap:10px;
+  width:min(100%,385px);margin:auto;align-items:stretch;}
+.studio-a4-header{display:flex;justify-content:space-between;gap:8px;
+  align-items:center;color:var(--text);font-size:10px}
+.studio-a4-header span{color:var(--muted);font-size:10px}
+#a4-preview{display:block;background:white;box-shadow:0 10px 36px rgba(0,0,0,.23);
+ border:1px solid rgba(0,0,0,.2)}
+.studio-a4-frame>p{margin:0;text-align:center;font-size:10px;
+ line-height:1.6;color:var(--muted)}
+.studio-stage[data-view="a4"]{max-height:none;min-height:560px;padding:24px 12px}
+.studio-stage[data-view="a4"] #studio-canvas-frame{display:none}
+.studio-stage[data-view="label"] .studio-a4-frame{display:none}
+.studio-printer-help{flex-basis:100%;font-size:10px;color:var(--muted);
+  line-height:1.65;border-left:2px solid var(--accent);
+  padding:8px 10px;background:var(--studio-soft);border-radius:0 8px 8px 0}
+@media(max-width:850px){
+ .studio-canvas-head{display:flex;flex-wrap:wrap}
+ .studio-view-switch{order:3;width:100%;justify-content:center}
+ .studio-view-switch button{flex:1}
+ .studio-zoom{order:2}
+ .studio-stage[data-view="a4"]{padding:15px 10px;min-height:420px}
+ .studio-a4-frame{width:min(100%,315px)}
+ .studio-a4-header{flex-wrap:wrap}
+}
