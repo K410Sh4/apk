@@ -10,6 +10,9 @@ const text = (name) => fs.readFileSync(path.join(root, name), "utf8");
 
 const home = text("index.html");
 const detail = text("apps/primeiro-app/index.html");
+const stock = text("apps/estoque/index.html");
+const video = text("apps/edicao-de-video/index.html");
+const foldersCss = text("assets/folders.css");
 const settings = text("configuracoes.html");
 const personalization = text("assets/personalization.css");
 const settingsCss = text("assets/settings.css");
@@ -20,6 +23,26 @@ const pkg = JSON.parse(text("package.json"));
 
 assert.match(home, /<html lang="pt-BR"/, "HTML precisa da linguagem pt-BR");
 assert.equal(home.split('class="app-card"').length - 1, 1, "A tela inicial deve ter um card nesta etapa");
+assert.equal(home.split('class="folder-card ').length - 1, 2, "A Home deve ter duas pastas");
+assert.match(home, /href="\.\/apps\/estoque\/index\.html"/);
+assert.match(home, /href="\.\/apps\/edicao-de-video\/index\.html"/);
+assert.match(home, /id="pastas"/);
+assert.match(home, /assets\/folders\.css/);
+assert.match(stock, /<h1 id="folder-title">Estoque<\/h1>/);
+assert.match(video, /<h1 id="folder-title">Edição de vídeo<\/h1>/);
+for (const folder of [stock, video]) {
+  assert.match(folder, /href="\.\.\/\.\.\/index\.html#pastas"/);
+  assert.match(folder, /href="\.\.\/\.\.\/configuracoes\.html"/);
+  assert.match(folder, /assets\/personalization\.css/);
+  assert.match(folder, /assets\/folders\.css/);
+  assert.match(folder, /0 aplicativos/);
+}
+assert.match(foldersCss, /folder-grid/);
+assert.match(js, /const folderCards/);
+assert.match(js, /const appCards/);
+assert.match(js, /folder-nav-count/);
+assert.match(settings, /index\.html#pastas/);
+
 assert.match(home, /href="\.\/apps\/primeiro-app\/index\.html"/);
 assert.match(detail, /href="\.\.\/\.\.\/index\.html#apps"/);
 assert.match(css, /@media \(max-width: 620px\)/);
@@ -47,7 +70,7 @@ assert.equal(pkg.main, "desktop/main.cjs");
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/portal.js", "apps/primeiro-app/index.html"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/portal.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 console.log("[AppSpace] Estrutura, links e cópia dos recursos: OK.");
