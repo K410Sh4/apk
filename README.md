@@ -1,3 +1,13 @@
+# Projetos do repositório
+
+## AppSpace — novo portal HTML (PC + celular)
+
+O portal web local está em [`index.html`](./index.html). Ele contém uma tela inicial responsiva com um card **Primeiro app (Em breve)**, busca, tema claro/escuro e uma página independente para o futuro aplicativo. Basta extrair o repositório e abrir `index.html` em um navegador compatível. **Não é necessário compilar o projeto Android.**
+
+**[Leia o guia do AppSpace](./PORTAL.md)** para instruções de uso offline, observações de compatibilidade no Android e como adicionar novos aplicativos.
+
+---
+
 # R410 CONTROL CENTER
 
 Android control and diagnostics laboratory for **Samsung Galaxy Buds Core SM-R410**.
