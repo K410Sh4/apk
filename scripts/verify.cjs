@@ -13,6 +13,8 @@ const detail = text("apps/primeiro-app/index.html");
 const stock = text("apps/estoque/index.html");
 const video = text("apps/edicao-de-video/index.html");
 const foldersCss = text("assets/folders.css");
+const ota = text("assets/ota.js");
+const cfgOta = JSON.parse(text("ota/latest.json"));
 const settings = text("configuracoes.html");
 const personalization = text("assets/personalization.css");
 const settingsCss = text("assets/settings.css");
@@ -67,10 +69,29 @@ assert.match(js, /function filterApps\(\)/);
 assert.equal(cfg.webDir, "web");
 assert.equal(cfg.android.path, "mobile/android");
 assert.equal(pkg.main, "desktop/main.cjs");
+assert.equal(pkg.version, "0.5.0");
+assert.equal(pkg.dependencies["@capgo/capacitor-updater"], "8.51.15");
+assert.equal(cfg.plugins.CapacitorUpdater.autoUpdate, false);
+assert.equal(cfg.plugins.CapacitorUpdater.httpsOnly, true);
+assert.equal(cfgOta.schema, 1);
+assert.equal(cfgOta.version, "0.5.0");
+assert.match(ota, /notifyAppReady/);
+assert.match(ota, /raw\.githubusercontent\.com\/K410Sh4\/apk\/main\/ota\/latest\.json/);
+assert.match(ota, /checksum:\s*candidate\.sha256/);
+assert.match(ota, /await updater\.next/);
+assert.match(ota, /await updater\.set/);
+assert.match(ota, /await updater\.reset/);
+for (const page of [home, detail, settings, stock, video]) {
+  assert.match(page, /assets\/ota\.js/);
+}
+assert.match(settings, /id="ota-check"/);
+assert.match(settings, /id="ota-install"/);
+assert.match(settings, /id="ota-auto"/);
+assert.match(settings, /id="ota-reset"/);
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/portal.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/portal.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 console.log("[AppSpace] Estrutura, links e cópia dos recursos: OK.");
