@@ -6,7 +6,7 @@
   const LEGACY_THEME_KEY = "appspace.theme";
   const DEFAULTS = Object.freeze({
     theme: "dark", accent: "violet", density: "comfortable",
-    libraryView: "cards", librarySort: "default",
+    libraryView: "cards", librarySort: "default", mobileNavStyle: "classic",
     effects: "normal", sound: false, volume: 30
   });
   const OPTIONS = {
@@ -15,11 +15,47 @@
     density: ["comfortable", "compact"],
     libraryView: ["cards", "launcher"],
     librarySort: ["default", "az", "za"],
+    mobileNavStyle: ["classic", "minimal"],
     effects: ["normal", "reduced", "off"]
   };
   const root = document.documentElement;
   const toggles = document.querySelectorAll("[data-theme-toggle]");
   let audioContext = null;
+  const mobileViewport = window.matchMedia("(max-width: 850px)");
+
+  // O menu Clássico permanece intocado; o simplificado é gerado uma única vez
+  // e aparece somente no mobile quando a pessoa escolhe "Minimalista".
+  function syncMobileNavigation() {
+    if (document.querySelector(".minimal-bottom-nav")) return;
+    const original = document.querySelector(".mobile-nav");
+    const brand = document.querySelector("a.mobile-brand");
+    if (!original || !brand) return;
+    const home = new URL(brand.getAttribute("href"), location.href);
+    const settings = new URL("configuracoes.html", home);
+    const items = [
+      { label: "Início", icon: "⌂", url: home.href, current: document.body.classList.contains("page-home") },
+      { label: "Apps", icon: "▦", url: home.href + "#launcher", current: !document.body.classList.contains("page-home") && !document.body.classList.contains("page-settings") },
+      { label: "Ajustes", icon: "⚙", url: settings.href, current: document.body.classList.contains("page-settings") }
+    ];
+    const bar = document.createElement("nav");
+    bar.className = "minimal-bottom-nav";
+    bar.setAttribute("aria-label", "Navegação móvel minimalista");
+    for (const item of items) {
+      const link = document.createElement("a");
+      link.href = item.url;
+      if (item.current) link.setAttribute("aria-current", "page");
+      const glyph = document.createElement("span");
+      glyph.className = "minimal-nav-glyph";
+      glyph.setAttribute("aria-hidden", "true");
+      glyph.textContent = item.icon;
+      const name = document.createElement("span");
+      name.textContent = item.label;
+      link.append(glyph, name);
+      bar.append(link);
+    }
+    original.insertAdjacentElement("afterend", bar);
+  }
+
 
   function safeGet(key) {
     try { return localStorage.getItem(key); }
@@ -68,6 +104,8 @@
     root.dataset.density = prefs.density;
     root.dataset.libraryView = prefs.libraryView;
     root.dataset.librarySort = prefs.librarySort;
+    root.dataset.mobileNavStyle = prefs.mobileNavStyle;
+    syncMobileNavigation();
     root.dataset.effects = prefs.effects;
     const light = prefs.theme === "light";
     const themeMeta = document.querySelector('meta[name="theme-color"]');
@@ -96,7 +134,7 @@
   function setPreference(key, value, { feedback = true } = {}) {
     prefs = validate({ ...prefs, [key]: value });
     applyPreferences();
-    if (key === "libraryView" || key === "librarySort") refreshLibraryView();
+    if (key === "libraryView" || key === "librarySort" || key === "mobileNavStyle") refreshLibraryView();
     const stored = safeSet(KEY, JSON.stringify(prefs));
     if (feedback) updateStatus(stored ? "Alterações salvas neste dispositivo." :
       "Preferências aplicadas, mas o navegador bloqueou o armazenamento local.");
@@ -153,7 +191,7 @@
       setPreference(key, next);
       if (key === "sound" && next === true) {
         if (!playSound("confirm")) updateStatus("Sons ativados. Se não ouvir, verifique o volume do dispositivo.");
-      } else if (key === "accent" || key === "theme" || key === "density" || key === "effects" || key === "libraryView" || key === "librarySort") {
+      } else if (key === "accent" || key === "theme" || key === "density" || key === "effects" || key === "libraryView" || key === "librarySort" || key === "mobileNavStyle") {
         playSound("tap");
       }
     });
@@ -263,7 +301,10 @@
   }
 
   function refreshLibraryView() {
-    const active = prefs.libraryView === "launcher";
+    // O modo minimalista força a gaveta só em telas móveis;
+    // a preferência de cards/grade no desktop permanece independente.
+    const mobileMinimal = prefs.mobileNavStyle === "minimal" && mobileViewport.matches;
+    const active = prefs.libraryView === "launcher" || mobileMinimal;
     if (launcher) launcher.hidden = !active;
     if (launcherOrder) launcherOrder.textContent =
       prefs.librarySort === "az" ? "A–Z" : prefs.librarySort === "za" ? "Z–A" : "Original";
@@ -315,6 +356,7 @@
     search.addEventListener("input", filterApps);
     if (launcherSearch) launcherSearch.addEventListener("input", filterLauncher);
     refreshLibraryView();
+    mobileViewport.addEventListener("change", refreshLibraryView);
     document.addEventListener("keydown", (event) => {
       const target = event.target;
       const isEditing = target instanceof HTMLElement && (target.matches("input, textarea, select") || target.isContentEditable);
