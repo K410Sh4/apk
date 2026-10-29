@@ -362,3 +362,17 @@ Seguindo a abordagem de análise incremental e evidências do REA, a implementa�
 - A exportação SVG da folha é da **primeira página A4**; `Imprimir A4` gera todas as páginas até 200 cópias. A impressão direta no WebView Android pode exigir exportar e abrir o SVG num aplicativo de impressão compatível.
 - Projeto salvo em `localStorage` é mantido ao reiniciar e ao atualizar via OTA, **não é backup garantido após desinstalação ou limpeza de dados**. Use `Salvar arquivo` (JSON) para cópia externa.
 - A grade de aplicativos da Home mostra a pasta Estoque; o editor fica **dentro da pasta**, acessível em dois toques.
+
+## Etiqueta Studio — proporção A4, correção de cores e impressão Android por Wi-Fi (v0.7.0)
+
+**Problemas reproduzidos por inspeção REA (entrada: captura do Android)**
+
+- `REA-VIS-001` **causa identificada no CSS**: `assets/portal.css` definia `svg { fill:none; stroke:currentColor; stroke-width:1.7; width:20px; height:20px }` para ícones. A regra abrangia inadvertidamente o SVG do editor, gerando contornos grossos nos textos e interferindo no preenchimento. Solução: regras com ID restritas aos SVGs de arte, e `stroke="none"` no renderizador/na exportação.
+- `REA-DIM-002` **proporção da folha**: a versão inicial ampliava a etiqueta para preencher a área da tela, sem comparação com A4. Solução: alternar entre **Editar etiqueta** (zoom para trabalhar) e **Folha A4** (SVG de 210 × 297 mm, cópias e margens nas posições relativas exatas); renderização A4 com grupos diretos, para não herdar largura global de ícones.
+- `REA-PRINT-003` **lacuna nativa**: o AppSpace 0.6.0 não possuía plugin para abrir o PrintManager do Android a partir do WebView. Solução: instalar `@capgo/capacitor-printer@8.1.8` na base Android **0.7.0**; o botão **Impressoras Wi-Fi** abre o seletor nativo com a folha A4 renderizada em HTML/SVG. A descoberta/disponibilidade de impressoras é responsabilidade dos serviços de impressão do Android (Mopria ou serviço da fabricante); o aplicativo **não escaneia indiscriminadamente impressoras pela internet** e não gerencia protocolos IPP diretamente.
+
+**Verificação:** os testes de código conferem a existência dos estilos de isolamento, seletor de modo A4 e plugin nativo. A **precisão de dimensões em impressão física**, a fidelidade de cor da impressora e a descoberta no Wi-Fi de um dispositivo específico ainda precisam de validação prática. O papel final depende de escolher A4, escala 100%, margens 0 e driver compatível no seletor. Uma tela de celular não pode garantir visualização física 1:1 em milímetros sem calibração do DPI; a vista A4 garante **proporção geométrica correta**, não o tamanho absoluto na tela.
+
+**Instalação:** o novo plugin Android exige instalar APK **0.7.0**; OTA 0.6.x não pode acrescentar código nativo. As próximas alterações somente web podem chegar via OTA 0.7.x. O build atual é debug e pode ser necessário desinstalar a versão anterior se a assinatura mudar. **Antes de desinstalar, use "Salvar arquivo" para exportar os projetos de etiquetas em JSON**, pois `localStorage` será apagado na desinstalação.
+
+**Uso:** entre em `Estoque → Etiqueta Studio`, escolha **Folha A4** para conferir proporção e posicionamento, depois **Impressoras Wi-Fi** (no APK 0.7.0). No Android, ative um serviço de impressão compatível em Configurações do sistema. A impressora Wi-Fi normalmente precisa estar na mesma rede e acessível ao serviço; serviços com impressão remota podem ter requisitos próprios.
