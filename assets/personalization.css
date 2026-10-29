@@ -1,0 +1,89 @@
+/* AppSpace personalização v0.3 — carregado depois do portal.css */
+:root {
+  --accent-rgb: 149,114,252;
+  --accent-gradient: linear-gradient(145deg,#9f75ff,#6144dc);
+}
+:root[data-accent="blue"] {
+  --accent:#80c8ff; --accent-bright:#4699e9; --accent-rgb:85,160,235;
+  --accent-gradient:linear-gradient(145deg,#48b9f8,#426ce6);
+}
+:root[data-accent="mint"] {
+  --accent:#67e5bf; --accent-bright:#24b48c; --accent-rgb:44,194,157;
+  --accent-gradient:linear-gradient(145deg,#52dfbc,#158b91);
+}
+:root[data-accent="pink"] {
+  --accent:#ffa2d4; --accent-bright:#e567b8; --accent-rgb:235,104,184;
+  --accent-gradient:linear-gradient(145deg,#ff8bd2,#ae61dc);
+}
+:root[data-theme="light"][data-accent="blue"] { --accent:#1a66b1; --accent-bright:#357fc9; }
+:root[data-theme="light"][data-accent="mint"] { --accent:#137f67; --accent-bright:#189678; }
+:root[data-theme="light"][data-accent="pink"] { --accent:#ae357e; --accent-bright:#c75299; }
+
+.brand-mark,.hero-symbol,.app-logo,.detail-logo,.preview-app-icon {
+  background:var(--accent-gradient);
+}
+.hero h1 span,.eyebrow { color:color-mix(in srgb,var(--accent) 75%,white); }
+.hero { border-color:rgba(var(--accent-rgb),.23); }
+.primary-button { background:var(--accent-bright); }
+.primary-button:hover { background:var(--accent); }
+.nav-link.active {
+  color:var(--accent);
+  background:rgba(var(--accent-rgb),.12);
+  border-color:rgba(var(--accent-rgb),.14);
+}
+:root[data-theme="light"] .nav-link.active { color:var(--accent); background:rgba(var(--accent-rgb),.1); }
+.section-count,.app-card:hover,.theme-toggle:hover { border-color:rgba(var(--accent-rgb),.35); }
+.section-count,.stat-icon.purple { background:rgba(var(--accent-rgb),.12); }
+.eyebrow-spark,.note-art,.app-category { color:var(--accent); }
+.app-preview {
+  border-color:rgba(var(--accent-rgb),.18);
+  background:linear-gradient(130deg,#1a2540,#232047 75%,#293d69);
+}
+.hero-glow { background:var(--accent-bright); }
+.hero::after { opacity:.15; }
+.app-card:hover { border-color:rgba(var(--accent-rgb),.55); }
+.mobile-nav a[aria-current] { background:rgba(var(--accent-rgb),.09); }
+.window-sidebar span:first-child { background:var(--accent-bright); }
+.topbar-actions { gap:10px; }
+.settings-link {
+  width:36px; height:36px; display:grid; place-items:center; border-radius:11px;
+  color:var(--muted); border:1px solid var(--stroke); background:var(--surface);
+  transition:color .15s,border-color .15s,transform .15s;
+}
+.settings-link:hover,.settings-link[aria-current] { color:var(--accent); border-color:rgba(var(--accent-rgb),.4); }
+.settings-link svg { width:18px;height:18px; }
+
+:root[data-density="compact"] .app-card .app-preview { height:115px; }
+:root[data-density="compact"] .app-card .card-top { padding:13px 16px 11px; }
+:root[data-density="compact"] .app-card .app-preview { margin:0 16px; }
+:root[data-density="compact"] .app-card .card-body { padding:13px 16px 11px; }
+:root[data-density="compact"] .app-card .card-body p { min-height:0; }
+:root[data-density="compact"] .app-card .card-footer { padding:8px 16px; }
+:root[data-density="compact"] .app-card .preview-window { top:16px; }
+:root[data-density="compact"] .app-card .app-logo { width:33px;height:33px; }
+:root[data-density="compact"] .stat { min-height:83px; }
+@media (min-width:681px) {
+  :root[data-density="compact"] .app-grid { grid-template-columns:repeat(auto-fill,minmax(min(100%,245px),1fr)); }
+  :root[data-density="compact"] .app-card { max-width:340px; }
+}
+:root[data-effects="reduced"] .hero-glow { opacity:.06;filter:blur(45px); }
+:root[data-effects="reduced"] .hero-art { opacity:.38; }
+:root[data-effects="reduced"] .app-card:hover,
+:root[data-effects="reduced"] .primary-button:hover { transform:none; }
+:root[data-effects="off"] .hero-glow,
+:root[data-effects="off"] .orbit-star { display:none; }
+:root[data-effects="off"] .hero-art { opacity:.16; }
+:root[data-effects="off"] .app-card { box-shadow:none; }
+:root[data-effects="off"] *, :root[data-effects="off"] *::before,
+:root[data-effects="off"] *::after { transition:none !important;animation:none !important;scroll-behavior:auto !important; }
+:root[data-effects="off"] .app-card:hover,
+:root[data-effects="off"] .primary-button:hover,
+:root[data-effects="off"] .app-card:hover .card-arrow { transform:none; }
+@media (prefers-reduced-motion:reduce) {
+  .hero-art,.hero-symbol,.app-card:hover,.primary-button:hover { transform:none !important; }
+}
+@media (max-width:850px) {
+  .topbar-actions { gap:8px; }
+  .settings-link,.theme-toggle { width:38px;height:38px; }
+  .mobile-nav a { min-width:0; }
+}
