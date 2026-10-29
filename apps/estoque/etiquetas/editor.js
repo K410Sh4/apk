@@ -421,7 +421,7 @@ $("download-sheet").addEventListener("click",()=>{
 });
 function nativePrinter(){
   const cap=window.Capacitor;
-  if(!cap?.isNativePlatform?.())return null;
+  if(!cap?.isNativePlatform?.() || !cap.isPluginAvailable?.("Printer"))return null;
   return cap.Plugins?.Printer || cap.registerPlugin?.("Printer") || null;
 }
 function printHtmlPages(pages){
