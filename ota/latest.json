@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.6.3",
-  "minNative": "0.6.0",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.6.3/appspace-web-v0.6.3.zip",
-  "sha256": "97789203b03254fba72841d9766c1378eb46d1f712fb81bee64c538c5ae08b85",
-  "notes": "Estoque: Etiqueta Studio, editor visual offline com medidas em mm, modelos, Code39, imagens, SVG/PNG, folha A4, impressão e projetos JSON."
+  "version": "0.7.1",
+  "minNative": "0.7.0",
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.1/appspace-web-v0.7.1.zip",
+  "sha256": "e21a3a9197045ed794f40d44c15186ac68256c7f6d08985f3d53fb1b7e0f2d69",
+  "notes": "Etiqueta Studio: correção de texto e cores SVG, prévia A4 em proporção real, seleção de impressoras Wi-Fi pelo Android e ajuste de barra superior."
 }
