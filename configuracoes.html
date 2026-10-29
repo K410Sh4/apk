@@ -28,8 +28,7 @@
           <a href="./index.html#pastas" class="nav-link">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h5l2.1 2.2h6a2 2 0 0 1 2 2v8.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 9h17"/></svg><span>Pastas</span><span class="folder-nav-count">02</span>
           </a>
-          <a href="./index.html#pastas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h5l2.1 2.2h6a2 2 0 0 1 2 2v8.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 9h17"/></svg><span>Pastas</span></a>
-        <a href="./index.html#apps" class="nav-link">
+          <a href="./index.html#apps" class="nav-link">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Aplicativos</span><span class="nav-count">01</span>
           </a>
           <a href="./configuracoes.html" aria-current="page" class="nav-link active">
@@ -97,12 +96,46 @@
                   <label class="choice-tile text-choice"><input type="radio" name="density" value="compact" data-setting="density"><span class="choice-icon" aria-hidden="true">▤</span><span>Compacta</span><small>Mais apps na tela</small></label>
                 </div>
               </fieldset>
-              <fieldset class="settings-fieldset last">
+              <fieldset class="settings-fieldset">
                 <legend>Efeitos visuais</legend>
                 <div class="option-row">
                   <label class="choice-tile text-choice"><input type="radio" name="effects" value="normal" data-setting="effects"><span class="choice-icon" aria-hidden="true">✧</span><span>Normais</span><small>Brilho e animação</small></label>
                   <label class="choice-tile text-choice"><input type="radio" name="effects" value="reduced" data-setting="effects"><span class="choice-icon" aria-hidden="true">◌</span><span>Reduzidos</span><small>Mais discretos</small></label>
                   <label class="choice-tile text-choice"><input type="radio" name="effects" value="off" data-setting="effects"><span class="choice-icon" aria-hidden="true">–</span><span>Desligados</span><small>Sem movimento</small></label>
+                </div>
+              </fieldset>
+              <fieldset class="settings-fieldset">
+                <legend>Layout da biblioteca</legend>
+                <p class="field-help">Escolha como os aplicativos e pastas aparecem na tela inicial.</p>
+                <div class="option-row library-layout-options">
+                  <label class="choice-tile layout-choice">
+                    <input type="radio" name="libraryView" value="cards" data-setting="libraryView">
+                    <span class="layout-illustration layout-illustration--cards" aria-hidden="true"><i></i><i></i><i></i></span>
+                    <span>Cards</span><small>Visual atual com detalhes</small>
+                  </label>
+                  <label class="choice-tile layout-choice">
+                    <input type="radio" name="libraryView" value="launcher" data-setting="libraryView">
+                    <span class="layout-illustration layout-illustration--launcher" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                    <span>Grade de apps</span><small>Ícones como no celular</small>
+                  </label>
+                </div>
+              </fieldset>
+              <fieldset class="settings-fieldset last">
+                <legend>Ordenação</legend>
+                <p class="field-help">A grade e as pastas respeitam a ordem selecionada.</p>
+                <div class="option-row library-sort-options">
+                  <label class="choice-tile text-choice">
+                    <input type="radio" name="librarySort" value="default" data-setting="librarySort">
+                    <span class="choice-icon" aria-hidden="true">☷</span><span>Original</span><small>Pastas primeiro</small>
+                  </label>
+                  <label class="choice-tile text-choice">
+                    <input type="radio" name="librarySort" value="az" data-setting="librarySort">
+                    <span class="choice-icon" aria-hidden="true">A↘</span><span>Nome A–Z</span><small>Ordem alfabética</small>
+                  </label>
+                  <label class="choice-tile text-choice">
+                    <input type="radio" name="librarySort" value="za" data-setting="librarySort">
+                    <span class="choice-icon" aria-hidden="true">Z↗</span><span>Nome Z–A</span><small>Ordem inversa</small>
+                  </label>
                 </div>
               </fieldset>
             </section>
@@ -155,6 +188,11 @@
           </div>
           <aside class="settings-preview" aria-label="Prévia das preferências">
             <span class="section-kicker">PRÉVIA EM TEMPO REAL</span>
+            <div class="settings-launcher-preview" aria-label="Prévia da grade de aplicativos">
+              <div class="launcher-preview-icon stock"><span aria-hidden="true">▣</span><small>Estoque</small></div>
+              <div class="launcher-preview-icon video"><span aria-hidden="true">▶</span><small>Edição</small></div>
+              <div class="launcher-preview-icon first"><span aria-hidden="true">✦</span><small>Primeiro app</small></div>
+            </div>
             <div class="preview-card-outer">
               <div class="preview-card-accent"><div class="preview-app-icon">✦</div><span class="status-pill"><span class="status-dot"></span> Em breve</span></div>
               <div class="preview-card-text"><span class="app-category">PROJETO 001</span><strong>Primeiro app</strong><p>Seu novo aplicativo, do seu jeito.</p><span class="mini-preview-button">Ver projeto ↗</span></div>
