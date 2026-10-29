@@ -1,0 +1,170 @@
+/* AppSpace · Navegação móvel opcional, com modo Clássico preservado.
+   Apenas telas <=850px mudam; CSS controla a apresentação, JS salva a preferência. */
+.minimal-bottom-nav{display:none}
+
+/* Cartões das duas opções na página de Configurações */
+.mobile-nav-choices{display:flex;gap:12px;flex-wrap:wrap}
+.mobile-mode-choice{flex:1 1 170px;max-width:225px;min-height:188px}
+.mobile-mode-choice small{line-height:1.5}
+.mobile-mode-help{margin:15px 0 0}
+.mobile-mode-preview{
+  width:100px;height:99px;position:relative;display:grid;
+  gap:5px;padding:10px 13px 14px;overflow:hidden;
+  border:1px solid var(--stroke);border-radius:12px;
+  background:var(--surface-2);
+}
+.mobile-mode-preview i{display:block;border-radius:3px;background:rgba(var(--accent-rgb),.24)}
+.mobile-mode-preview--classic{grid-template-columns:1fr 1fr;grid-template-rows:9px 27px 23px 10px}
+.mobile-mode-preview--classic .mobile-mode-top{grid-column:span 2;background:rgba(var(--accent-rgb),.55)}
+.mobile-mode-preview--classic .mobile-mode-feature{grid-column:span 2;border-radius:5px}
+.mobile-mode-preview--classic .mobile-mode-bottom{grid-column:span 2;background:rgba(var(--accent-rgb),.4)}
+.mobile-mode-preview--minimal{grid-template-columns:repeat(4,1fr);grid-template-rows:9px 11px 24px 24px 7px}
+.mobile-mode-preview--minimal .mobile-mode-top,
+.mobile-mode-preview--minimal .mobile-mode-search,
+.mobile-mode-preview--minimal .mobile-mode-bottom{grid-column:span 4}
+.mobile-mode-preview--minimal .mobile-mode-top{background:rgba(var(--accent-rgb),.52)}
+.mobile-mode-preview--minimal .mobile-mode-search{background:var(--stroke);border-radius:5px}
+.mobile-mode-preview--minimal .mobile-mode-icon{border-radius:6px;background:rgba(var(--accent-rgb),.55)}
+.mobile-mode-preview--minimal .mobile-mode-bottom{background:rgba(var(--accent-rgb),.35)}
+
+/* Não altera desktop nem modo Clássico */
+@media (max-width:850px){
+  :root[data-mobile-nav-style="minimal"] .mobile-nav{display:none!important}
+  :root[data-mobile-nav-style="minimal"] .minimal-bottom-nav{
+    position:fixed;bottom:0;left:0;right:0;z-index:20;display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;
+    padding:7px 12px calc(7px + env(safe-area-inset-bottom,0px));
+    background:var(--sidebar);border-top:1px solid var(--stroke);
+    box-shadow:0 -8px 26px rgba(0,0,0,.10);
+  }
+  :root[data-mobile-nav-style="minimal"] .minimal-bottom-nav a{
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    gap:3px;min-height:47px;border-radius:12px;
+    color:var(--muted);font-size:10px;font-weight:700;line-height:1.15;
+    text-decoration:none;
+  }
+  :root[data-mobile-nav-style="minimal"] .minimal-bottom-nav a[aria-current]{
+    color:var(--accent);background:rgba(var(--accent-rgb),.10);
+  }
+  :root[data-mobile-nav-style="minimal"] .minimal-nav-glyph{
+    width:24px;height:24px;display:grid;place-items:center;font-size:21px;font-weight:600;
+  }
+  :root[data-mobile-nav-style="minimal"] .topbar{height:56px;padding:0 17px}
+  :root[data-mobile-nav-style="minimal"] .topbar .version-chip,
+  :root[data-mobile-nav-style="minimal"] .topbar .settings-link{display:none}
+  :root[data-mobile-nav-style="minimal"] .main-content{
+    padding:16px 17px calc(91px + env(safe-area-inset-bottom,0px));
+  }
+  :root[data-mobile-nav-style="minimal"] .site-footer{display:none}
+
+  /* Home: ícones em vez de hero, indicadores e cartões descritivos */
+  :root[data-mobile-nav-style="minimal"] body.page-home .hero,
+  :root[data-mobile-nav-style="minimal"] body.page-home .stats-grid,
+  :root[data-mobile-nav-style="minimal"] body.page-home .folder-collection,
+  :root[data-mobile-nav-style="minimal"] body.page-home .library,
+  :root[data-mobile-nav-style="minimal"] body.page-home .next-step{display:none!important}
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher{
+    min-height:0;background:none;border:0;box-shadow:none;
+    border-radius:0;padding:5px 0 0;margin:0;
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-header h2{
+    margin:5px 0;font-size:23px;letter-spacing:-.7px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-header p,
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-header .section-kicker,
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-customize,
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-meta,
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-bottom-hint,
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-tile-type{display:none}
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-search{
+    margin:17px 0 13px;min-height:45px;border-radius:13px;
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px 5px;padding:10px 0 14px;
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-tile{
+    gap:7px;padding:9px 2px 8px;border-radius:13px;
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-tile-icon{
+    width:clamp(52px,13vw,64px);height:clamp(52px,13vw,64px);
+    border-radius:17px;box-shadow:0 5px 17px rgba(0,0,0,.13);
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-tile-name{
+    font-size:11px;line-height:1.25;font-weight:680;
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-home .launcher-count{
+    font-size:10px;min-width:23px;height:20px;
+  }
+
+  /* Pastas internas: voltar, título e conteúdo. Não duplicar telas. */
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-back{
+    margin:0 0 13px;font-size:12px;
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-header{
+    min-height:0;padding:14px 2px 13px;
+    background:none;border:0;border-radius:0;
+    box-shadow:none;gap:12px;
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-header-icon{
+    width:50px;height:50px;flex:0 0 50px;border-radius:14px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-header-icon svg{
+    width:29px;height:29px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-header-copy h1{
+    font-size:26px;letter-spacing:-.8px;margin:0
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-header-copy p,
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-eyebrow,
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-meta{display:none}
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-contents{margin-top:16px}
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-contents .section-head{
+    margin-bottom:14px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-contents .section-kicker,
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-contents .section-head p{display:none}
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-contents .section-head h2{
+    font-size:18px;letter-spacing:-.4px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-empty{
+    min-height:195px;padding:22px 16px;border-radius:16px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-empty-icon{
+    width:42px;height:42px;margin-bottom:10px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-empty-icon svg{width:22px;height:22px}
+  :root[data-mobile-nav-style="minimal"] body.page-folder .folder-empty p{
+    font-size:11px;line-height:1.5;margin-bottom:12px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .app-card{
+    min-height:0;border-radius:14px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-folder .app-card .card-body p{min-height:0}
+  :root[data-mobile-nav-style="minimal"] body.page-folder .app-card .card-body{padding:12px 14px}
+  :root[data-mobile-nav-style="minimal"] body.page-folder .app-card .card-footer{padding:10px 14px}
+
+  /* Configurações: mantenha todas as opções, sem a coluna de prévia */
+  :root[data-mobile-nav-style="minimal"] body.page-settings .settings-heading{margin-bottom:17px}
+  :root[data-mobile-nav-style="minimal"] body.page-settings .settings-heading h1{
+    font-size:27px;letter-spacing:-.9px
+  }
+  :root[data-mobile-nav-style="minimal"] body.page-settings .settings-heading .section-kicker,
+  :root[data-mobile-nav-style="minimal"] body.page-settings .settings-heading>p,
+  :root[data-mobile-nav-style="minimal"] body.page-settings .settings-preview{display:none}
+  :root[data-mobile-nav-style="minimal"] body.page-settings .settings-panel{
+    border-radius:16px
+  }
+}
+@media(max-width:370px){
+ :root[data-mobile-nav-style="minimal"] body.page-home .launcher-grid{gap:9px 3px}
+ :root[data-mobile-nav-style="minimal"] body.page-home .launcher-tile-icon{
+    width:49px;height:49px;border-radius:15px
+ }
+ .mobile-nav-choices{gap:8px}
+ .mobile-mode-choice{min-width:0;flex-basis:calc(50% - 5px)}
+ .mobile-mode-preview{width:84px}
+}
+@media(prefers-reduced-motion:reduce){
+ :root[data-mobile-nav-style="minimal"] .minimal-bottom-nav *{transition:none!important}
+}
