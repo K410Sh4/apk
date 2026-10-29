@@ -41,6 +41,7 @@
       type,x,y,w:clamp(raw.w??30,1,240),h:clamp(raw.h??12,1,320),
       text:safeText(raw.text??(type==="barcode"?"123456":type==="text"?"Novo texto":"")),
       fontSize:clamp(raw.fontSize??4.5,1.3,24),
+      fontFamily:["Arial","Georgia","Verdana","Courier New"].includes(raw.fontFamily)?raw.fontFamily:"Arial",
       weight:raw.weight===700?700:400,
       align:["left","center","right"].includes(raw.align)?raw.align:"left",
       fill:color(raw.fill,"#111827"),background:color(raw.background,"#ffffff"),
