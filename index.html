@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="./assets/portal.css">
   <link rel="stylesheet" href="./assets/personalization.css">
   <link rel="stylesheet" href="./assets/folders.css">
+  <link rel="stylesheet" href="./assets/launcher.css">
   <script src="./assets/portal.js" defer></script>
   <script src="./assets/ota.js" defer></script>
 </head>
@@ -97,6 +98,31 @@
           <div class="stat"><span class="stat-icon purple" aria-hidden="true">▦</span><div><strong>01 <small>app</small></strong><span>planejado</span></div></div>
           <div class="stat"><span class="stat-icon blue" aria-hidden="true">◎</span><div><strong>100<small>%</small></strong><span>local e offline</span></div></div>
           <div class="stat"><span class="stat-icon orange" aria-hidden="true">⌘</span><div><strong>PC <small>+</small> Mobile</strong><span>design responsivo</span></div></div>
+        </section>
+
+        <section class="launcher" id="launcher" aria-labelledby="launcher-title" hidden>
+          <div class="launcher-header">
+            <div>
+              <span class="section-kicker">MEUS APLICATIVOS</span>
+              <h2 id="launcher-title">Todos os apps <span class="launcher-count">03</span></h2>
+              <p>Escolha um ícone para abrir. Você pode mudar o layout em Configurações.</p>
+            </div>
+            <a class="launcher-customize" href="./configuracoes.html">Personalizar <span aria-hidden="true">⚙</span></a>
+          </div>
+          <label class="launcher-search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+            <span class="sr-only">Buscar aplicativos ou pastas</span>
+            <input type="search" id="launcher-search" autocomplete="off" placeholder="Pesquisar apps e pastas...">
+            <kbd>/</kbd>
+          </label>
+          <div class="launcher-meta"><span>Biblioteca de aplicativos</span><span>Ordem: <strong id="launcher-order">Original</strong></span></div>
+          <div class="launcher-grid" id="launcher-grid" aria-label="Grade de aplicativos e pastas"></div>
+          <div class="launcher-empty" id="launcher-empty" hidden>
+            <span aria-hidden="true">⌕</span>
+            <strong>Nenhum item encontrado</strong>
+            <p>Tente outra pesquisa.</p>
+          </div>
+          <div class="launcher-bottom-hint"><span aria-hidden="true">✦</span> Organizado do seu jeito · Funciona sem internet</div>
         </section>
 
         <section class="folder-collection" id="pastas" aria-labelledby="folders-title">
