@@ -68,3 +68,12 @@
   .folder-empty { padding:30px 20px;min-height:275px; }
 }
 @media (prefers-reduced-motion:reduce) { .folder-card:hover { transform:none !important; } }
+
+/* Pasta Sistema: cor própria, compatível com tema e densidade escolhidos */
+.folder-card--system .folder-card-art::before{background:#62b7ff}
+.folder-card--system .folder-big-icon{background:linear-gradient(135deg,rgba(68,172,249,.25),rgba(66,106,201,.09));color:#65bcff}
+.folder-header--system{background:radial-gradient(circle at 90% 25%,rgba(87,171,247,.14),transparent 50%),var(--surface)}
+.folder-header--system .folder-header-icon{background:rgba(87,171,247,.12);color:#62b7ff}
+.monitor-app-card{width:100%;max-width:390px;min-height:220px}
+.monitor-app-card .card-top{padding-bottom:10px}
+.monitor-app-card .card-body{padding-top:10px}
