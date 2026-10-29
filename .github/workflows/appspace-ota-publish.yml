@@ -1,0 +1,110 @@
+name: AppSpace - Publicar pacote OTA
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Nova versão web (ex.: 0.5.2, maior que a última)"
+        required: true
+        type: string
+      notes:
+        description: "O que mudou"
+        required: false
+        default: "Melhorias no AppSpace"
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - "ota/publish-request.json"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: appspace-ota-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Resolver versão e mensagem
+        env:
+          EVENT_VERSION: ${{ inputs.version }}
+          EVENT_NOTES: ${{ inputs.notes }}
+        run: |
+          if [ -n "$EVENT_VERSION" ]; then
+            VERSION="$EVENT_VERSION"
+            NOTES="$EVENT_NOTES"
+          else
+            VERSION="$(node -p 'require("./ota/publish-request.json").version')"
+            NOTES="$(node -p 'require("./ota/publish-request.json").notes')"
+          fi
+          if ! [[ "$VERSION" =~ ^0\.5\.[0-9]+$ ]]; then
+            echo "::error::Versão deve ser 0.5.X (X inteiro)."
+            exit 1
+          fi
+          if [ "${VERSION##*.}" -le 0 ]; then
+            echo "::error::Versão OTA precisa ser superior à versão nativa 0.5.0."
+            exit 1
+          fi
+          echo "OTA_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "OTA_NOTES=$NOTES" >> "$GITHUB_ENV"
+      - name: Verificar HTML, links e assets
+        run: npm run check
+      - name: Empacotar site offline na raiz do ZIP
+        run: |
+          cd web
+          zip -r -q "../appspace-web-v${OTA_VERSION}.zip" .
+          cd ..
+          unzip -Z1 "appspace-web-v${OTA_VERSION}.zip" | grep -q '^index.html$'
+          unzip -Z1 "appspace-web-v${OTA_VERSION}.zip" | grep -q '^configuracoes.html$'
+          unzip -Z1 "appspace-web-v${OTA_VERSION}.zip" | grep -q '^assets/ota.js$'
+      - name: Validar que a versão é nova
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "appspace-web-v$OTA_VERSION" >/dev/null 2>&1; then
+            echo "::error::Versão já publicada. Crie uma versão superior."
+            exit 1
+          fi
+      - name: Criar release do conteúdo web
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "appspace-web-v$OTA_VERSION" "appspace-web-v${OTA_VERSION}.zip" \
+            --title "AppSpace OTA $OTA_VERSION" --notes "$OTA_NOTES" --target "$GITHUB_SHA"
+      - name: Atualizar ponteiro OTA após release válido
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node - <<'NODE'
+          const fs = require("node:fs");
+          const crypto = require("node:crypto");
+          const ver = process.env.OTA_VERSION;
+          const file = "appspace-web-v" + ver + ".zip";
+          const sha256 = crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+          const data = {
+            schema: 1, version: ver, minNative: "0.5.0",
+            url: "https://github.com/K410Sh4/apk/releases/download/appspace-web-v" + ver + "/" + file,
+            sha256, notes: process.env.OTA_NOTES.slice(0,160)
+          };
+          fs.writeFileSync("/tmp/appspace-latest.json", JSON.stringify(data,null,2)+"\n");
+          NODE
+          CONTENT="$(base64 -w 0 /tmp/appspace-latest.json)"
+          CURRENT_SHA="$(gh api "repos/$GITHUB_REPOSITORY/contents/ota/latest.json" --jq .sha)"
+          jq -n --arg content "$CONTENT" --arg sha "$CURRENT_SHA" \
+            --arg message "chore(ota): publish web bundle $OTA_VERSION" \
+            '{message:$message,content:$content,sha:$sha,branch:"main"}' > /tmp/ota-payload.json
+          gh api --method PUT "repos/$GITHUB_REPOSITORY/contents/ota/latest.json" --input /tmp/ota-payload.json
+      - name: Sumário
+        run: |
+          echo "OTA: $OTA_VERSION" >> "$GITHUB_STEP_SUMMARY"
+          echo "Pacote ZIP: GitHub Releases → appspace-web-v$OTA_VERSION" >> "$GITHUB_STEP_SUMMARY"
+          echo "Manifesto: ota/latest.json (SHA-256)" >> "$GITHUB_STEP_SUMMARY"
