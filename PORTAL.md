@@ -332,3 +332,33 @@ A opção é persistida em `localStorage["appspace.preferences.v1"].mobileNavSty
 O código da navegação centralizada fica em `assets/portal.js` (`syncMobileNavigation`); as regras de layout ficam em `assets/mobile-navigation.css`. O CSS é carregado por todas as sete páginas públicas, incluindo PC Monitor e os aplicativos vazios. O menu original permanece intacto e volta ao selecionar **Clássico**. Em telas grandes a opção não interfere na experiência desktop.
 
 Teste: instalar a base **0.6.0**, atualizar o conteúdo via OTA **0.6.2**, selecionar Minimalista, conferir 3 abas e a grade na Home, navegar até **Sistema → PC Monitor**, voltar, mudar para Clássico, alternar modo Cards/Grade do PC e reabrir o aplicativo para confirmar persistência. O reset de preferências retorna ao Clássico.
+
+## Etiqueta Studio — Estoque (OTA 0.6.3)
+
+**Escopo:** adicionar o aplicativo visual `Estoque → Etiqueta Studio` ao AppSpace Windows/Android, somente com HTML, CSS e JavaScript locais, **sem instalar novos plugins nativos**. A base nativa 0.6.0 é suficiente para receber o editor por OTA.
+
+### Método REA / engenharia limpa e verificável
+
+Seguindo a abordagem de análise incremental e evidências do REA, a implementação parte de **requisitos funcionais observáveis** de editores visuais (não foi executada engenharia reversa do software proprietário Canva):
+
+- **INV-001 (OBSERVADO NO REPOSITÓRIO):** fonte das páginas em `apps/estoque/`, preferências globais em `assets/portal.js`, webview Android + Electron PC; `scripts/build-web.cjs` copia a árvore de aplicativos para OTA. Base 0.6.0 permite novo app sem alterar AndroidManifest.
+- **DES-001 (PROPOSTA/IMPLEMENTADO):** geometria de elementos modelada em **milímetros** e serialização JSON com esquema e lista explícita de tipos; código-fonte independente em `apps/estoque/etiquetas/model.js`.
+- **DES-002 (IMPLEMENTADO):** área editável e ferramentas SVG em `apps/estoque/etiquetas/editor.js`, sem biblioteca externa ou acesso a serviços remotos.
+- **VAL-001 (TESTADO EM CI):** `scripts/test-labels.cjs` verifica modelos, reversibilidade JSON, geometria A4, início/fim do Code39, rejeição de imagens remotas, tipos não permitidos e presença dos controles do editor. `scripts/verify.cjs` inclui arquivos gerados no bundle offline.
+- **VAL-002 (AINDA NÃO TESTADO EM HARDWARE):** impressão física em impressoras térmicas/jato/laser, comportamento de downloads do Android WebView e leitura óptica de etiquetas reais. Não presumir que uma impressão em 100% terá tamanho exato sem testar as configurações do driver.
+
+### Recursos do editor
+
+1. **Cinco modelos:** preço (60 × 40 mm), produto (80 × 50 mm), localização (100 × 50 mm), código de barras (70 × 35 mm) e etiqueta vazia.
+2. **Personalização:** tamanho da etiqueta de 20–210 mm × 15–297 mm, fundo, textos editáveis com quatro fontes, alinhamento, cores, negrito, formas, linhas, fotos PNG/JPEG/WebP de até 1,5 MB, código de barras Code 39 alfanumérico, arrastar/redimensionar por mouse/toque, duplicação e camadas frente/trás.
+3. **Proteção contra erros:** validação dos projetos importados, sanitização das cores e URLs de imagens, limite de 100 elementos por projeto, histórico de até 50 passos para desfazer/refazer e armazenamento automático na chave local `appspace.estoque.etiqueta.v1`.
+4. **Exportação:** arquivo do projeto `.json` (reimportável), etiqueta `.svg` em dimensões físicas, PNG rasterizado com quantidade de pixels equivalente a 300 DPI, folha A4 repetida (SVG da primeira folha), impressão pelo diálogo do sistema (quando suportado pelo WebView/browser). A impressão repetida organiza automaticamente as cópias conforme largura, altura, margem e espaçamento em milímetros.
+5. **Offline:** editor, fontes disponíveis e desenhos armazenados no aparelho. Não há requisições a servidores para editar etiquetas.
+
+### Limites técnicos
+
+- PNG tem **resolução equivalente a 300 pixels por polegada**, mas o arquivo exportado não garante metadados `pHYs` de 300 DPI; para dimensões físicas exatas, prefira SVG ou folha A4 com escala 100% e verifique o driver.
+- **Code 39** suporta `A–Z`, `0–9` e caracteres específicos; não implementa Code 128, GS1/EAN-13, QR ou validação de cadastro GS1. Recomenda-se código curto e bom contraste para leitura óptica.
+- A exportação SVG da folha é da **primeira página A4**; `Imprimir A4` gera todas as páginas até 200 cópias. A impressão direta no WebView Android pode exigir exportar e abrir o SVG num aplicativo de impressão compatível.
+- Projeto salvo em `localStorage` é mantido ao reiniciar e ao atualizar via OTA, **não é backup garantido após desinstalação ou limpeza de dados**. Use `Salvar arquivo` (JSON) para cópia externa.
+- A grade de aplicativos da Home mostra a pasta Estoque; o editor fica **dentro da pasta**, acessível em dois toques.
