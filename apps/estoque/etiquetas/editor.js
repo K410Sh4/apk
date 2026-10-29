@@ -7,7 +7,7 @@ if(!M)throw Error("EtiquetaModel não carregado");
 const NS="http://www.w3.org/2000/svg",KEY="appspace.estoque.etiqueta.v1";
 const $=id=>document.getElementById(id);
 const svg=$("label-canvas");
-let doc,selected=null,drag=null,saveTimer=null,toastTimer=null;
+let doc,selected=null,drag=null,saveTimer=null,toastTimer=null,viewMode="label";
 let undoStack=[],redoStack=[];
 const TYPE_NAMES={text:"Texto",rect:"Retângulo",ellipse:"Círculo",line:"Linha",image:"Imagem",barcode:"Código de barras"};
 function safeLoad(){
@@ -105,6 +105,9 @@ function drawItem(group,o){
 function draw(svgElement,project,interactive=false){
   svgElement.replaceChildren();
   svgElement.setAttribute("viewBox",`0 0 ${project.width} ${project.height}`);
+  // Não herdar o traço global dos ícones SVG do portal (causa caracteres inflados).
+  svgElement.setAttribute("stroke","none");
+  svgElement.setAttribute("stroke-width","0");
   if(!interactive){svgElement.setAttribute("width",project.width+"mm");svgElement.setAttribute("height",project.height+"mm");}
   svgElement.append(s("rect",{width:project.width,height:project.height,fill:project.background}));
   for(const o of project.objects){
@@ -162,11 +165,31 @@ function makeSheetPages(){
   }
   return {pages,layout,count};
 }
+function updateA4Preview(){
+  const preview=$("a4-preview");
+  if(!preview||viewMode!=="a4")return;
+  try{
+    const {pages}=makeSheetPages();
+    if(!pages.length)return;
+    preview.replaceChildren(...[...pages[0].childNodes].map(node=>node.cloneNode(true)));
+    preview.setAttribute("viewBox","0 0 210 297");
+    preview.setAttribute("stroke","none");
+    preview.setAttribute("stroke-width","0");
+    // Apenas na tela: guia sutil para visualizar o limite de cada etiqueta.
+    const layout=M.sheet(doc.width,doc.height,$("sheet-gap").value,$("sheet-margin").value);
+    const copies=number($("sheet-copies").value,1,200,12);
+    for(const p of layout.positions.slice(0,Math.min(layout.perPage,copies))){
+      preview.append(s("rect",{x:p.x,y:p.y,width:doc.width,height:doc.height,
+        fill:"none",stroke:"#b6bdc9","stroke-width":0.18,"pointer-events":"none"}));
+    }
+  }catch(e){$("sheet-summary").textContent=e.message;}
+}
 function updateSheet(){
   const info=M.sheet(doc.width,doc.height,$("sheet-gap").value,$("sheet-margin").value);
   $("sheet-summary").textContent=info.perPage
     ?`${info.columns} colunas × ${info.rows} linhas · até ${info.perPage} etiquetas por folha`
     :"Etiqueta não cabe na folha com essas margens.";
+  updateA4Preview();
 }
 function updateInspector(){
   const item=current();
@@ -196,6 +219,7 @@ function render(){
   draw(svg,doc,true);
   const frame=$("studio-canvas-frame");
   frame.style.aspectRatio=doc.width+"/"+doc.height;
+  svg.style.setProperty("--label-ratio",doc.width+" / "+doc.height);
   frame.style.width="min(100%, "+Math.min(760,Math.round(8*doc.width))+"px)";
   const zoom=number($("zoom").value,60,160,100);
   // A escala visual não altera as medidas em milímetros no SVG exportado.
@@ -331,6 +355,19 @@ $("send-back").addEventListener("click",()=>trans(()=>{
 $("undo-btn").addEventListener("click",()=>travel(true));
 $("redo-btn").addEventListener("click",()=>travel(false));
 $("zoom").addEventListener("input",render);
+for(const button of document.querySelectorAll("[data-view-mode]")){
+  button.addEventListener("click",()=>{
+    viewMode=button.dataset.viewMode==="a4"?"a4":"label";
+    $("studio-stage").dataset.view=viewMode;
+    $("studio-a4-frame").hidden=viewMode!=="a4";
+    for(const b of document.querySelectorAll("[data-view-mode]"))
+      b.setAttribute("aria-pressed",String(b.dataset.viewMode===viewMode));
+    $("zoom").disabled=viewMode==="a4";
+    $("selection-status").textContent=viewMode==="a4"
+      ?"Comparação proporcional com papel A4":"Toque em um elemento para editar";
+    render();
+  });
+}
 for(const id of ["sheet-copies","sheet-gap","sheet-margin"])$(id).addEventListener("change",updateSheet);
 $("apply-template").addEventListener("click",()=>{
   if(!confirm("Substituir esta etiqueta pelo modelo selecionado? Você poderá desfazer."))return;
@@ -379,17 +416,43 @@ $("download-sheet").addEventListener("click",()=>{
     toast(result.pages.length>1?"A4 SVG: exportada a página 1 de "+result.pages.length+"; use Imprimir para todas.":"Folha A4 SVG exportada.");
   }catch(e){toast(e.message);}
 });
-$("print-sheet").addEventListener("click",()=>{
-  try{
-    const result=makeSheetPages();const root=$("print-root");root.replaceChildren();
-    for(const svgPage of result.pages){
-      const page=document.createElement("div");page.className="print-page";page.append(svgPage);root.append(page);
-    }
-    if(typeof window.print!=="function")throw Error("Impressão não é suportada neste aplicativo; exporte a folha SVG.");
-    window.print();
-    toast("Use A4, escala 100% e margens 0 no diálogo de impressão.");
-  }catch(e){toast(e.message);}
-});
+function nativePrinter(){
+  const cap=window.Capacitor;
+  if(!cap?.isNativePlatform?.())return null;
+  return cap.Plugins?.Printer || cap.registerPlugin?.("Printer") || null;
+}
+function printHtmlPages(pages){
+  // Documento autônomo para o plugin Android: sem estilos herdados do AppSpace.
+  const content=pages.map(p=>'<div class="page">'+new XMLSerializer().serializeToString(p)+'</div>').join("");
+  return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">'+
+    '<style>@page{size:A4;margin:0}html,body{margin:0;padding:0;background:#fff}'+
+    '.page{width:210mm;height:297mm;overflow:hidden;break-after:page;page-break-after:always}'+
+    '.page:last-child{break-after:auto;page-break-after:auto}'+
+    'svg{display:block;width:210mm;height:297mm;stroke:none}</style></head><body>'+content+'</body></html>';
+}
+async function printUsingSystem(){
+  const result=makeSheetPages();
+  const plugin=nativePrinter();
+  if(plugin && typeof plugin.printHtml==="function"){
+    await plugin.printHtml({name:"Etiqueta Studio — A4",html:printHtmlPages(result.pages)});
+    toast("Seletor de impressoras aberto. Selecione sua impressora Wi-Fi.");
+    return;
+  }
+  if(window.Capacitor?.isNativePlatform?.()){
+    toast("Impressão de rede requer o novo APK com plugin de impressão. Exporte SVG por enquanto.");
+    $("printer-help").textContent="O sistema não encontrou o recurso nativo de impressão neste APK. Atualize a base Android e habilite o Serviço de Impressão do sistema (Mopria ou da fabricante).";
+    return;
+  }
+  const root=$("print-root");root.replaceChildren();
+  for(const svgPage of result.pages){
+    const page=document.createElement("div");page.className="print-page";page.append(svgPage);root.append(page);
+  }
+  if(typeof window.print!=="function")throw Error("Este dispositivo não oferece impressão. Exporte SVG.");
+  window.print();
+  toast("No diálogo: escolha A4, escala 100% e margens zero.");
+}
+$("print-sheet").addEventListener("click",()=>void printUsingSystem().catch(e=>toast("Falha ao abrir impressão: "+e.message)));
+$("find-printers").addEventListener("click",()=>void printUsingSystem().catch(e=>toast("Não foi possível abrir o seletor: "+e.message)));
 document.addEventListener("keydown",e=>{
   const editing=e.target.closest?.("input,textarea,select,[contenteditable]");if(editing)return;
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){
