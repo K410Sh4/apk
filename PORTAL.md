@@ -1,4 +1,4 @@
-# AppSpace — portal local de aplicativos (v0.1)
+# AppSpace — portal local de aplicativos (v0.3)
 
 Portal em **HTML, CSS e JavaScript puro**. Foi adicionado ao repositório `apk` sem remover ou alterar o projeto Android R410 Control Center que já existia.
 
@@ -8,7 +8,8 @@ Portal em **HTML, CSS e JavaScript puro**. Foi adicionado ao repositório `apk` 
 - Um card de demonstração: **Primeiro app**, com status **Em breve**.
 - Página independente do primeiro app em `apps/primeiro-app/index.html`, com botão de retorno.
 - Barra lateral no PC e navegação inferior no celular.
-- Tema claro/escuro, com tentativa de guardar a preferência local.
+- Tema claro/escuro, quatro cores de destaque, modo compacto e nível de efeitos visuais.
+- Sons opcionais de interface com volume ajustável, sintetizados por Web Audio sem recursos externos.
 - Campo de busca (atalho `/`; `Esc` limpa a busca).
 - Layout acessível com links nativos, teclado e preferência por movimento reduzido.
 - Nenhuma biblioteca, CDN, fonte externa, API ou login obrigatório.
@@ -37,11 +38,14 @@ O portal também pode ser publicado como site estático, caso no futuro seja des
 apk/
 ├── index.html                    # Home / lista de apps
 ├── assets/
-│   ├── portal.css                # Temas, layout e responsividade
-│   └── portal.js                 # Busca e alternância de tema
+│   ├── portal.css                # Layout base
+│   ├── personalization.css       # Cores, densidade e animações
+│   ├── settings.css              # Tela de ajustes
+│   └── portal.js                 # Busca, preferências e sons
 ├── apps/
 │   └── primeiro-app/
 │       └── index.html            # Página provisória do app 001
+├── configuracoes.html           # Personalização visual e áudio
 ├── PORTAL.md                     # Este documento
 └── app/                          # Projeto Android preexistente (preservado)
 ```
@@ -60,7 +64,7 @@ apk/
 
 - Não usa rede, analytics, tracking nem servidores para renderizar/navegar.
 - Pode funcionar como `file://` quando o navegador permite ler arquivos relativos.
-- `localStorage` é usado somente para o tema e envolvido em `try/catch` caso o navegador bloqueie a API.
+- `localStorage` guarda somente preferências de aparência e áudio; acessos usam `try/catch` caso o navegador bloqueie a API. No Electron, o protocolo interno `appspace://portal` mantém a mesma origem entre páginas.
 - Recomenda-se manter a estrutura de diretórios intacta ao distribuir a pasta.
 - Não altera o build, permissões, fonte nem fluxos de CI do app Android preexistente.
 
@@ -147,4 +151,34 @@ mobile/README.md            # Instruções do Android
 
 A pasta `web/` é **gerada** e ignorada no Git. Não edite nela: edite `index.html`, `assets/` ou `apps/` na raiz e rode novamente `npm run mobile:sync`.
 
-**Estado da entrega:** código/configuração de empacotamento foram adicionados ao GitHub; uma compilação Android/Windows executada com sucesso e testes em dispositivos físicos ainda precisam ser confirmados. Não há APK/EXE pronto anexado por esta etapa.
+**Nota sobre compilação:** as distribuições são geradas pelo GitHub Actions. Consulte a execução mais recente para saber se o APK ou EXE está disponível. O APK gerado é de debug; a instalação e o áudio em dispositivos físicos devem ser testados.
+
+## Configurações e efeitos sonoros (v0.3)
+
+Abra **Configurações** pelo ícone de engrenagem no topo, pelo menu lateral do PC ou pela guia **Ajustes** no rodapé do celular. A tela fica em `configuracoes.html`, compartilha a mesma navegação e funciona offline.
+
+| Preferência | Opções |
+|---|---|
+| Tema | Escuro (padrão), Claro |
+| Destaque | Violeta (padrão), Azul, Menta, Rosa |
+| Cards | Confortável (padrão), Compacto |
+| Efeitos visuais | Normal (padrão), Reduzido, Desligado |
+| Sons de interface | Desligados (padrão), Ligados |
+| Volume | 0–100%, passos de 5, padrão 30% |
+
+- O Web Audio sintetiza cliques e confirmações **localmente**, sem músicas, MP3, permissões extras ou internet.
+- O áudio inicia apenas após interação do usuário e apenas se a opção estiver ligada. O botão **Ouvir exemplo** serve para testar.
+- O controle de sons desligado também desativa o controle de volume e a prévia.
+- As escolhas são salvas em `localStorage` pela chave `appspace.preferences.v1` e aplicadas na abertura das páginas.
+- **Restaurar padrões** volta ao tema escuro, violeta, cards confortáveis, efeitos normais e sons desligados.
+- Caso o armazenamento seja bloqueado, as preferências funcionam na página atual, mas podem não persistir entre sessões.
+- O som depende da disponibilidade do Web Audio API e do volume/mudo do aparelho. Em navegadores que não permitem áudio, o portal continua operacional.
+- Os controles são nativos de HTML e utilizáveis por teclado, toque ou mouse. A preferência de movimento reduzido do sistema continua respeitada.
+- No Electron, os arquivos são servidos exclusivamente pelo protocolo local `appspace://portal/`; nenhuma página externa é permitida. Isso possibilita a persistência de preferências entre a Home e os Ajustes.
+- Para uma futura biblioteca com mais aplicativos, basta continuar adicionando cards: as configurações não alteram a lógica da busca.
+
+### Empacotar a nova versão
+
+Em `main`, a pipeline `AppSpace - Android APK + Windows EXE` compila os novos arquivos. Para compilar Android localmente após atualização de arquivos, rode `npm run mobile:sync` no projeto nativo já criado; para uma instalação limpa, `npm run mobile:add` gera a plataforma. Verifique se `configuracoes.html` foi incluído em `web/`.
+
+**Não alteramos** a aplicação de diagnóstico Samsung/R410 que já existia na pasta `app/`.
