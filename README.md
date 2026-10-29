@@ -4,6 +4,8 @@
 
 O portal web local está em [`index.html`](./index.html). Ele contém uma tela inicial responsiva com um card **Primeiro app (Em breve)**, busca, tema claro/escuro e uma página independente para o futuro aplicativo. Basta extrair o repositório e abrir `index.html` em um navegador compatível. **Não é necessário compilar o projeto Android.**
 
+O portal agora inclui uma **tela de Configurações** (tema escuro/claro, quatro cores, cards compactos, controle de efeitos, sons de interface e volume). Os sons são opcionais e gerados offline. Use o ícone de engrenagem ou a guia **Ajustes** no celular.
+
 O portal também possui estrutura de empacotamento em **Electron (Windows)** e **Capacitor (Android)**. Veja os comandos em [PORTAL.md](./PORTAL.md#empacotamento-desktop-e-mobile-v02) ou execute `npm run desktop` / `npm run mobile:add` depois de `npm install` (Node 22+).
 
 **[Leia o guia do AppSpace](./PORTAL.md)** para instruções de uso offline, observações de compatibilidade no Android e como adicionar novos aplicativos.
