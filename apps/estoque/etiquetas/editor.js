@@ -92,7 +92,7 @@ function drawItem(group,o){
   }else if(o.type==="text"){
     const x=o.align==="center"?o.x+o.w/2:o.align==="right"?o.x+o.w:o.x;
     const text=s("text",{x,y:o.y+o.fontSize,"font-size":o.fontSize,
-      "font-family":"Arial, Helvetica, sans-serif","font-weight":o.weight,
+      "font-family":o.fontFamily||"Arial","font-weight":o.weight,
       "text-anchor":o.align==="center"?"middle":o.align==="right"?"end":"start",fill:o.fill});
     const lines=wrapText(o.text,o.fontSize,o.w,o.h);
     for(let i=0;i<lines.length;i++){
@@ -118,8 +118,13 @@ function draw(svgElement,project,interactive=false){
   }
   if(interactive){
     const o=current();
-    if(o)svgElement.append(s("rect",{class:"label-selection",x:o.x,y:o.y,
-      width:Math.max(1,o.w),height:Math.max(1,o.h)}));
+    if(o){
+      svgElement.append(s("rect",{class:"label-selection",x:o.x,y:o.y,
+        width:Math.max(1,o.w),height:Math.max(1,o.h)}));
+      svgElement.append(s("circle",{class:"label-resize","data-resize-id":o.id,
+        cx:o.x+o.w,cy:o.y+o.h,r:Math.max(1,Math.min(1.8,doc.width/70)),
+        fill:"#ffffff",stroke:"#2e7bfa","stroke-width":.4}));
+    }
   }
 }
 function exportSVG(project){const node=s("svg",{xmlns:NS});draw(node,project);return new XMLSerializer().serializeToString(node);}
@@ -180,6 +185,7 @@ function updateInspector(){
   $("item-height").value=Number(item.h.toFixed(2));
   $("item-font").value=item.fontSize;
   $("item-align").value=item.align;
+  $("item-font-family").value=item.fontFamily;
   $("item-bold").checked=item.weight===700;
   $("item-fill").value=item.fill;
   $("item-stroke").value=item.stroke;
@@ -211,13 +217,14 @@ function svgPoint(e){
 }
 svg.addEventListener("pointerdown",e=>{
   if(e.button!==0&&e.pointerType==="mouse")return;
+  const handle=e.target.closest?.("[data-resize-id]");
   const group=e.target.closest?.("[data-item-id]");
-  if(!group){selected=null;render();return;}
-  selected=group.getAttribute("data-item-id");
+  if(!handle&&!group){selected=null;render();return;}
+  selected=handle?handle.getAttribute("data-resize-id"):group.getAttribute("data-item-id");
   const o=current();if(!o)return;
   const point=svgPoint(e);
   drag={pointerId:e.pointerId,id:o.id,startX:point.x,startY:point.y,x:o.x,y:o.y,
-    before:JSON.stringify(doc),moved:false};
+    before:JSON.stringify(doc),mode:handle?"resize":"move",w:o.w,h:o.h,moved:false};
   svg.setPointerCapture(e.pointerId);
   updateInspector();draw(svg,doc,true);
   e.preventDefault();
@@ -229,8 +236,13 @@ svg.addEventListener("pointermove",e=>{
   const newX=Math.round((drag.x+pt.x-drag.startX)*4)/4;
   const newY=Math.round((drag.y+pt.y-drag.startY)*4)/4;
   if(newX===obj.x&&newY===obj.y)return;
-  obj.x=M.clamp(newX,-5,doc.width-1);
-  obj.y=M.clamp(newY,-5,doc.height-1);
+  if(drag.mode==="resize"){
+    obj.w=M.clamp(Math.round((drag.w+pt.x-drag.startX)*4)/4,1,doc.width-obj.x+5);
+    obj.h=M.clamp(Math.round((drag.h+pt.y-drag.startY)*4)/4,1,doc.height-obj.y+5);
+  }else{
+    obj.x=M.clamp(newX,-5,doc.width-1);
+    obj.y=M.clamp(newY,-5,doc.height-1);
+  }
   drag.moved=true;draw(svg,doc,true);
   $("selection-status").textContent=`X ${obj.x} mm · Y ${obj.y} mm`;
   e.preventDefault();
@@ -293,6 +305,7 @@ for(const [id,key,min,max] of [
 $("item-text").addEventListener("change",()=>trans(()=>{if(current())current().text=$("item-text").value;}));
 $("item-align").addEventListener("change",()=>trans(()=>{if(current())current().align=$("item-align").value;}));
 $("item-bold").addEventListener("change",()=>trans(()=>{if(current())current().weight=$("item-bold").checked?700:400;}));
+$("item-font-family").addEventListener("change",()=>trans(()=>{if(current())current().fontFamily=$("item-font-family").value;}));
 for(const [id,key] of [["item-fill","fill"],["item-stroke","stroke"]]){
   $(id).addEventListener("change",()=>trans(()=>{if(current())current()[key]=$(id).value;}));
 }
