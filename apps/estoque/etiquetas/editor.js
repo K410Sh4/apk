@@ -4,6 +4,7 @@
 "use strict";
 const M=window.EtiquetaModel;
 if(!M)throw Error("EtiquetaModel não carregado");
+if(window.Capacitor?.isNativePlatform?.())document.documentElement.dataset.appspaceNative="true";
 const NS="http://www.w3.org/2000/svg",KEY="appspace.estoque.etiqueta.v1";
 const $=id=>document.getElementById(id);
 const svg=$("label-canvas");
