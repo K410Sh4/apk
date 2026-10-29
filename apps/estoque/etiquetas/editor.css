@@ -187,3 +187,7 @@ width:100%;min-width:0;min-height:35px;max-width:100%;border:1px solid var(--stu
     padding-top:calc(9px + max(26px,env(safe-area-inset-top,0px)));
   }
 }
+
+/* Impressão HTML do Electron: não herdar stroke/width global de ícones. */
+#print-root svg{stroke:none!important;stroke-width:0!important;fill:#111827}
+#print-root text,#print-root tspan{stroke:none!important;stroke-width:0!important}
