@@ -8,3 +8,14 @@ captures/
 .externalNativeBuild/
 .cxx/
 app/build/
+
+# AppSpace (Node/Electron/Capacitor)
+node_modules/
+web/
+dist/
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/local.properties
+*.jks
+*.keystore
