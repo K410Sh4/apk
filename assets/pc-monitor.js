@@ -107,7 +107,7 @@ async function pair(event){
     const response=await callApi("/pair","POST",{code:pin},false);
     if(!/^[a-f0-9]{64}$/.test(response.token||""))throw Error("Resposta inválida do computador");
     state.token=response.token;persist();
-    text("monitor-pin","");start();
+    if(byId("monitor-pin"))byId("monitor-pin").value="";start();
   }catch(e){text("monitor-pair-error","Falha ao conectar: "+e.message+". Verifique o código e o firewall do Windows.");}
   finally{if(button)button.disabled=false;}
 }
