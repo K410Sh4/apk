@@ -50,7 +50,8 @@ function startLanServer() {
     const origin=req.headers.origin;
     const remote=req.socket.remoteAddress || "";
     const host=(req.headers.host || "").toLowerCase();
-    if (!new RegExp("^(?:localhost|127\\.0\\.0\\.1|(?:10|192\\.168|172)\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):"+port+"$").test(host) ||
+    const validHosts = new Set(["localhost","127.0.0.1",...ipv4s()].map(address=>address+":"+port));
+    if (!validHosts.has(host) ||
         (!remote.startsWith("::ffff:") && remote !== "::1" && !/^[\d.]+$/.test(remote))) {
       return respond(res,403,{error:"Host não autorizado"},origin);
     }
