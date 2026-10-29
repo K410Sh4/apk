@@ -1,4 +1,4 @@
-# AppSpace — portal local de aplicativos (v0.4)
+# AppSpace — portal local de aplicativos (v0.5)
 
 Portal em **HTML, CSS e JavaScript puro**. Foi adicionado ao repositório `apk` sem remover ou alterar o projeto Android R410 Control Center que já existia.
 
@@ -226,3 +226,40 @@ Para Edição de vídeo, siga o mesmo procedimento sob `apps/edicao-de-video/`. 
 A pesquisa da Home agora considera pastas e apps e ignora diferenças de maiúsculas e acentos; o contador de pastas (`02`) é independente do contador de cards de aplicativos (`01`). Configurações de cores e efeitos visuais continuam aplicadas também às páginas das pastas.
 
 `scripts/build-web.cjs` copia recursivamente `apps/` para o Capacitor. O Electron já inclui `apps/**/*` na configuração do pacote. `scripts/verify.cjs` confirma os links das duas pastas e sua presença no pacote web.
+
+## Atualização OTA pelo GitHub (v0.5)
+
+**OTA = Over-the-Air**: esta versão do APK passa a trazer um mecanismo nativo que troca os arquivos web (HTML/CSS/JS) sem substituir o aplicativo Android instalado. O núcleo nativo é o plugin open-source [Capgo Capacitor Updater](https://github.com/Cap-go/capacitor-updater), fixado na versão `8.51.15` compatível com Capacitor 8.
+
+### Como funciona
+
+1. O APK novo inclui um conteúdo local `0.5.0` que sempre pode ser executado **offline**, sem login.
+2. Ao abrir o aplicativo com internet, `assets/ota.js` consulta o manifesto público `https://raw.githubusercontent.com/K410Sh4/apk/main/ota/latest.json`, se a verificação automática estiver habilitada.
+3. Quando existir um pacote com versão superior e compatível, o aplicativo baixa um arquivo ZIP da seção **GitHub Releases** do repositório. O ZIP contém os recursos da pasta `web/`, com `index.html` na raiz.
+4. O plugin recebe também o checksum **SHA-256** do arquivo, para validar a integridade. Não são aceitas URLs de download externas ao domínio e ao caminho de releases permitidos.
+5. A atualização automática é agendada para a próxima abertura/retorno do aplicativo; pela tela **Configurações → Atualizações OTA**, também é possível verificar, instalar imediatamente e restaurar o conteúdo do APK.
+6. Em falha de carregamento, o plugin possui mecanismo de retorno à versão anterior; o app original permanece disponível para uso sem internet.
+
+**Privacidade:** não há serviço Capgo Cloud nem análise de uso neste fluxo. `autoUpdate:false` e `statsUrl:""` desabilitam os endpoints de atualização/estatísticas do serviço. O único contato de atualização é com GitHub via HTTPS, pelo manifesto e o ZIP do release. A preferência de verificação automática fica em `localStorage` na chave `appspace.ota.auto`.
+
+### Publicar uma nova versão OTA sem gerar APK
+
+Acesse a aba **Actions** do repositório e execute o workflow **AppSpace - Publicar pacote OTA**, informando, por exemplo, `0.5.2` e a descrição das mudanças. A execução faz:
+
+- verifica arquivos e links com `npm run check`;
+- gera a pasta `web/` com o código HTML, CSS e JavaScript mais recente da branch `main`;
+- cria um ZIP com `index.html` diretamente na raiz;
+- publica esse ZIP como GitHub Release `appspace-web-v0.5.2`;
+- calcula SHA-256 e **só depois** atualiza `ota/latest.json` para apontar à versão publicada.
+
+Um pacote `0.5.1` poderá ser publicado como teste da primeira atualização sem reinstalação. Use sempre um número de versão **novo e crescente** para cada publicação. O workflow falhará se tentar republicar a mesma tag.
+
+**Limites:** OTA não atualiza código Android/Kotlin, plugins nativos, permissões, `capacitor.config.json`, o runtime Electron ou o APK em si. Mudanças desse tipo exigem um APK novo **assinado com a mesma chave** e com `versionCode` crescente. O workflow de compilação nativa ainda usa assinatura *debug temporária*. Portanto, pode ser necessária **uma última desinstalação** para instalar a versão `0.5.0` habilitada para OTA; builds nativos de distribuição com assinatura definitiva exigem configurar uma chave privada persistente via GitHub Actions Secrets (não colocar chaves no repositório). Uma vez instalada a `0.5.0`, mudanças apenas web são recebidas pelo mecanismo OTA, sem desinstalar.
+
+**Segurança:** não dê acesso de escrita ao repositório a pessoas sem confiança; quem publica bundles OTA publica código executável no WebView. O checksum protege contra corrupção e alterações em trânsito, mas não substitui uma cadeia de assinaturas digitais contra comprometimento da conta GitHub. Teste o processo num dispositivo antes de distribuir para outros usuários.
+
+### Comprovação e testes
+
+- `npm run check` valida estrutura HTML, presença do atualizador e configuração Capacitor.
+- Os jobs do GitHub Actions validam a compilação Android com o plugin instalado.
+- É necessário instalar o APK no Android, abrir **Configurações → Atualizações OTA** e verificar a leitura do manifesto, o download e a ativação de um bundle novo; não confunda sucesso da compilação com teste de instalação OTA real.
