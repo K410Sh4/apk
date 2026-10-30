@@ -62,7 +62,7 @@
    try{storage()?.removeItem(KEY);storage()?.removeItem(LEGACY)}catch(_){}
  }
  async function request(path,options={}){
-   if(!["/metrics","/pair","/health"].includes(path))throw Error("Rota não autorizada");
+   if(!["/metrics","/pair","/health","/rgb/devices"].includes(path))throw Error("Rota não autorizada");
    const method=options.method||"GET";
    if(method!==(path==="/pair"?"POST":"GET"))throw Error("Método não permitido");
    const target=options.endpoint||get();
