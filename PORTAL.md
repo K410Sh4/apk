@@ -488,3 +488,9 @@ A experiência está dividida em três etapas, acessíveis pelo botão **Criar l
 - **Navegação:** contadores de pastas e aplicativos corrigidos; grade do launcher obtém os itens do HTML visível, sem duplicar o catálogo.
 - **Compatibilidade:** `apps/sistema/index.html` e `apps/primeiro-app/index.html` permanecem nos arquivos internos para não quebrar links antigos. Esta alteração não exclui nenhum dado local, projeto de etiqueta, token ou conexão.
 - **Regressão:** `scripts/verify.cjs` exige 3 pastas e 2 aplicativos reais na tela inicial, verifica os destinos das duas ferramentas e impede que Sistema e Primeiro app voltem a aparecer por engano.
+
+## OTA 0.7.13 — corrigir prévia de Configurações
+
+Na OTA 0.7.12, o catálogo principal já mostrava somente Etiqueta Studio e PC Monitor, mas a **prévia de personalização em Configurações** ainda exibia o cartão fictício `Primeiro app`. A orientação de pareamento da versão Windows ainda mencionava a pasta antiga Sistema. A versão 0.7.13 ajusta esses textos e substitui a imagem decorativa da prévia por `Meu PC`.
+
+Esta correção é apenas web: usa a mesma base Android 0.7.4+, não altera o armazenamento local, o fluxo OTA nem as credenciais. `scripts/verify.cjs` passou a bloquear o retorno dos nomes antigos à prévia de Configurações. O usuário deve abrir `Início` após a atualização para ver o catálogo atualizado. Não tocar em `Restaurar conteúdo do APK` para atualizar (essa ação desfaz a OTA).
