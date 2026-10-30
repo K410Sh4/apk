@@ -120,12 +120,22 @@ function renderTable(){
     });
     qtyTd.append(qty);tr.append(qtyTd);
     const actions=document.createElement("td"),remove=byText("button","✕");
+    const duplicate=byText("button","⧉");duplicate.type="button";
+    duplicate.className="batch-duplicate-row";
+    duplicate.setAttribute("aria-label","Duplicar linha "+(index+1));
+    duplicate.title="Duplicar produto";
+    duplicate.addEventListener("click",()=>{
+      if(batch.rows.length>=100){toast("Limite de 100 produtos por lista.");return;}
+      if(B.count(batch)+data.quantity>500){toast("A duplicação ultrapassaria 500 etiquetas.");return;}
+      const copy={id:newRow().id,quantity:data.quantity,values:{...data.values}};
+      batch.rows.splice(index+1,0,copy);changed();renderTable();
+    });
     remove.type="button";remove.setAttribute("aria-label","Excluir linha "+(index+1));
     remove.addEventListener("click",()=>{
       if(batch.rows.length===1){toast("Mantenha ao menos uma linha na lista.");return;}
       batch.rows.splice(index,1);changed();renderTable();
     });
-    actions.append(remove);tr.append(actions);body.append(tr);
+    actions.append(duplicate,remove);tr.append(actions);body.append(tr);
   });
 }
 function bindLayout(){
@@ -134,13 +144,15 @@ function bindLayout(){
   const bindings={
     "layout-cols":"columns","layout-rows":"rows","layout-margin":"margin",
     "layout-gap-x":"gapX","layout-gap-y":"gapY",
-    "layout-align-x":"alignX","layout-align-y":"alignY"
+    "layout-align-x":"alignX","layout-align-y":"alignY",
+    "layout-start-slot":"startSlot"
   };
   for(const [id,key] of Object.entries(bindings)){
     const input=$(id);input.value=String(batch.layout[key]);
     input.addEventListener("change",()=>{
       let value=input.value;
       if(key==="columns"||key==="rows")value=value==="auto"?"auto":Number(value);
+      else if(key==="startSlot")value=Number(value);
       else if(["margin","gapX","gapY"].includes(key))value=Number(value);
       batch.layout[key]=value;page=0;changed();refreshPreview();
     });
@@ -148,22 +160,21 @@ function bindLayout(){
 }
 function describeLayout(result){
   const {layout,copies,pageCount}=result;
-  $("batch-layout-result").textContent=layout.columns+" × "+layout.rows+" · "+layout.perPage+" por folha";
+  $("batch-layout-result").textContent=layout.columns+" × "+layout.rows+" · "+layout.perPage+" por folha · posição inicial "+layout.startSlot;
   $("batch-print-summary").textContent=copies+" etiquetas · "+pageCount+" folha(s) A4";
 }
 function refreshPreview(){
   $("preview-error").hidden=true;
   try{
-    computed=B.pages(template,batch);
-    if(page>=computed.pages.length)page=computed.pages.length-1;
-    if(page<0)page=0;
+    computed=B.previewPage(template,batch,page);
+    page=computed.pageIndex;
     describeLayout(computed);
-    const svg=R.a4Page(computed.pages[page],true);
-    const paper=$("batch-paper");paper.replaceChildren(svg);
-    $("page-counter").textContent=(page+1)+" / "+computed.pages.length;
-    $("preview-page-label").textContent="A4 · "+(page+1)+"/"+computed.pages.length;
+    const svg=R.a4Page(computed.items,true,computed.layout.positions);
+    $("batch-paper").replaceChildren(svg);
+    $("page-counter").textContent=(page+1)+" / "+computed.pageCount;
+    $("preview-page-label").textContent="A4 · "+(page+1)+"/"+computed.pageCount;
     $("page-prev").disabled=page===0;
-    $("page-next").disabled=page>=computed.pages.length-1;
+    $("page-next").disabled=page>=computed.pageCount-1;
     $("batch-print").disabled=false;$("batch-download").disabled=false;
   }catch(e){
     computed=null;
@@ -209,6 +220,15 @@ async function printBatch(){
   }
   window.print();
 }
+function exportCsv(){
+  const csv=B.toCsv(template,batch);
+  return F.save("etiquetas-produtos.csv",new Blob([csv],{type:"text/csv;charset=utf-8"}));
+}
+async function importCsv(file){
+  if(!file||file.size>200000)throw Error("CSV inválido ou maior que 200 KB.");
+  const candidate=B.fromCsv(await file.text(),template,batch);
+  batch=candidate;renderFields();renderTable();bindStateToLayout();changed();
+}
 function exportList(){
   const content={schema:1,modelIds:fields.map(f=>f.id),batch};
   return F.save("etiqueta-lista.json",new Blob([JSON.stringify(content,null,2)],{type:"application/json"}));
@@ -226,7 +246,8 @@ async function importList(file){
 }
 function bindStateToLayout(){
   const bindings={"layout-cols":"columns","layout-rows":"rows","layout-margin":"margin",
-    "layout-gap-x":"gapX","layout-gap-y":"gapY","layout-align-x":"alignX","layout-align-y":"alignY"};
+    "layout-gap-x":"gapX","layout-gap-y":"gapY","layout-align-x":"alignX","layout-align-y":"alignY",
+    "layout-start-slot":"startSlot"};
   for(const [id,key] of Object.entries(bindings))$(id).value=String(batch.layout[key]);
 }
 for(const btn of document.querySelectorAll("[data-step]"))
@@ -240,13 +261,19 @@ $("add-row").addEventListener("click",()=>{
   batch.rows.push(newRow());changed();renderTable();
 });
 $("page-prev").addEventListener("click",()=>{if(page>0){page--;refreshPreview();}});
-$("page-next").addEventListener("click",()=>{if(computed&&page<computed.pages.length-1){page++;refreshPreview();}});
+$("page-next").addEventListener("click",()=>{if(computed&&page<computed.pageCount-1){page++;refreshPreview();}});
 $("reset-layout").addEventListener("click",()=>{
-  batch.layout={columns:"auto",rows:"auto",margin:5,gapX:2,gapY:2,alignX:"center",alignY:"start"};
+  batch.layout={columns:"auto",rows:"auto",margin:5,gapX:2,gapY:2,alignX:"center",alignY:"start",startSlot:1};
   bindStateToLayout();changed();page=0;refreshPreview();
 });
 $("batch-download").addEventListener("click",()=>void exportPages().catch(e=>toast("Falha na exportação: "+e.message)));
 $("batch-print").addEventListener("click",()=>void printBatch().catch(e=>toast("Falha na impressão: "+e.message)));
+$("download-csv").addEventListener("click",()=>void exportCsv().then(()=>toast("CSV preparado para salvar.")).catch(e=>toast("Erro CSV: "+e.message)));
+$("import-csv").addEventListener("click",()=>$("csv-file").click());
+$("csv-file").addEventListener("change",e=>{
+  const file=e.target.files?.[0];e.target.value="";
+  if(file)void importCsv(file).then(()=>toast("CSV importado.")).catch(err=>toast("CSV: "+err.message));
+});
 $("download-list").addEventListener("click",()=>void exportList().then(()=>toast("Lista preparada para salvar.")).catch(e=>toast("Erro: "+e.message)));
 $("import-list").addEventListener("click",()=>$("list-file").click());
 $("list-file").addEventListener("change",e=>{
