@@ -14,6 +14,7 @@
   <script src="../../../assets/ota.js" defer></script>
   <script src="./model.js" defer></script>
   <script src="./files.js" defer></script>
+  <script src="./gestures.js" defer></script>
   <script src="./editor.js" defer></script>
   <script src="./modern.js" defer></script>
 </head>
@@ -63,13 +64,14 @@
         <button type="button" class="studio-button secondary full" id="apply-template">Usar modelo</button>
         <p class="studio-hint">Modelos substituem a etiqueta atual. Exporte o projeto antes, se quiser preservá-lo.</p>
         <p class="studio-hint">Android: ao exportar, use Compartilhar → Arquivos/Drive para manter uma cópia fora do aplicativo.</p>
+        <button type="button" class="studio-button secondary full studio-clear-canvas" id="clear-canvas-mobile">Limpar todo o conteúdo</button>
         </div>
         <div class="studio-divider"></div>
-        <div class="studio-side-links"><button type="button" id="import-project">Importar projeto JSON</button><a href="../index.html">Voltar ao Estoque</a></div>
+        <div class="studio-side-links"><button type="button" id="import-project">Importar projeto JSON</button><button type="button" id="clear-label" class="studio-danger">Limpar etiqueta inteira</button><a href="../index.html">Voltar ao Estoque</a></div>
       </aside>
       <main class="studio-center">
         <div class="studio-canvas-head">
-          <div class="studio-canvas-intro"><span class="studio-kicker">EDITOR</span><h1>Sua etiqueta <span class="studio-canvas-size-hint" id="studio-size-hint">60 × 40 mm</span></h1><p>Toque em um elemento para selecionar e arrastar.</p></div>
+          <div class="studio-canvas-intro"><span class="studio-kicker">EDITOR</span><h1>Sua etiqueta <span class="studio-canvas-size-hint" id="studio-size-hint">60 × 40 mm</span></h1><p>Arraste para mover, faça pinça para dimensionar e toque duas vezes no texto para editar.</p></div>
           <div class="studio-view-switch" role="group" aria-label="Visualização do projeto">
             <button type="button" data-view-mode="label" aria-pressed="true">Editar etiqueta</button>
             <button type="button" data-view-mode="a4" aria-pressed="false">Folha A4</button>
@@ -86,7 +88,7 @@
             <p>Visualização proporcional, não escala física da tela. Para impressão, use papel A4 e 100%.</p>
           </div>
         </div>
-        <div class="studio-canvas-foot"><span id="canvas-size">60 × 40 mm</span><span id="selection-status">Toque em um item para editar</span><button type="button" class="studio-mobile-trigger studio-edit-selection" id="studio-open-properties" aria-controls="studio-properties-panel" aria-expanded="false" hidden>Editar elemento <span aria-hidden="true">↗</span></button><button type="button" class="studio-mobile-trigger studio-edit-label" id="studio-open-label" aria-controls="studio-properties-panel" aria-expanded="false">Tamanho e papel</button></div>
+        <div class="studio-canvas-foot"><span id="canvas-size">60 × 40 mm</span><span id="selection-status">Toque em um item para editar</span><button type="button" class="studio-mobile-trigger studio-edit-selection" id="studio-open-properties" aria-controls="studio-properties-panel" aria-expanded="false" hidden>Editar elemento <span aria-hidden="true">↗</span></button><button type="button" class="studio-mobile-trigger studio-delete-selection" id="studio-delete-selected" aria-label="Apagar elemento selecionado" hidden>Apagar <span aria-hidden="true">✕</span></button><button type="button" class="studio-mobile-trigger studio-edit-label" id="studio-open-label" aria-controls="studio-properties-panel" aria-expanded="false">Tamanho e papel</button></div>
         <section class="studio-export" id="studio-export-panel" aria-labelledby="export-title" aria-modal="false">
           <div class="studio-export-head"><div><span class="studio-kicker">ARQUIVOS</span><h2 id="export-title">Exportar e imprimir</h2><p>Salve sua arte ou imprima as etiquetas em tamanho real.</p></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-export" aria-label="Fechar opções de exportação">✕</button></div>
           <div class="studio-export-buttons">
