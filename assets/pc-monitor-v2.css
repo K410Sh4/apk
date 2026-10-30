@@ -1,0 +1,72 @@
+/* AppSpace PC Monitor V2 — cinco indicadores legíveis em paisagem Android/desktop. */
+.page-monitor{--mon-violet:#9c8cff;--mon-blue:#5ebaff;--mon-green:#57d9aa;--mon-orange:#f3b36e;--mon-pink:#f48eb6}
+.page-monitor .monitor-focus{
+ display:flex!important;flex-direction:column!important;gap:clamp(9px,2.5vh,25px);
+ background:radial-gradient(ellipse at 40% -15%,#24305c 0,transparent 55%),#0a101c!important;
+ padding:clamp(10px,2vh,23px) calc(52px + env(safe-area-inset-right,0px))
+  clamp(12px,2.6vh,24px) calc(14px + env(safe-area-inset-left,0px))!important;
+}
+.monitor-v2-header{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:43px;flex:0 0 auto;color:#e8eeff;min-width:0}
+.monitor-v2-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.monitor-v2-logo{display:grid;place-items:center;background:#6f61cf26;border:1px solid #9c8cff55;border-radius:12px;color:#aea0ff;width:38px;height:38px;font-size:23px;font-weight:900;flex-shrink:0}
+.monitor-v2-brand strong{display:block;font-size:clamp(12px,1.7vw,20px);letter-spacing:.05em;line-height:1.1}
+.monitor-v2-brand strong span{color:#b4a2ff}
+.monitor-v2-brand small{display:block;margin-top:4px;color:#8495b1;font-size:clamp(7px,.8vw,10px);letter-spacing:.09em;white-space:nowrap}
+.monitor-v2-status{display:flex;align-items:center;gap:7px;flex:0 0 auto;border-radius:999px;border:1px solid #344159;padding:8px 12px;color:#a6b7d2;font-size:clamp(9px,1vw,12px);background:#182238}
+.monitor-v2-status-dot{display:block;width:7px;height:7px;border-radius:50%;background:#e9b073}
+.monitor-v2-status[data-online="true"] .monitor-v2-status-dot{background:#52d9ad;box-shadow:0 0 12px #52d9ad66}
+.monitor-v2-status[data-online="true"]{border-color:#52d9ad38}
+.monitor-v2-status small{font-size:9px;color:#8193ac;margin-left:5px}
+.page-monitor .monitor-focus .monitor-metrics{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:clamp(7px,1.2vw,15px);grid-template-rows:minmax(0,1fr);height:auto;min-height:0;flex:1}
+.page-monitor .monitor-focus .monitor-metric{
+ position:relative;overflow:hidden;justify-content:center;
+ min-width:0;min-height:0;padding:clamp(10px,1.65vw,24px);
+ border:1px solid #35415b;border-radius:clamp(15px,1.8vw,25px);
+ background:linear-gradient(152deg,#1a2540,#131c2c 75%);
+ box-shadow:inset 0 1px 0 #ffffff0a,0 7px 20px #0308121c;
+ --mon-color:var(--mon-violet);
+}
+.page-monitor .monitor-metric-ram{--mon-color:var(--mon-blue)!important}
+.page-monitor .monitor-metric-gpu{--mon-color:var(--mon-green)!important}
+.page-monitor .monitor-metric-fps{--mon-color:var(--mon-orange)!important}
+.page-monitor .monitor-metric-uptime{--mon-color:var(--mon-pink)!important}
+.page-monitor .monitor-focus .monitor-metric::before{
+ content:"";position:absolute;top:0;left:0;right:0;height:3px;
+ background:linear-gradient(90deg,var(--mon-color),transparent 90%);
+}
+.page-monitor .monitor-focus .monitor-metric-label{display:flex;align-items:center;gap:7px;font-size:clamp(10px,1.4vw,16px);font-weight:800;color:#b9c7df;letter-spacing:.12em;white-space:nowrap}
+.monitor-v2-dot{display:inline-block;width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:var(--mon-color);box-shadow:0 0 9px var(--mon-color)}
+.monitor-v2-local{font-size:clamp(7px,.78vw,10px);font-weight:800;letter-spacing:.06em;color:#a6aec3;border:1px solid #4a5366;border-radius:5px;padding:2px 5px}
+.page-monitor .monitor-focus .monitor-metric strong{font-size:clamp(23px,4vw,69px);line-height:1.03;letter-spacing:-.055em;margin:clamp(11px,2.5vh,25px) 0 clamp(12px,2.4vh,20px);color:#f7f8ff;white-space:nowrap}
+.page-monitor .monitor-focus .monitor-track{height:clamp(5px,.8vh,8px);background:#2c3951}
+.page-monitor .monitor-focus .monitor-track>span{background:var(--mon-color);transition:width .25s}
+.page-monitor .monitor-focus .monitor-metric small{margin-top:clamp(8px,1.5vh,14px);color:#9fb1cb;font-size:clamp(9px,1vw,12px);min-height:1.5em;line-height:1.35}
+.monitor-v2-spark{width:100%;height:clamp(26px,7vh,65px);margin-top:clamp(8px,1.8vh,17px);color:var(--mon-color);overflow:visible}
+.monitor-v2-spark path{fill:none;stroke:currentColor;stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;opacity:.86}
+.monitor-v2-uptime-label{font-size:clamp(8px,1vw,11px);font-weight:700;letter-spacing:.09em;color:#8293af;margin-top:clamp(12px,3vh,24px)}
+.page-monitor .monitor-focus .monitor-metric-uptime small{margin-top:auto}
+.page-monitor .monitor-focus .monitor-focus-exit{top:clamp(9px,2vh,21px);right:calc(5px + env(safe-area-inset-right,0px));border:1px solid #354159;background:#18233a;border-radius:50%;width:39px;height:39px;font-size:24px}
+.page-monitor .monitor-metric[data-available="false"] .monitor-v2-spark{opacity:.33}
+@media(orientation:portrait) and (max-width:850px){
+ .page-monitor .monitor-focus{padding:10px 52px 10px 12px!important;gap:9px}
+}
+@media(orientation:landscape) and (max-width:850px){
+ .page-monitor .monitor-focus{gap:7px;padding:7px 49px 7px 8px!important}
+ .monitor-v2-header{min-height:30px}
+ .monitor-v2-logo{width:29px;height:29px;border-radius:9px;font-size:17px}
+ .monitor-v2-status{padding:5px 8px}
+ .page-monitor .monitor-focus .monitor-metric{padding:9px}
+ .page-monitor .monitor-focus .monitor-metric strong{font-size:clamp(21px,3.8vw,39px);margin:9px 0}
+ .page-monitor .monitor-focus .monitor-metric small{font-size:9px;margin-top:6px}
+ .monitor-v2-spark{height:clamp(22px,6vh,40px);margin-top:7px}
+ .monitor-v2-uptime-label{margin-top:11px}
+ .page-monitor .monitor-focus .monitor-focus-exit{width:33px;height:33px;top:7px;right:6px}
+}
+@media(max-height:310px) and (orientation:landscape){
+ .page-monitor .monitor-focus{gap:5px}
+ .monitor-v2-brand small,.monitor-v2-status small{display:none}
+ .page-monitor .monitor-focus .monitor-metric strong{margin:5px 0 7px}
+ .page-monitor .monitor-focus .monitor-metric small{margin-top:4px}
+ .monitor-v2-spark{height:20px;margin-top:4px}
+}
+@media(prefers-reduced-motion:reduce){.page-monitor .monitor-focus .monitor-track>span{transition:none}}
