@@ -1,4 +1,4 @@
 {
-  "version": "0.7.14",
-  "notes": "Modo minimalista corrigido: apenas as 3 pastas na tela inicial, sem ícones duplicados do Etiqueta Studio e PC Monitor fora das pastas."
+  "version": "0.7.15",
+  "notes": "Gavetas Android nas 3 pastas, busca e ordenação de apps, navegação mais fluida e correções de conexão Meu PC."
 }
