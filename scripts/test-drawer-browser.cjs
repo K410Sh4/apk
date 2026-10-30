@@ -105,6 +105,8 @@ const server=http.createServer((req,res)=>{
   for(const [width,height] of [[320,640],[412,915],[1280,800]]){
     await labelsPage.setViewportSize({width,height});
     await labelsPage.goto(base+'/apps/estoque/etiquetas/index.html');
+    await labelsPage.evaluate(()=>localStorage.removeItem('appspace.estoque.precision.v1'));
+    await labelsPage.reload();
     await labelsPage.locator('#studio-grid').click();
     assert.equal(await labelsPage.locator('#studio-grid').getAttribute('aria-pressed'),'true');
     await labelsPage.locator('#studio-snap').click();
