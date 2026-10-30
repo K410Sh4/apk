@@ -135,13 +135,15 @@ function draw(svgElement,project,interactive=false){
 }
 function exportSVG(project){const node=s("svg",{xmlns:NS});draw(node,project);return new XMLSerializer().serializeToString(node);}
 function slug(){return (doc.name||"etiqueta").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"-").replace(/^-|-$/g,"").slice(0,50)||"etiqueta";}
-function downloadBlob(name,blob){
-  const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download=name;document.body.append(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),15000);
+async function downloadBlob(name,blob){
+  if(!window.EtiquetaFiles?.save)throw Error("Exportador de arquivos não disponível");
+  return window.EtiquetaFiles.save(name,blob);
 }
 function downloadText(name,content,type){
-  downloadBlob(name,new Blob([content],{type:type||"image/svg+xml;charset=utf-8"}));
+  return downloadBlob(name,new Blob([content],{type:type||"image/svg+xml;charset=utf-8"}));
+}
+function notifyExport(result,label){
+  toast(result==="shared" ? label+" preparado. Salve em Arquivos ou Drive antes de desinstalar o aplicativo." : label+" exportado.");
 }
 function makeSheetPages(firstPageOnly=false){
   const gap=number($("sheet-gap").value,0,20,2),margin=number($("sheet-margin").value,0,30,5);
@@ -382,9 +384,11 @@ $("apply-template").addEventListener("click",()=>{
   if(!confirm("Substituir esta etiqueta pelo modelo selecionado? Você poderá desfazer."))return;
   trans(()=>{doc=M.project($("template-select").value);selected=null;});
 });
-$("download-project").addEventListener("click",()=>{
-  downloadText(slug()+".json",JSON.stringify(doc,null,2),"application/json;charset=utf-8");
-  toast("Projeto exportado em JSON.");
+$("download-project").addEventListener("click",async()=>{
+  try{
+    const result=await downloadText(slug()+".json",JSON.stringify(doc,null,2),"application/json;charset=utf-8");
+    notifyExport(result,"Projeto JSON");
+  }catch(e){toast("Falha ao salvar projeto: "+e.message);}
 });
 $("import-project").addEventListener("click",()=>$("project-file").click());
 $("project-file").addEventListener("change",async e=>{
@@ -396,8 +400,9 @@ $("project-file").addEventListener("change",async e=>{
     toast("Projeto importado com sucesso.");
   }catch(err){toast("Projeto inválido: "+err.message);}
 });
-$("download-svg").addEventListener("click",()=>{
-  downloadText(slug()+".svg",exportSVG(doc));toast("Etiqueta SVG exportada com dimensões reais.");
+$("download-svg").addEventListener("click",async()=>{
+  try{notifyExport(await downloadText(slug()+".svg",exportSVG(doc)),"Etiqueta SVG");}
+  catch(e){toast("Falha ao exportar SVG: "+e.message);}
 });
 $("download-png").addEventListener("click",async ()=>{
   try{
@@ -414,16 +419,20 @@ $("download-png").addEventListener("click",async ()=>{
       if(!ctx)throw Error("Canvas indisponível");
       ctx.drawImage(img,0,0,w,h);
       const png=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error("Exportação PNG indisponível")),"image/png"));
-      downloadBlob(slug()+"-300dpi.png",png);toast("PNG exportado a 300 DPI nominal.");
+      notifyExport(await downloadBlob(slug()+"-300dpi.png",png),"PNG 300 DPI nominal");
     }finally{URL.revokeObjectURL(url);}
   }catch(e){toast("Erro no PNG: "+e.message);}
 });
-$("download-sheet").addEventListener("click",()=>{
+$("download-sheet").addEventListener("click",async()=>{
   try{
-    const result=makeSheetPages();
-    downloadText(slug()+"-A4-pagina-1.svg",new XMLSerializer().serializeToString(result.pages[0]));
-    toast(result.pages.length>1?"A4 SVG: exportada a página 1 de "+result.pages.length+"; use Imprimir para todas.":"Folha A4 SVG exportada.");
-  }catch(e){toast(e.message);}
+    const result=makeSheetPages(),xml=new XMLSerializer();
+    if(result.pages.length===1){
+      notifyExport(await downloadText(slug()+"-A4.svg",xml.serializeToString(result.pages[0])),"Folha A4");
+    }else{
+      const files=result.pages.map((page,i)=>({name:"A4-pagina-"+String(i+1).padStart(2,"0")+".svg",content:xml.serializeToString(page)}));
+      notifyExport(await downloadBlob(slug()+"-A4-"+result.pages.length+"-paginas.zip",window.EtiquetaFiles.zip(files)),"ZIP com "+files.length+" folhas A4");
+    }
+  }catch(e){toast("Falha ao exportar A4: "+e.message);}
 });
 function nativePrinter(){
   const cap=window.Capacitor;
