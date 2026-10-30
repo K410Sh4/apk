@@ -24,7 +24,7 @@
     const defs=variableFields(template);
     return {version:1,fields:selected,
       rows:[{id:"row-1",quantity:1,values:Object.fromEntries(defs.map(f=>[f.id,f.initial]))}],
-      layout:{columns:"auto",rows:"auto",margin:5,gapX:2,gapY:2,alignX:"center",alignY:"start"},
+      layout:{columns:"auto",rows:"auto",margin:5,gapX:2,gapY:2,alignX:"center",alignY:"start",startSlot:1},
       activeStep:"model"};
   }
   function validateData(raw,template){
@@ -43,7 +43,8 @@
       margin:clamp(x.margin??5,0,25),
       gapX:clamp(x.gapX??2,0,20),gapY:clamp(x.gapY??2,0,20),
       alignX:alignments.includes(x.alignX)?x.alignX:"center",
-      alignY:alignments.includes(x.alignY)?x.alignY:"start"
+      alignY:alignments.includes(x.alignY)?x.alignY:"start",
+      startSlot:clamp(Math.floor(+x.startSlot||1),1,300)
     };
     if(!rows.length)rows.push({id:"row-1",quantity:1,values:Object.fromEntries(defs.map(f=>[f.id,f.initial]))});
     return {version:1,fields,rows,layout,activeStep:["model","list","preview"].includes(raw.activeStep)?raw.activeStep:"model"};
@@ -58,6 +59,8 @@
     const rows=layout.rows==="auto"?maxRows:Math.floor(+layout.rows);
     if(!(cols>=1&&cols<=maxCols&&rows>=1&&rows<=maxRows))
       throw Error("A grade excede o espaço A4. Reduza colunas, linhas, margens ou espaçamento.");
+    const startSlot=clamp(Math.floor(+layout.startSlot||1),1,300);
+    if(startSlot>cols*rows)throw Error("A primeira posição excede os espaços desta folha. Ajuste a posição inicial.");
     const occupiedW=cols*w+(cols-1)*gapX,occupiedH=rows*h+(rows-1)*gapY;
     const factor=v=>v==="end"?1:v==="center"?.5:0;
     const startX=margin+(areaW-occupiedW)*factor(layout.alignX);
@@ -66,7 +69,7 @@
     for(let row=0;row<rows;row++)for(let col=0;col<cols;col++)
       positions.push({x:startX+col*(w+gapX),y:startY+row*(h+gapY),row,col});
     return {columns:cols,rows,perPage:cols*rows,positions,maxCols,maxRows,
-      occupiedW,occupiedH,margin,gapX,gapY};
+      occupiedW,occupiedH,margin,gapX,gapY,startSlot};
   }
   function count(batch){
     return batch.rows.reduce((sum,row)=>sum+(Number.isInteger(row.quantity)?row.quantity:0),0);
@@ -88,7 +91,7 @@
           throw Error("Código de barras inválido na linha "+(batch.rows.indexOf(row)+1)+". Use Code 39 (1–24 caracteres).");
       }
     }
-    return {layout,copies,pageCount:Math.ceil(copies/layout.perPage)};
+    return {layout,copies,pageCount:Math.ceil((copies+layout.startSlot-1)/layout.perPage)};
   }
   function* items(template,batch){
     const doc=M.validate(template);
@@ -100,14 +103,35 @@
       yield {...doc,objects};
     }
   }
+  // Apenas a página solicitada: não materializa até 500 etiquetas a cada navegação.
+  function previewPage(template,batch,index=0){
+    const verified=validateForPrint(template,batch);
+    const pageIndex=clamp(Math.floor(index),0,verified.pageCount-1);
+    const start=pageIndex*verified.layout.perPage;
+    const offset=verified.layout.startSlot-1;
+    const first=Math.max(0,start-offset),last=Math.min(verified.copies,start+verified.layout.perPage-offset);
+    const itemsOnPage=[];
+    if(first<last){
+      const iterator=items(template,batch);
+      for(let i=0;i<first;i++)iterator.next();
+      for(let i=first;i<last;i++){
+        const next=iterator.next();
+        if(next.done)break;
+        itemsOnPage.push({label:next.value,position:verified.layout.positions[i+offset-start]});
+      }
+    }
+    return {...verified,pageIndex,items:itemsOnPage};
+  }
   function pages(template,batch){
-    const verified=validateForPrint(template,batch),all=[...items(template,batch)],result=[];
-    for(let start=0;start<all.length;start+=verified.layout.perPage){
-      result.push(all.slice(start,start+verified.layout.perPage).map((label,i)=>({
-        label,position:verified.layout.positions[i]
-      })));
+    const verified=validateForPrint(template,batch),result=[];
+    for(let i=0;i<verified.pageCount;i++)result.push([]);
+    let i=verified.layout.startSlot-1;
+    for(const label of items(template,batch)){
+      const pageIndex=Math.floor(i/verified.layout.perPage);
+      result[pageIndex].push({label,position:verified.layout.positions[i%verified.layout.perPage]});
+      i++;
     }
     return {...verified,pages:result};
   }
-  return Object.freeze({variableFields,defaultFields,fresh,validateData,calculate,count,validateForPrint,items,pages});
+  return Object.freeze({variableFields,defaultFields,fresh,validateData,calculate,count,validateForPrint,items,previewPage,pages});
 });
