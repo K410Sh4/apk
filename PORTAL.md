@@ -376,3 +376,18 @@ Seguindo a abordagem de análise incremental e evidências do REA, a implementa�
 **Instalação:** o novo plugin Android exige instalar APK **0.7.0**; OTA 0.6.x não pode acrescentar código nativo. As próximas alterações somente web podem chegar via OTA 0.7.x. O build atual é debug e pode ser necessário desinstalar a versão anterior se a assinatura mudar. **Antes de desinstalar, use "Salvar arquivo" para exportar os projetos de etiquetas em JSON**, pois `localStorage` será apagado na desinstalação.
 
 **Uso:** entre em `Estoque → Etiqueta Studio`, escolha **Folha A4** para conferir proporção e posicionamento, depois **Impressoras Wi-Fi** (no APK 0.7.0). No Android, ative um serviço de impressão compatível em Configurações do sistema. A impressora Wi-Fi normalmente precisa estar na mesma rede e acessível ao serviço; serviços com impressão remota podem ter requisitos próprios.
+
+## AppSpace 0.7.3 — correções pós-auditoria e exportação de etiquetas
+
+**Base:** PR #1 integrado à main (pareamento robusto, verificação de versão nativa OTA, restauração real do conteúdo original, correção do ciclo de redimensionamento, status do PC Monitor e versão Android do Gradle). Os 15 testes adicionais no PR passaram em CI.
+
+**Estoque / Etiqueta Studio:**
+- `model.js`: Code 39 rejeita caracteres não suportados (`_`, emojis, símbolos fora do padrão) e códigos com mais de 24 caracteres. Nunca remove caracteres de um SKU silenciosamente; o editor mostra o erro e preserva o valor anterior. Letras minúsculas são normalizadas explicitamente para maiúsculas, como exige o padrão Code 39.
+- `files.js`: exportações JSON (backup), SVG e PNG usam `@capacitor/filesystem` em pasta temporária e `@capacitor/share` para abrir o menu **Compartilhar → Arquivos/Drive** no Android. Em Windows/navegadores mantém download padrão. **A geração do arquivo temporário ou abertura do compartilhamento não equivale a ter criado um backup:** o usuário deve selecionar um destino externo e confirmar o salvamento.
+- `editor.js`: o botão **Folha A4 (SVG)** agora exporta todas as páginas: uma folha gera SVG único, várias folhas geram ZIP com um arquivo SVG para cada página. Para imprimir em rede pelo Android, continua usando o seletor nativo PrintManager.
+- `scripts/test-labels.cjs`: inclui regressões para SKU `ABC_123`, truncamento e importação de barcode inválido, validação de cabeçalho ZIP/duas páginas e simulação de gravação/compartilhamento nativos.
+- Build nativo Android: `package.json` 0.7.3, dependências `@capacitor/filesystem@8.1.4` e `@capacitor/share@8.0.1`, compatíveis com Capacitor 8.
+
+**Distribuição:** a compilação de Android 0.7.3 é necessária para instalar os novos plugins nativos; OTA sozinho **não** altera um APK 0.7.0. O pacote web OTA posterior deve anunciar `minNative=0.7.3`. O build ainda é **debug** e não há assinatura de atualização estável; instalar a nova versão sobre a anterior pode falhar por assinatura diferente. **Não desinstale sem backup externo comprovado**. Se os arquivos não estiverem sendo exportados no APK antigo, evite desinstalar até termos um processo de migração seguro ou comprovadamente não precisar dos dados.
+
+**Critérios de aceite pendentes em dispositivos reais:** exportar arquivo JSON e confirmar sua presença em Arquivos/Drive, importar o mesmo JSON depois, imprimir folha A4 a 100% numa impressora física, parear PC Monitor e aplicar OTA no Android 0.7.3. Os testes simulados e compilação não comprovam essas operações.
