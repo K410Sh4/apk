@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.35",
+  "version": "0.7.36",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.35/appspace-web-v0.7.35.zip",
-  "sha256": "faa1f752b248c1be0507282983f00de91065e4b7206c2b20cfe7ffa415055edc",
-  "notes": "RGB Controller Windows: corrige rota não autorizada quando a OTA antiga mantém pc-connection.js; usa API interna do EXE diretamente e preserva autenticação no c"
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.36/appspace-web-v0.7.36.zip",
+  "sha256": "54ad84a4f45e32793565bb25a6e8d6993e5b4270b739aed7cbb46b55982f765c",
+  "notes": "AppSpace RGB Sync: novo motor interno de sincronização e prévia de LEDs com cor fixa, respiração, arco-íris, onda e pulso. Brilho, velocidade e cenas salvos loc"
 }
