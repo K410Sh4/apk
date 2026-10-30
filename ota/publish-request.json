@@ -1,4 +1,4 @@
 {
-  "version": "0.7.34",
-  "notes": "Correção do atualizador Windows: pacote OTA sem README.md incompatível. Qwen Mod Hub, RGB Controller e demais apps preservados. Verificação de extensões antes da publicação."
+  "version": "0.7.35",
+  "notes": "RGB Controller Windows: corrige rota não autorizada quando a OTA antiga mantém pc-connection.js; usa API interna do EXE diretamente e preserva autenticação no celular. Corrige fonte e melhora legibilidade da tela."
 }
