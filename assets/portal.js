@@ -272,6 +272,7 @@
     if (card.classList.contains("folder-card--stock")) tile.classList.add("launcher-tile--stock");
     if (card.classList.contains("folder-card--video")) tile.classList.add("launcher-tile--video");
     if (card.classList.contains("folder-card--mypc")) tile.classList.add("launcher-tile--mypc");
+    if (card.classList.contains("folder-card--ai")) tile.classList.add("launcher-tile--ai");
     tile.href = card.getAttribute("href") || "./index.html";
     tile.dataset.search = normalize(getTitle(card) + " " + (card.dataset.search || ""));
     const icon = document.createElement("span");

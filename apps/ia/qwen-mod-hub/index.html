@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b101b"><meta name="description" content="Qwen Mod Hub: configurações locais e integração futura com REA.">
+<title>Qwen Mod Hub — AppSpace</title>
+<link rel="stylesheet" href="../../../assets/portal.css">
+<link rel="stylesheet" href="../../../assets/personalization.css">
+<link rel="stylesheet" href="../../../assets/mobile-navigation.css">
+<link rel="stylesheet" href="./mod-hub.css">
+<script src="../../../assets/portal.js" defer></script>
+<script src="../../../assets/ota.js" defer></script>
+<script src="./mod-hub.js" defer></script>
+</head>
+<body class="page-folder page-ai-mod-hub">
+<div class="app-shell">
+<aside class="sidebar" aria-label="Navegação">
+<a class="brand" href="../../../index.html"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span class="brand-type">app<span>space</span><small>YOUR APP UNIVERSE</small></span></a>
+<div class="sidebar-group"><span class="nav-caption">INTELIGÊNCIA ARTIFICIAL</span><nav class="side-nav">
+<a href="../../../index.html" class="nav-link"><span>Início</span></a>
+<a href="../index.html" class="nav-link active" aria-current="page"><span>Pasta IA</span></a>
+<a href="../../../configuracoes.html" class="nav-link"><span>Configurações</span></a>
+</nav></div>
+</aside>
+<div class="main-column">
+<header class="topbar"><div class="topbar-left"><a class="mobile-brand" href="../../../index.html"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span>app<b>space</b></span></a>
+<div class="breadcrumbs"><a href="../index.html">IA</a><span class="crumb-divider">/</span><strong>Qwen Mod Hub</strong></div></div>
+<div class="topbar-actions"><a class="settings-link" href="../../../configuracoes.html" title="Configurações" aria-label="Configurações">⚙</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Alternar tema"><svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 15.5A8.8 8.8 0 0 1 8.5 3.7 8.8 8.8 0 1 0 20.3 15.5Z"/></svg></button></div></header>
+<main class="main-content ai-main">
+<a class="ai-back" href="../index.html">← Voltar para IA</a>
+<div class="ai-hero"><div><span class="ai-kicker">LOCAL AI • EXPERIMENTAL</span><h1>Qwen <span>Mod Hub</span></h1><p>Configure módulos do Qwen2.5-Coder 7B para o projeto REA. Seus ajustes ficam neste dispositivo até serem enviados explicitamente ao agente Windows.</p></div><span class="ai-core-icon" aria-hidden="true">✧</span></div>
+<div class="ai-summary"><div><small>Modelo-alvo</small><strong>Qwen2.5-Coder 7B</strong></div><div><small>GPU-alvo</small><strong>RX 5700 XT • Vulkan</strong></div><div><small>Conexão com REA</small><strong id="ai-connection-status">Não conectada</strong></div></div>
+<section aria-labelledby="mods-title" class="ai-panel">
+<div class="ai-panel-head"><div><span class="ai-kicker">01 / MÓDULOS</span><h2 id="mods-title">Modificadores</h2><p>O interruptor altera o perfil local; não modifica os pesos do Qwen nem ativa recursos no REA por conta própria.</p></div><span class="ai-count" id="ai-enabled-count">0 ativos no perfil</span></div>
+<div class="ai-mods">
+<label class="ai-mod"><span class="ai-mod-icon">✦</span><span class="ai-mod-copy"><strong>Adaptive Think <small>v0.1</small></strong><span>Plano, revisão e verificação em múltiplas passagens.</span></span><input type="checkbox" data-mod="think" aria-label="Habilitar Adaptive Think"></label>
+<label class="ai-mod"><span class="ai-mod-icon">▤</span><span class="ai-mod-copy"><strong>Long-Term Memory <small>v0.1</small></strong><span>Recuperação seletiva de conhecimento e análises anteriores.</span></span><input type="checkbox" data-mod="memory" aria-label="Habilitar Long-Term Memory"></label>
+<label class="ai-mod"><span class="ai-mod-icon">◇</span><span class="ai-mod-copy"><strong>Vulkan Optimizer <small>v0.1</small></strong><span>Perfil proposto de inferência para AMD RDNA 1.</span></span><input type="checkbox" data-mod="vulkan" aria-label="Habilitar Vulkan Optimizer"></label>
+<label class="ai-mod"><span class="ai-mod-icon">✓</span><span class="ai-mod-copy"><strong>Code Verify <small>v0.1</small></strong><span>Solicita testes e checagem de evidências antes da resposta.</span></span><input type="checkbox" data-mod="verify" aria-label="Habilitar Code Verify"></label>
+</div>
+<div class="ai-options"><label>Intensidade Think<select id="ai-think-mode"><option value="economy">Econômico</option><option value="balanced">Equilibrado</option><option value="deep">Profundo</option></select></label><label>Janela de contexto<select id="ai-context"><option value="4096">4.096 tokens</option><option value="8192">8.192 tokens</option></select></label></div>
+<div class="ai-actions"><button class="ai-btn ai-primary" id="ai-save" type="button">Salvar perfil local</button><button class="ai-btn" id="ai-export" type="button">Exportar JSON</button><label class="ai-btn ai-file">Importar JSON<input type="file" id="ai-import" accept="application/json,.json" hidden></label><button class="ai-btn ai-danger" id="ai-reset" type="button">Restaurar padrão</button></div>
+</section>
+<section class="ai-panel" aria-labelledby="rea-title">
+<div class="ai-panel-head"><div><span class="ai-kicker">02 / INTEGRAÇÃO REA</span><h2 id="rea-title">Conexão com agente Windows</h2><p>O agente REA ainda precisa implementar este protocolo. Nenhum comando é executado no computador sem conexão autenticada.</p></div></div>
+<form id="ai-agent-form" class="ai-connection-form">
+<label>Endereço local do agente<input id="ai-host" type="url" inputmode="url" placeholder="http://127.0.0.1:8765" spellcheck="false" autocomplete="off"></label>
+<label>Token de sessão<input id="ai-token" type="password" placeholder="Token do REA" autocomplete="off" spellcheck="false"></label>
+<div class="ai-actions"><button class="ai-btn" id="ai-connect" type="submit">Testar conexão</button><button class="ai-btn ai-primary" id="ai-apply" type="button" disabled>Aplicar perfil no REA</button></div>
+</form>
+<p class="ai-note">Somente localhost ou IP privado. Token não é salvo. A conexão depende de uma API REA futura, autenticação e permissões CORS adequadas.</p>
+</section>
+<div class="ai-feedback" id="ai-feedback" role="status" aria-live="polite">Perfil inicial carregado. Nenhuma modificação foi aplicada ao Qwen.</div>
+</main>
+<nav class="mobile-nav" aria-label="Navegação móvel"><a href="../../../index.html"><span>⌂</span><span>Início</span></a><a href="../index.html" aria-current="page"><span>▦</span><span>IA</span></a><a href="../../../configuracoes.html"><span>⚙</span><span>Ajustes</span></a></nav>
+</div></div>
+</body></html>

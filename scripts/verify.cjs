@@ -25,6 +25,10 @@ const labelsBatchModel = text("apps/estoque/etiquetas/lote/batch-model.js");
 const labelsBatchRender = text("apps/estoque/etiquetas/lote/batch-render.js");
 const labelsBatchCss = text("apps/estoque/etiquetas/lote/batch.css");
 const video = text("apps/edicao-de-video/index.html");
+const aiFolder = text("apps/ia/index.html");
+const qwenHub = text("apps/ia/qwen-mod-hub/index.html");
+const qwenJs = text("apps/ia/qwen-mod-hub/mod-hub.js");
+const qwenCss = text("apps/ia/qwen-mod-hub/mod-hub.css");
 const system = text("apps/sistema/index.html");
 const legacyMonitor = text("apps/sistema/pc-monitor/index.html");
 const myPc = text("apps/meu-pc/index.html");
@@ -53,8 +57,8 @@ const cfg = JSON.parse(text("capacitor.config.json"));
 const pkg = JSON.parse(text("package.json"));
 
 assert.match(home, /<html lang="pt-BR"/, "HTML precisa da linguagem pt-BR");
-assert.equal(home.split('class="app-card"').length - 1, 2, "A biblioteca deve conter apenas os dois aplicativos reais");
-assert.equal(home.split('class="folder-card ').length - 1, 3, "A Home deve exibir somente Estoque, Edição de vídeo e Meu PC");
+assert.equal(home.split('class="app-card"').length - 1, 3, "A biblioteca deve conter os três aplicativos reais");
+assert.equal(home.split('class="folder-card ').length - 1, 4, "A Home deve exibir Estoque, Edição de vídeo, Meu PC e IA");
 assert.match(home, /href="\.\/apps\/estoque\/index\.html"/);
 assert.match(home, /href="\.\/apps\/edicao-de-video\/index\.html"/);
 assert.match(home, /id="pastas"/);
@@ -134,7 +138,7 @@ assert.doesNotMatch(home, /href="\.\/apps\/primeiro-app\/index\.html"/);
 assert.doesNotMatch(home, /href="\.\/apps\/sistema\/index\.html"/);
 assert.match(home, /href="\.\/apps\/estoque\/etiquetas\/index\.html"/);
 assert.match(home, /href="\.\/apps\/meu-pc\/index\.html"/);
-assert.match(home, /Suas pastas <span class="launcher-count">03<\/span>/);
+assert.match(home, /Suas pastas <span class="launcher-count">04<\/span>/);
 assert.match(home, /id="launcher-grid" aria-label="Grade de pastas"/);
 assert.doesNotMatch(home, /Todos os apps <span class="launcher-count">05/);
 assert.match(js, /\[\.\.\.folderCards\]\.sort\(compareCards\)\.forEach/);
@@ -142,9 +146,25 @@ assert.match(js, /createLauncherTile\(card, true\)/);
 assert.doesNotMatch(js, /\[\.\.\.folderCards, \.\.\.appCards\]\.sort\(compareCards\)/);
 assert.match(launcherCss, /body\.page-home \.library\{display:none!important\}/);
 assert.match(home, /<h3>PC Monitor<\/h3>/);
+assert.match(home, /href="\.\/apps\/ia\/index\.html"/);
+assert.match(home, /href="\.\/apps\/ia\/qwen-mod-hub\/index\.html"/);
+assert.match(aiFolder, /data-app-drawer="ia"/);
+assert.match(aiFolder, /href="\.\/qwen-mod-hub\/index\.html"/);
+assert.match(qwenHub, /data-mod="think"/);
+assert.match(qwenHub, /data-mod="memory"/);
+assert.match(qwenHub, /data-mod="vulkan"/);
+assert.match(qwenHub, /data-mod="verify"/);
+assert.match(qwenHub, /mod-hub\.js/);
+assert.match(qwenCss, /ai-mods/);
+assert.match(qwenJs, /appspace\.ia\.qwen-mod-hub\.v1/);
+assert.match(qwenJs, /applied!==true/);
+new Function(qwenJs);
+assert.match(js, /launcher-tile--ai/);
+assert.match(foldersCss, /folder-card--ai/);
+assert.match(launcherCss, /launcher-tile--ai/);
 assert.match(home, /<h3>Etiqueta Studio<\/h3>/);
-assert.match(home, /folder-nav-count">03<\/span>/);
-assert.match(home, /section-count folder-count">03<\/span>/);
+assert.match(home, /folder-nav-count">04<\/span>/);
+assert.match(home, /section-count folder-count">04<\/span>/);
 assert.match(detail, /href="\.\.\/\.\.\/index\.html#apps"/);
 assert.match(css, /@media \(max-width: 620px\)/);
 assert.match(home, /href="\.\/configuracoes\.html"/);
@@ -323,7 +343,7 @@ for(const source of [monitorJs, pcConnection, myPcUi, lan, desktopUpdater, elect
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/pc-monitor-v3.css", "assets/rgb-controller.css", "assets/rgb-controller.js", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "apps/meu-pc/rgb/index.html", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/pc-monitor-v3.css", "assets/rgb-controller.css", "assets/rgb-controller.js", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "apps/meu-pc/rgb/index.html", "apps/ia/index.html", "apps/ia/qwen-mod-hub/index.html", "apps/ia/qwen-mod-hub/mod-hub.js", "apps/ia/qwen-mod-hub/mod-hub.css", "apps/ia/qwen-mod-hub/README.md", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 execFileSync(process.execPath, [path.join(root, "scripts/test-my-pc.cjs")], { stdio: "inherit" });

@@ -24,7 +24,7 @@ const server=http.createServer((req,res)=>{
    const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
    for(const [width,height] of [[320,640],[360,800],[412,915],[844,390],[1280,800]]){
     await page.setViewportSize({width,height});
-    for(const [folder,count] of [['estoque',2],['edicao-de-video',0],['meu-pc',2]]){
+    for(const [folder,count] of [['estoque',2],['edicao-de-video',0],['meu-pc',2],['ia',1]]){
      await page.goto(base+'/apps/'+folder+'/index.html');
      await page.waitForSelector('[data-app-drawer]');
      assert.equal(await page.locator('[data-drawer-app]:visible').count(),count,folder+' app count');
@@ -64,7 +64,7 @@ const server=http.createServer((req,res)=>{
   assert.ok(await page.locator('#app-search').isVisible());
   await page.locator('#app-search').fill('zzzzzz');
   assert.ok(await page.locator('#search-empty').isVisible());
-  await page.keyboard.press('Escape');assert.equal(await page.locator('.folder-card:visible').count(),3);assertions+=4;
+  await page.keyboard.press('Escape');assert.equal(await page.locator('.folder-card:visible').count(),4);assertions+=4;
   await page.evaluate(()=>localStorage.setItem('appspace.preferences.v1',JSON.stringify({mobileNavStyle:'minimal'})));
   await page.reload();
   await page.evaluate(()=>window.savedTile=document.querySelector('.launcher-tile'));
@@ -82,6 +82,31 @@ const server=http.createServer((req,res)=>{
   // Touch listeners remain live after rendering/reordering the launcher.
   await page.locator('.launcher-tile--stock').click();await page.waitForURL('**/apps/estoque/index.html');
   assertions+=6;
+  // Qwen Mod Hub: navegação, persistência, importação e controles efetivos locais.
+  await page.goto(base+'/apps/ia/index.html');
+  assert.equal(await page.locator('[data-drawer-app]:visible').count(),1);
+  await page.locator('[data-drawer-app]:visible').click();
+  await page.waitForURL('**/apps/ia/qwen-mod-hub/index.html');
+  assert.ok(await page.locator('[data-mod="think"]').isChecked());
+  await page.locator('[data-mod="think"]').uncheck();
+  await page.locator('#ai-think-mode').selectOption('deep');
+  await page.locator('#ai-save').click();
+  assert.match(await page.locator('#ai-feedback').innerText(),/salvo neste dispositivo/i);
+  assert.ok(await page.locator('#ai-apply').isDisabled());
+  await page.reload();
+  assert.equal(await page.locator('[data-mod="think"]').isChecked(),false);
+  assert.equal(await page.locator('#ai-think-mode').inputValue(),'deep');
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('appspace.ia.qwen-mod-hub.v1')).mods.think),false);
+  await page.locator('#ai-import').setInputFiles({name:'profile.json',mimeType:'application/json',
+    buffer:Buffer.from(JSON.stringify({schema:1,target:'qwen2.5-coder-7b-instruct',mods:{think:true,memory:false,vulkan:true,verify:true},thinkMode:'economy',contextSize:8192}))});
+  assert.equal(await page.locator('[data-mod="memory"]').isChecked(),false);
+  assert.equal(await page.locator('#ai-context').inputValue(),'8192');
+  await page.locator('#ai-host').fill('https://example.com');
+  await page.locator('#ai-token').fill('test-token');
+  await page.locator('#ai-connect').click();
+  assert.match(await page.locator('#ai-feedback').innerText(),/somente http\(s\) e um host local\/privado/i);
+  assert.ok(await page.locator('#ai-apply').isDisabled());
+  assertions+=13;
   // A delayed native metrics callback must not reconnect the UI after disconnect.
   const race=await browser.newContext({viewport:{width:412,height:915}});
   await race.addInitScript(()=>{

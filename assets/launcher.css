@@ -214,3 +214,6 @@
 body.page-home .library{display:none!important}
 
 .launcher-tile--mypc .launcher-tile-icon{background:linear-gradient(145deg,#7992ff,#4056b0)}
+
+/* Identificação da quarta pasta no launcher mobile */
+.launcher-tile--ai .launcher-tile-icon {background:linear-gradient(135deg,rgba(65,135,255,.22),rgba(30,95,193,.08));color:#75b5ff}

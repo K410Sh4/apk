@@ -69,3 +69,6 @@
 @media(min-width:600px) and (max-width:850px){.drawer-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.drawer-app{transition:none;transform:none!important}}
 :root[data-effects="off"] .drawer-app,:root[data-effects="reduced"] .drawer-app{transition:none;transform:none!important}
+
+/* Ícone da gaveta IA */
+.drawer-app--ai .drawer-app-icon {background:rgba(76,144,240,.13);color:#75b5ff}
