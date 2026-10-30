@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.31",
+  "version": "0.7.32",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.31/appspace-web-v0.7.31.zip",
-  "sha256": "834e3925e7df8c395e3a1cf319548a6fb5237077cfaa271690997b7eb645c9c3",
-  "notes": "Meu PC ganha RGB Controller: descoberta read-only de mouse Redragon, microfone FIFINE, possível teclado Sate G50 com busca HID/MI e controladora genérica; integ"
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.32/appspace-web-v0.7.32.zip",
+  "sha256": "c029dc6d689f142017e3c4d91c9b5c30c9d6dab767e2e5c74a7d4713d3bc8d9b",
+  "notes": "Nova pasta IA e Qwen Mod Hub: perfis Think, Memory, Verify e Vulkan, laboratorio Qwen e integracao local opcional com REA Mod Host Windows."
 }
