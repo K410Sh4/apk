@@ -112,11 +112,20 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Gerar executável portátil
         run: npm run desktop:exe
+      - name: Gerar checksum SHA-256
+        shell: pwsh
+        run: |
+          $exes = @(Get-ChildItem "dist/electron" -Filter "*.exe")
+          if ($exes.Count -ne 1) { throw "Esperado exatamente um EXE no pacote." }
+          $hash = (Get-FileHash $exes[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $($exes[0].Name)" | Set-Content "dist/electron/SHA256SUMS.txt" -Encoding ascii
       - name: Publicar EXE
         uses: actions/upload-artifact@v4
         with:
           name: AppSpace-Windows-EXE
-          path: dist/electron/*.exe
+          path: |
+            dist/electron/*.exe
+            dist/electron/SHA256SUMS.txt
           if-no-files-found: error
           retention-days: 14
 

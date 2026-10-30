@@ -5,6 +5,7 @@ const {pathToFileURL}=require("node:url");
 const {app,BrowserWindow,session,protocol,net}=require("electron");
 const {startLanServer}=require("./lan.cjs");
 const {createDesktopUpdater}=require("./updates.cjs");
+const {CONTENT_SECURITY_POLICY}=require("./security.cjs");
 
 const PORTAL_ROOT=path.resolve(__dirname,"..");
 const SCHEME="appspace", HOST="portal";
@@ -48,14 +49,42 @@ function createWindow(){
     webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,webSecurity:true,devTools:!app.isPackaged}
   });
   window.once("ready-to-show",()=>window.show());
-  window.webContents.on("did-fail-load",(_e,code,description)=>{
-    console.error("[AppSpace] Falha ao abrir página:",code,description);
+  let recovered=false;
+  async function recoverUi(reason){
+    console.error("[AppSpace] Falha ao abrir página:",reason);
     if(!window.isVisible())window.show();
+    if(recovered||!updater?.status().updated)return;
+    recovered=true;
+    try{
+      // Never retry the same broken OTA bundle indefinitely.
+      await updater.reset();
+      await window.loadURL(SCHEME+"://"+HOST+"/index.html");
+    }catch(error){console.error("[AppSpace] Recuperação falhou:",error);}
+  }
+  window.webContents.on("did-fail-load",(_e,code,description,_url,isMainFrame)=>{
+    if(code!==-3&&isMainFrame!==false)void recoverUi(description);
+  });
+  window.webContents.on("render-process-gone",(_e,details)=>void recoverUi(details.reason));
+  window.webContents.on("did-finish-load",()=>{
+    // A pending OTA is accepted only after navigation completes.
+    if(updater?.status().pending)void updater.confirmBoot().catch(e=>console.error("[AppSpace] Confirmação OTA:",e));
   });
   window.loadURL(SCHEME+"://"+HOST+"/index.html");
   return window;
 }
-app.whenReady().then(()=>{
+const isPrimary=app.requestSingleInstanceLock();
+if(!isPrimary)app.quit();
+else {
+  app.on("second-instance",()=>{
+    let window=BrowserWindow.getAllWindows()[0];
+    if(!window&&app.isReady())window=createWindow();
+    if(window){
+      if(window.isMinimized())window.restore();
+      window.show();
+      window.focus();
+    }
+  });
+  app.whenReady().then(()=>{
   updater=createDesktopUpdater(app.getPath("userData"),app.getVersion());
   lan=startLanServer();
   protocol.handle(SCHEME,async request=>{
@@ -66,7 +95,12 @@ app.whenReady().then(()=>{
       if(request.method!=="GET")return json({error:"Método não permitido"},405);
       const file=resolveLocalURL(request.url);
       if(!file)return new Response("Arquivo não permitido",{status:403});
-      return net.fetch(pathToFileURL(file).toString());
+      const response=await net.fetch(pathToFileURL(file).toString());
+      if(path.extname(file).toLowerCase()!==".html")return response;
+      const headers=new Headers(response.headers);
+      headers.set("Content-Security-Policy",CONTENT_SECURITY_POLICY);
+      headers.set("X-Content-Type-Options","nosniff");
+      return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
     }catch(e){
       console.error("[AppSpace]",e);
       return json({error:String(e.message||"Erro interno").slice(0,180)},500);
@@ -80,6 +114,7 @@ app.whenReady().then(()=>{
   createWindow();
   app.on("activate",()=>{if(BrowserWindow.getAllWindows().length===0)createWindow();});
 }).catch(e=>console.error("[AppSpace] Erro de inicialização",e));
+}
 
 app.on("before-quit",()=>{if(lan)lan.stop();});
 app.on("window-all-closed",()=>{if(process.platform!=="darwin")app.quit();});

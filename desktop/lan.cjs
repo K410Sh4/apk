@@ -11,6 +11,14 @@ function ipv4s() {
   try { interfaces = os.networkInterfaces(); } catch (_) { return []; }
   return Object.values(interfaces).flat().filter(x => x && x.family === "IPv4" && !x.internal && /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(x.address)).map(x => x.address);
 }
+function isPrivatePeer(remote){
+  const ip=String(remote||"").replace(/^::ffff:/,"");
+  if(ip==="::1"||/^127\./.test(ip))return true;
+  const parts=ip.split(".");
+  if(parts.length!==4||parts.some(p=>!/^\d{1,3}$/.test(p)||Number(p)>255))return false;
+  const [a,b]=parts.map(Number);
+  return a===10||(a===192&&b===168)||(a===172&&b>=16&&b<=31);
+}
 function cpuTimes() {
   const cpus = os.cpus(); return cpus.reduce((a,c) => { a.idle += c.times.idle; a.total += Object.values(c.times).reduce((x,y)=>x+y,0); return a; },{idle:0,total:0});
 }
@@ -54,8 +62,7 @@ function startLanServer() {
     const remote=req.socket.remoteAddress || "";
     const host=(req.headers.host || "").toLowerCase();
     const validHosts = new Set(["localhost","127.0.0.1",...ipv4s()].map(address=>address+":"+port));
-    if (!validHosts.has(host) ||
-        (!remote.startsWith("::ffff:") && remote !== "::1" && !/^[\d.]+$/.test(remote))) {
+    if (!validHosts.has(host) || !isPrivatePeer(remote)) {
       return respond(res,403,{error:"Host não autorizado"},origin);
     }
     if (origin && !ALLOWED_ORIGINS.has(origin)) return respond(res,403,{error:"Origem não autorizada"},null);
@@ -89,7 +96,7 @@ function startLanServer() {
   server.on("error",e=>{error="Porta "+port+" indisponível ("+e.code+")";});
   server.listen(PORT,"0.0.0.0");
   server.unref();
-  return {status,sample,stop:()=>server.close()};
+  return {status,sample,stop:()=>{if(server.listening)server.close();}};
 }
-module.exports={startLanServer};
+module.exports={startLanServer,isPrivatePeer};
 
