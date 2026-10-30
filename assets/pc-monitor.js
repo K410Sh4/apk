@@ -28,7 +28,13 @@ async function enterMonitorMode(){
       await window.screen.orientation.lock("landscape");
     }
   }catch(_){/* CSS lateral permanece utilizável quando a API não existe. */}
-  if(session!==modeGeneration||!monitorMode)return;
+  if(session!==modeGeneration||!monitorMode){
+    try{
+      if(orientation?.unlock)await orientation.unlock();
+      else await window.screen?.orientation?.unlock?.();
+    }catch(_){}
+    return;
+  }
   try{await nativePlugin("StatusBar")?.hide?.();}catch(_){}
   if(session!==modeGeneration||!monitorMode){
     try{await nativePlugin("StatusBar")?.show?.();}catch(_){}
