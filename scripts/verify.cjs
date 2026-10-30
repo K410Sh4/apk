@@ -285,6 +285,14 @@ assert.match(monitorV3,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
 assert.match(monitorV3,/@media\(max-height:560px\)/);
 
 assert.match(monitor, /assets\/pc-monitor\.js/);
+assert.match(myPc, /id="mypc-rgb-link"/);
+const rgbPage=text("apps/meu-pc/rgb/index.html");
+assert.match(rgbPage,/rgb-keyboard-detail/);
+assert.match(rgbPage,/rgb-fifine-detail/);
+assert.match(rgbPage,/rgb-controller-detail/);
+assert.match(rgbPage,/assets\/rgb-controller\.js/);
+assert.match(text("desktop/rgb.cjs"),/createRgbInventory/);
+assert.match(pcConnection,/\/rgb\/devices/);
 assert.match(monitorCss, /monitor-metrics/);
 assert.match(monitorCss, /monitor-focus/);
 assert.match(monitorCss, /rotate\(90deg\)/);
@@ -315,11 +323,12 @@ for(const source of [monitorJs, pcConnection, myPcUi, lan, desktopUpdater, elect
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/pc-monitor-v3.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/pc-monitor-v3.css", "assets/rgb-controller.css", "assets/rgb-controller.js", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "apps/meu-pc/rgb/index.html", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 execFileSync(process.execPath, [path.join(root, "scripts/test-my-pc.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
+execFileSync(process.execPath, [path.join(root, "scripts/test-rgb.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-gpu.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-modern.cjs")], { stdio: "inherit" });

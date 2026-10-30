@@ -3,6 +3,7 @@
 const http = require("node:http");
 const os = require("node:os");
 const {createGpuSampler}=require("./gpu.cjs");
+const {createRgbInventory}=require("./rgb.cjs");
 const { randomInt, randomBytes, timingSafeEqual } = require("node:crypto");
 const PORT = 38473;
 const ALLOWED_ORIGINS = new Set(["https://localhost", "http://localhost", "capacitor://localhost", "appspace://portal"]);
@@ -19,6 +20,7 @@ function startLanServer() {
   const pin = String(randomInt(100000,999999));
   const secret = randomBytes(32).toString("hex");
   const attempts = new Map();
+  const rgb=createRgbInventory();
   const gpuSampler=createGpuSampler();
   gpuSampler.start();
   let previous = cpuTimes();
@@ -82,6 +84,13 @@ function startLanServer() {
         return respond(res,200,{token:secret,host:os.hostname()},origin);
       });return;
     }
+    if (req.url==="/rgb/devices" && req.method==="GET") {
+      if(!authorized(req))return respond(res,401,{error:"Pareamento necessário"},origin);
+      // GET read-only; no scan on every poll, no HID writes.
+      void rgb.scan().then(data=>respond(res,200,data,origin))
+        .catch(()=>respond(res,503,{error:"Inventário RGB indisponível"},origin));
+      return;
+    }
     if (req.url==="/metrics" && req.method==="GET") {
       if(!authorized(req))return respond(res,401,{error:"Pareamento necessário"},origin);
       return respond(res,200,sample(),origin);
@@ -92,7 +101,7 @@ function startLanServer() {
   server.on("error",e=>{error="Porta "+port+" indisponível ("+e.code+")";});
   server.listen(PORT,"0.0.0.0");
   server.unref();
-  return {status,sample,stop:()=>{gpuSampler.stop();server.close();}};
+  return {status,sample,rgb,stop:()=>{gpuSampler.stop();server.close();}};
 }
 module.exports={startLanServer};
 

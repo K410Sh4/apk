@@ -24,6 +24,7 @@ async function api(request,url) {
   if(request.method==="GET"){
     if(route==="/__api/desktop")return json({...updater.status(),lan:lan.status()});
     if(route==="/__api/metrics")return json(lan.sample());
+    if(route==="/__api/rgb/devices")return json(await lan.rgb.scan());
   }
   if(request.method==="POST"){
     if(route==="/__api/check")return json(await updater.check());

@@ -1,0 +1,38 @@
+/* RGB Controller · AppSpace — Android-first, low-cost UI (no animation loops). */
+.rgb-page{background:radial-gradient(ellipse at 33% 0,#242544 0,transparent 45%),#090e19;color:#eff2ff;font-family:inherit;min-height:100dvh}
+.rgb-app{min-height:100dvh}.rgb-topbar{display:flex;gap:12px;align-items:center;padding:16px clamp(16px,3vw,30px);background:#11182a;border-bottom:1px solid #29364d;position:sticky;top:0;z-index:5}
+.rgb-back{display:grid;place-items:center;width:42px;height:42px;flex:none;border:1px solid #374560;background:#192237;border-radius:50%;text-decoration:none;color:inherit;font-size:23px}
+.rgb-brand{display:flex;align-items:center;gap:12px;flex:1;min-width:0}.rgb-brand-icon{display:grid;place-items:center;flex:none;width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,#8d4cfa,#ec5baa);font-size:27px;color:white}.rgb-brand strong{font-size:18px;font-weight:820;letter-spacing:-.4px;display:block}.rgb-brand strong span{color:#bb9dff}.rgb-brand small{display:block;margin-top:3px;letter-spacing:.07em;color:#94a5c6;font-size:10px}
+.rgb-connection{border-radius:30px;white-space:nowrap;border:1px solid #384a63;background:#1c2739;padding:8px 11px;color:#c4d0e7;font-size:11px;font-weight:750}
+.rgb-connection[data-online=true]{color:#53dfb1;border-color:#53dfb152}
+.rgb-content{max-width:1250px;margin:0 auto;padding:clamp(19px,3vw,35px) clamp(14px,3vw,32px) 50px}
+.rgb-intro{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:19px}
+.rgb-eyebrow{color:#ad8df8;font-size:10px;letter-spacing:.16em;font-weight:850}.rgb-intro h1{font-size:clamp(26px,3.5vw,42px);letter-spacing:-.06em;margin:7px 0}.rgb-intro p,.rgb-section>p{margin:6px 0;color:#a6b5d0;font-size:13px;line-height:1.65}
+.rgb-refresh{min-width:134px;border-radius:30px;padding:12px 17px;background:#8d6aff;color:#100e24;border:0;font-weight:800;cursor:pointer}
+.rgb-refresh:disabled{opacity:.55;cursor:wait}
+.rgb-alert{border:1px solid #34445f;background:#18223b;color:#b9cbea;font-size:12px;line-height:1.6;padding:13px 17px;border-radius:15px;margin-bottom:17px}
+.rgb-alert[data-error=true]{border-color:#d77d6c77;color:#ffb6a6;background:#3d22284d}
+.rgb-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.rgb-device{--device:#a684ff;background:linear-gradient(150deg,color-mix(in srgb,var(--device) 13%,#182039),#101827 75%);border:1px solid color-mix(in srgb,var(--device) 34%,#293752);border-radius:23px;padding:21px;min-width:0;display:flex;flex-direction:column;gap:12px;box-shadow:0 15px 36px #0002}
+.rgb-microphone{--device:#55caff}.rgb-keyboard{--device:#ffb56c}.rgb-mouse{--device:#5ed9a8}
+.rgb-device-head{display:flex;gap:12px;align-items:center;min-width:0}.rgb-device-icon{width:48px;height:48px;flex:0 0 48px;border-radius:15px;background:color-mix(in srgb,var(--device) 18%,#17233b);border:1px solid color-mix(in srgb,var(--device) 60%,transparent);color:var(--device);display:grid;place-items:center;font-size:28px}
+.rgb-device-kind{font-size:9px;color:var(--device);letter-spacing:.09em;font-weight:800;line-height:1.4}.rgb-device h2{font-size:17px;line-height:1.25;letter-spacing:-.035em;margin:3px 0 0}
+.rgb-pill{display:inline-flex;align-items:center;align-self:flex-start;justify-content:center;min-height:29px;border-radius:30px;padding:6px 11px;background:#29344b;color:#b8c4dd;font-size:11px;font-weight:770;border:1px solid #3c506b}
+.rgb-pill[data-state=detected]{color:#5de6b4;background:#11493645;border-color:#36cd9859}.rgb-pill[data-state=missing]{color:#d1a7a9;border-color:#654150}
+.rgb-device-desc{font-size:12px;line-height:1.6;color:#c2cee5;margin:0;flex:1}
+.rgb-device-detail{border:1px solid #35435e;background:#11182b8c;border-radius:14px;color:#e5eaff;font-size:11px;line-height:1.55;padding:12px;overflow-wrap:anywhere}
+.rgb-device-tip{font-size:11px;line-height:1.55;color:#8fa3c5;margin:0}
+.rgb-section{background:linear-gradient(140deg,#182138,#101827 80%);border:1px solid #31415c;border-radius:23px;margin-top:17px;padding:clamp(17px,2.5vw,25px)}
+.rgb-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.rgb-section-head h2{font-size:21px;margin:5px 0 0;letter-spacing:-.045em}
+.rgb-openrgb-list{list-style:none;margin:12px 0;padding:0;display:flex;flex-wrap:wrap;gap:9px}.rgb-openrgb-list li{border:1px solid #344761;background:#202e46;border-radius:12px;padding:10px 14px;font-size:12px}
+.rgb-section .rgb-security{color:#d4bdb2;font-size:11px;border-top:1px solid #364359;padding-top:12px;margin-top:13px}
+.rgb-search-label{display:block;font-size:11px;margin:13px 0 8px;color:#aebfda}
+.rgb-search-label+input{width:100%;padding:13px 16px;border:1px solid #3a4c68;background:#0e1626;border-radius:14px;color:#edf2ff;font-size:13px;outline:0}
+.rgb-search-label+input:focus{border-color:#9e7cfd;box-shadow:0 0 0 3px #9e7cfd22}
+.rgb-table-wrap{margin-top:15px;overflow-x:auto;border:1px solid #34455f;border-radius:15px}
+.rgb-table{width:100%;border-collapse:collapse;min-width:500px;font-size:12px}.rgb-table th{text-align:left;background:#202d44;padding:13px 12px;color:#9daecf;font-size:10px;letter-spacing:.035em}.rgb-table td{padding:12px;border-top:1px solid #30425d;color:#d6e1f9}.rgb-table tbody tr:nth-child(even){background:#1b26395a}.rgb-table td:nth-child(2){color:#ab91ff;font-weight:800;font-variant-numeric:tabular-nums}
+.rgb-count{margin-top:11px;font-size:11px;color:#91a5c5}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #b49cff;outline-offset:3px}
+@media(max-width:1050px){.rgb-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.rgb-topbar{padding:11px}.rgb-brand-icon{display:none}.rgb-brand strong{font-size:16px}.rgb-brand small{font-size:8px}.rgb-connection{font-size:9px;padding:7px}.rgb-intro{align-items:flex-start;gap:10px}.rgb-refresh{min-width:95px;padding:10px 11px;font-size:11px}.rgb-intro p{font-size:11px}.rgb-grid{gap:10px}.rgb-device{padding:15px;gap:9px}.rgb-device-head{flex-direction:column;align-items:flex-start;gap:7px}.rgb-device h2{font-size:14px}.rgb-device-icon{width:40px;height:40px;flex-basis:40px}.rgb-device-desc,.rgb-device-tip{font-size:10px}.rgb-device-detail{font-size:10px;padding:10px}}
+@media(max-width:355px){.rgb-grid{grid-template-columns:1fr}.rgb-device-head{flex-direction:row;align-items:center}}
