@@ -1,4 +1,4 @@
 {
-  "version": "0.7.29",
-  "notes": "PC Monitor V2: dashboard moderno em paisagem com CPU, RAM, GPU, FPS da tela e tempo ligado; gráficos e status ao vivo. A leitura real de GPU requer o novo EXE Windows com sensor WDDM."
+  "version": "0.7.30",
+  "notes": "Monitor PRO V3: ícones SVG grandes para CPU, RAM, GPU, FPS e tempo ligado, cores neon individuais, títulos claros e cartões responsivos inspirados no visual aprovado. Preserva sensores, histórico, FPS da tela e telemetria do PC."
 }
