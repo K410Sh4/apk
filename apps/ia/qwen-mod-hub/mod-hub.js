@@ -6,7 +6,39 @@
   const IDS = ["think", "memory", "vulkan", "verify"];
   const DEFAULTS = Object.freeze({ schema: 1, target: "qwen2.5-coder-7b-instruct", mods: {think:true,memory:false,vulkan:false,verify:false}, thinkMode:"balanced", contextSize:4096 });
   const el = id => document.getElementById(id);
-  let connected = false, applying = false, pending = false, modelReady = false;
+  let connected = false, applying = false, pending = false, modelReady = false, profileApplied = false;
+  const MODE_TEXT = {
+    economy: "Responde mais rápido, sem a revisão em várias etapas. Ideal para perguntas simples.",
+    balanced: "A IA faz revisões extras antes de responder. É uma boa escolha para começar.",
+    deep: "A IA faz mais uma etapa de revisão. Pode demorar mais e nem sempre é melhor."
+  };
+  function syncStatus() {
+    const banner = el("ai-status-banner");
+    const status = el("ai-connection-status");
+    const hint = el("ai-status-hint");
+    if (!connected) {
+      banner.dataset.state = "offline";
+      status.textContent = "PC desconectado";
+      hint.textContent = "Conecte o computador no passo 1.";
+    } else if (!modelReady) {
+      banner.dataset.state = "connected";
+      status.textContent = "PC conectado • Qwen desligado";
+      hint.textContent = "Abra o Qwen no computador para poder conversar.";
+    } else if (!profileApplied) {
+      banner.dataset.state = "connected";
+      status.textContent = "PC conectado";
+      hint.textContent = "Escolha um modo e toque em 'Usar este modo no PC'.";
+    } else {
+      banner.dataset.state = "ready";
+      status.textContent = "Tudo pronto para conversar";
+      hint.textContent = "Digite sua pergunta no passo 3.";
+    }
+  }
+  function explainMode() {
+    const mode = el("ai-think-mode").value;
+    const enabled = document.querySelector('[data-mod="think"]').checked;
+    el("ai-mode-explainer").textContent = enabled ? MODE_TEXT[mode] : "A revisão Think está desligada. O Qwen responde em uma etapa.";
+  }
   let config;
   try { config = normalize(readJSON(KEY)); }
   catch (_) { config = normalize(DEFAULTS); }
@@ -36,35 +68,38 @@
   }
   function count() {
     const n=IDS.filter(id=>document.querySelector('[data-mod="'+id+'"]').checked).length;
-    el("ai-enabled-count").textContent=n+" módulos no perfil";
+    el("ai-enabled-count").textContent=String(n);
   }
   function render() {
     for (const id of IDS) document.querySelector('[data-mod="'+id+'"]').checked=config.mods[id];
     el("ai-think-mode").value=config.thinkMode;
     el("ai-context").value=String(config.contextSize);
     count();
+    explainMode();
     pending=false;
+    syncStatus();
   }
   function markPending() {
     pending=true;
-    connected=false;
-    el("ai-apply").disabled=true;
+    profileApplied=false;
+    el("ai-apply").disabled=!connected;
     el("ai-chat-send").disabled=true;
-    el("ai-clear-memory").disabled=true;
-    el("ai-connection-status").textContent="Configuração não aplicada";
+    el("ai-clear-memory").disabled=!connected;
     count();
-    message("Configuração alterada. Salve o perfil antes de aplicar ao REA.");
+    explainMode();
+    syncStatus();
+    message(connected?"Mudança pronta. Toque em 'Usar este modo no PC'.":"Escolha alterada. Conecte ao PC para aplicar.");
   }
   function saveProfile() {
     config=collect();
     if (!save(KEY,JSON.stringify(config))) {message("Falha ao salvar. Armazenamento indisponível.","error");return false;}
     pending=false;
-    connected=false;
-    el("ai-apply").disabled=true;
+    profileApplied=false;
+    el("ai-apply").disabled=!connected;
     el("ai-chat-send").disabled=true;
-    el("ai-clear-memory").disabled=true;
-    el("ai-connection-status").textContent="Não conectada";
-    message("Perfil salvo neste dispositivo. Ainda não foi aplicado ao REA.","success");
+    el("ai-clear-memory").disabled=!connected;
+    syncStatus();
+    message(connected?"Modo salvo neste dispositivo. Toque em 'Usar este modo no PC'.":"Modo salvo neste dispositivo. Conecte ao PC para usá-lo.","success");
     return true;
   }
   function isPrivateHost(h) {
@@ -102,54 +137,57 @@
     let base;
     try{base=validateHost(el("ai-host").value);}catch(e){message(e.message,"error");return;}
     const btn=el("ai-connect");
-    btn.disabled=true;connected=false;el("ai-apply").disabled=true;
-    message("Verificando agente REA...");
+    btn.disabled=true;connected=false;profileApplied=false;el("ai-apply").disabled=true;
+    syncStatus();
+    message("Tentando conectar ao PC...");
     try {
       const status=await request(base,"/api/v1/status","GET",token);
       if(status.agent!=="rea-qwen-mod-host"||status.apiVersion!==1||status.capabilities?.mods!==true) throw new Error("O serviço respondeu, mas não implementa o protocolo do Qwen Mod Hub v1.");
       connected=true;modelReady=Boolean(status.model?.ready);
+      profileApplied=false;
       save(HOST_KEY,base);el("ai-host").value=base;
-      el("ai-connection-status").textContent=modelReady?"Agente e Qwen online":"Agente online · Qwen offline";
-      el("ai-apply").disabled=pending;
+      el("ai-apply").disabled=false;
       el("ai-chat-send").disabled=true;
       el("ai-clear-memory").disabled=false;
-      message(modelReady?"Agente autenticado e Qwen disponível. Aplique o perfil antes de testar.":"Agente autenticado, mas o llama-server do Qwen não respondeu. É possível aplicar o perfil; para conversar inicie o modelo.","success");
-    }catch(e){el("ai-connection-status").textContent="Não conectada";message(e.message,"error");}
+      syncStatus();
+      message(modelReady?"PC conectado! Agora escolha e aplique um modo no passo 2.":"PC conectado, mas o Qwen está desligado. Abra a IA no computador.","success");
+    }catch(e){connected=false;modelReady=false;syncStatus();message("Não foi possível conectar. Confira o código e se o serviço do PC está aberto. "+e.message,"error");}
     finally{btn.disabled=false;}
   }
   async function apply() {
-    if(!connected||pending||applying){message("Salve o perfil e teste a conexão antes de aplicar.","error");return;}
+    if(!connected||applying){message("Conecte ao PC no passo 1 antes de usar um modo.","error");return;}
+    if(pending && !saveProfile()) return;
     applying=true;el("ai-apply").disabled=true;
     try {
       const body=await request(validateHost(el("ai-host").value),"/api/v1/mods/apply","POST",el("ai-token").value.trim(),{schema:1,profile:config});
       if(body.agent!=="rea-qwen-mod-host"||body.apiVersion!==1||body.applied!==true) throw new Error("Agente não confirmou a aplicação; não considere os mods ativos.");
       modelReady=Boolean(body.modelReady);
+      profileApplied=true;
       el("ai-chat-send").disabled=!modelReady;
-      const vulkan=body.moduleStatus?.vulkan?.state==="manual";
-      el("ai-connection-status").textContent=modelReady?"Perfil aplicado · Qwen online":"Perfil aplicado · Qwen offline";
-      message("Perfil aplicado ao controlador local. "+(modelReady?"Qwen pronto para teste. ":"Qwen ainda desconectado. ")+(vulkan?"Vulkan exige iniciar/reiniciar o llama-server com backend Vulkan; não houve alteração da GPU.":"Pesos GGUF preservados."),"success");
-    }catch(e){message("Aplicação não confirmada: "+e.message,"error");el("ai-connection-status").textContent="Aplicação não confirmada";}
+      syncStatus();
+      message(modelReady?"Modo aplicado no PC. Agora pode fazer uma pergunta no passo 3.":"Modo salvo no PC. Abra o Qwen no computador para conversar.","success");
+    }catch(e){profileApplied=false;syncStatus();message("Não foi possível ativar esse modo no PC: "+e.message,"error");}
     finally{applying=false;el("ai-apply").disabled=!connected;}
   }
 
   async function chat(event) {
     event.preventDefault();
-    if(!connected||pending||!modelReady) {message("Aplique um perfil e conecte ao Qwen antes de testar.","error");return;}
+    if(!connected||pending||!modelReady||!profileApplied) {message("Conecte o PC e escolha um modo antes de conversar.","error");return;}
     const prompt=el("ai-prompt").value.trim();
     if(prompt.length<2||prompt.length>6000){message("Digite uma pergunta de 2 a 6.000 caracteres.","error");return;}
     const btn=el("ai-chat-send");
     btn.disabled=true;
     el("ai-chat-response").hidden=true;
-    el("ai-chat-meta").textContent="Processando no Qwen local. Modos de revisão podem realizar várias inferências.";
+    el("ai-chat-meta").textContent="O Qwen está preparando sua resposta. No modo detalhado, isso pode demorar mais.";
     try{
       const response=await request(validateHost(el("ai-host").value),"/api/v1/chat","POST",el("ai-token").value.trim(),{prompt},240000);
       if(response.agent!=="rea-qwen-mod-host"||response.apiVersion!==1||typeof response.answer!=="string"||!Number.isInteger(response.passes))throw Error("Resposta incompatível com o contrato do REA Mod Host.");
       el("ai-chat-response").textContent=response.answer;
       el("ai-chat-response").hidden=false;
-      el("ai-chat-meta").textContent=String(response.passes)+" passagem(ns) · "+String(response.elapsedMs||0)+" ms · Memórias recuperadas: "+String(response.memoryUsed||0)+" · "+String(response.verification||"sem verificação");
-      message("Resposta gerada localmente. Revise resultados técnicos antes de usar.","success");
+      el("ai-chat-meta").textContent="Resposta pronta. "+(response.passes>1?"A IA revisou o texto em "+response.passes+" etapas.":"A IA respondeu em uma etapa.")+" Respostas técnicas precisam de conferência.";
+      message("Resposta recebida do Qwen no PC.","success");
     }catch(e){el("ai-chat-meta").textContent="Falha na consulta ao Qwen.";message(e.message,"error");}
-    finally{btn.disabled=!connected||pending||!modelReady;}
+    finally{btn.disabled=!connected||pending||!modelReady||!profileApplied;}
   }
   async function clearMemory(){
     if(!connected)return;
@@ -195,9 +233,16 @@
   el("ai-import").addEventListener("change",importProfile);
   el("ai-reset").addEventListener("click",reset);
   el("ai-agent-form").addEventListener("submit",connect);
+  el("ai-copy-command").addEventListener("click",async()=>{
+    try { await navigator.clipboard.writeText("npm.cmd run ai:agent"); message("Comando copiado. Cole no terminal do PC.","success"); }
+    catch (_) { message("Não foi possível copiar. Use o comando mostrado nas instruções.","error"); }
+  });
   el("ai-apply").addEventListener("click",apply);
   el("ai-chat-form").addEventListener("submit",chat);
   el("ai-clear-memory").addEventListener("click",clearMemory);
-  el("ai-host").addEventListener("input",()=>{connected=false;modelReady=false;el("ai-apply").disabled=true;el("ai-chat-send").disabled=true;el("ai-clear-memory").disabled=true;el("ai-connection-status").textContent="Não conectada";});
-  el("ai-token").addEventListener("input",()=>{connected=false;modelReady=false;el("ai-apply").disabled=true;el("ai-chat-send").disabled=true;el("ai-clear-memory").disabled=true;el("ai-connection-status").textContent="Não conectada";});
+  for(const id of ["ai-host","ai-token"]) el(id).addEventListener("input",()=>{
+    connected=false;modelReady=false;profileApplied=false;
+    el("ai-apply").disabled=true;el("ai-chat-send").disabled=true;el("ai-clear-memory").disabled=true;
+    syncStatus();
+  });
 })();
