@@ -7,6 +7,7 @@ const capacitor=window.Capacitor;
 const native=Boolean(capacitor?.isNativePlatform?.());
 const STORAGE="appspace.pcmonitor.v1",PORT=38473;
 let state={ip:"",token:""}, timer=null,started=false,polling=false,failures=0;
+let generation=0,resumeOnShow=false,pairing=false;
 const history=[];
 function privateIPv4(ip){
   if(!/^(?:\d{1,3}\.){3}\d{1,3}$/.test(ip))return false;
@@ -50,9 +51,12 @@ async function callApi(path,method="GET",data=null,authorized=true){
   if(isDesktop){
     const url=path==="/metrics"?"/__api/metrics":path==="/health"?"/__api/desktop":null;
     if(!url)throw Error("Operação não disponível no Windows");
-    const r=await fetch(url,{cache:"no-store"});
-    if(!r.ok)throw Error("Falha local HTTP "+r.status);
-    return r.json();
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),4000);
+    try{
+      const r=await fetch(url,{cache:"no-store",signal:controller.signal});
+      if(!r.ok)throw Error("Falha local HTTP "+r.status);
+      return await r.json();
+    }finally{clearTimeout(timeout);}
   }
   if(!privateIPv4(state.ip))throw Error("Insira um IP privado válido");
   const url="http://"+state.ip+":"+PORT+path;
@@ -82,34 +86,43 @@ function dashboard(show){
 async function poll(){
   if(polling||document.hidden||!started)return;
   polling=true;
-  try{render(await callApi("/metrics"));}
+  const session=generation;
+  try{
+    const data=await callApi("/metrics");
+    if(!started||session!==generation)return;
+    render(data);
+  }
   catch(e){
+    if(!started||session!==generation)return;
     failures++;setConnection(false,"Falha de conexão");
     text("monitor-connection-detail",e.message);
     if(failures>=6){stop();dashboard(false);text("monitor-pair-error","Conexão interrompida. Confira o EXE, o IP, o firewall e a mesma rede Wi-Fi.");}
-  }finally{polling=false;}
+  }finally{if(session===generation)polling=false;}
 }
 function start(){
-  stop();started=true;dashboard(true);setConnection(false,"Conectando…");
+  stop();started=true;failures=0;dashboard(true);setConnection(false,"Conectando…");
   void poll();timer=setInterval(()=>void poll(),1000);
 }
-function stop(){started=false;if(timer)clearInterval(timer);timer=null;}
+function stop(){generation++;started=false;polling=false;if(timer)clearInterval(timer);timer=null;}
 async function pair(event){
   event.preventDefault();
+  if(pairing)return;
   const ip=byId("monitor-ip")?.value.trim()||"";
   const pin=byId("monitor-pin")?.value.trim()||"";
   const button=byId("monitor-pair-button");
   if(!privateIPv4(ip)){text("monitor-pair-error","Insira um IP local válido (10.x, 172.16–31.x ou 192.168.x).");return;}
   if(!/^\d{6}$/.test(pin)){text("monitor-pair-error","O código precisa ter seis números.");return;}
+  stop();pairing=true;const session=generation;
   if(button)button.disabled=true;
   state={ip,token:""};text("monitor-pair-error","Autorizando conexão local…");
   try{
     const response=await callApi("/pair","POST",{code:pin},false);
+    if(session!==generation)return;
     if(!/^[a-f0-9]{64}$/.test(response.token||""))throw Error("Resposta inválida do computador");
     state.token=response.token;persist();
     if(byId("monitor-pin"))byId("monitor-pin").value="";start();
-  }catch(e){text("monitor-pair-error","Falha ao conectar: "+e.message+". Verifique o código e o firewall do Windows.");}
-  finally{if(button)button.disabled=false;}
+  }catch(e){if(session===generation)text("monitor-pair-error","Falha ao conectar: "+e.message+". Verifique o código e o firewall do Windows.");}
+  finally{pairing=false;if(button)button.disabled=false;}
 }
 async function init(){
   if(isDesktop) {
@@ -121,7 +134,7 @@ async function init(){
     }catch(_){}
   } else {
     const saved=stored();
-    if(saved){state=saved;text("monitor-ip",saved.ip);start();}
+    if(saved){state=saved;if(byId("monitor-ip"))byId("monitor-ip").value=saved.ip;start();}
   }
   byId("monitor-pair-form")?.addEventListener("submit",event=>void pair(event));
   byId("monitor-disconnect")?.addEventListener("click",()=>{
@@ -129,8 +142,12 @@ async function init(){
     setConnection(false,"Desconectado");
     text("monitor-pair-error","Conexão encerrada. Informe novamente o código do Windows.");
   });
-  window.addEventListener("pagehide",stop);
+  window.addEventListener("pagehide",()=>{resumeOnShow=started;stop();});
+  window.addEventListener("pageshow",event=>{
+    if(event.persisted&&resumeOnShow){resumeOnShow=false;start();}
+  });
   document.addEventListener("visibilitychange",()=>{if(!document.hidden&&started)void poll();});
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>void init());else void init();
 })();
+

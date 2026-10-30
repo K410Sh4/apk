@@ -45,7 +45,7 @@ function createDesktopUpdater(userData,builtinVersion){
   let active=null;
   try{
     const x=JSON.parse(fs.readFileSync(activeFile,"utf8"));
-    if(semver.test(x.version)&&x.version.length<20){
+    if(semver.test(x.version)&&x.version.length<20&&cmp(x.version,builtinVersion)>0){
       const folder=path.join(root,"v"+x.version);
       if(fs.existsSync(path.join(folder,"index.html")))active={version:x.version,folder};
     }
@@ -88,7 +88,15 @@ function createDesktopUpdater(userData,builtinVersion){
       return {updated:true,version:m.version,restartRequired:true};
     }finally{if(staging)await fsp.rm(staging,{recursive:true,force:true});busy=false;}
   }
-  async function reset(){active=null;await fsp.rm(activeFile,{force:true});return {ok:true,restartRequired:true};}
+  async function reset(){
+    if(busy)throw Error("Outra atualização está em andamento");
+    busy=true;
+    try{
+      await fsp.rm(activeFile,{force:true});
+      active=null;
+      return {ok:true,restartRequired:true};
+    }finally{busy=false;}
+  }
   function resolve(relative,builtinFolder){
     if(!/^[a-zA-Z0-9][a-zA-Z0-9/._-]{0,256}$/.test(relative)||relative.split("/").includes(".."))return null;
     const bundled=path.join(builtinFolder,relative);
@@ -101,3 +109,4 @@ function createDesktopUpdater(userData,builtinVersion){
   return {status,check,install,reset,resolve};
 }
 module.exports={createDesktopUpdater};
+

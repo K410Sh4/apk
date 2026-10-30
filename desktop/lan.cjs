@@ -6,7 +6,10 @@ const { randomInt, randomBytes, timingSafeEqual } = require("node:crypto");
 const PORT = 38473;
 const ALLOWED_ORIGINS = new Set(["https://localhost", "http://localhost", "capacitor://localhost", "appspace://portal"]);
 function ipv4s() {
-  return Object.values(os.networkInterfaces()).flat().filter(x => x && x.family === "IPv4" && !x.internal && /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(x.address)).map(x => x.address);
+  // A falha do sistema ao enumerar adaptadores não deve derrubar o portal.
+  let interfaces;
+  try { interfaces = os.networkInterfaces(); } catch (_) { return []; }
+  return Object.values(interfaces).flat().filter(x => x && x.family === "IPv4" && !x.internal && /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(x.address)).map(x => x.address);
 }
 function cpuTimes() {
   const cpus = os.cpus(); return cpus.reduce((a,c) => { a.idle += c.times.idle; a.total += Object.values(c.times).reduce((x,y)=>x+y,0); return a; },{idle:0,total:0});
@@ -62,10 +65,14 @@ function startLanServer() {
       const ip=remote,now=Date.now(), entry=attempts.get(ip)||{count:0,reset:now+600000};
       if(now>entry.reset){entry.count=0;entry.reset=now+600000;}
       if(entry.count>=8)return respond(res,429,{error:"Muitas tentativas; tente novamente mais tarde"},origin);
+      // Reservar antes de ler o corpo: requisições simultâneas compartilham o limite.
+      for(const [address,value] of attempts)if(now>value.reset)attempts.delete(address);
+      if(!attempts.has(ip)&&attempts.size>=1024)return respond(res,429,{error:"Tente novamente mais tarde"},origin);
+      entry.count++;attempts.set(ip,entry);
       let raw="";req.on("data",chunk=>{raw+=chunk.toString();if(raw.length>1024)req.destroy();});
       req.on("end",()=>{
         let input;try{input=JSON.parse(raw);}catch(_){return respond(res,400,{error:"Dados inválidos"},origin);}
-        entry.count++;attempts.set(ip,entry);
+        if(!input||typeof input!=="object"||Array.isArray(input))return respond(res,400,{error:"Dados inválidos"},origin);
         if (typeof input.code!=="string" || !/^[0-9]{6}$/.test(input.code) ||
           !timingSafeEqual(Buffer.from(input.code),Buffer.from(pin)))return respond(res,401,{error:"Código incorreto"},origin);
         attempts.delete(ip);
@@ -85,3 +92,4 @@ function startLanServer() {
   return {status,sample,stop:()=>server.close()};
 }
 module.exports={startLanServer};
+

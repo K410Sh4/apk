@@ -4,7 +4,8 @@
  */
 (() => {
   "use strict";
-  const NATIVE_VERSION = "0.7.0";
+  // A versão do APK não pode vir do JavaScript, que é substituído por OTA.
+  let nativeVersion = null;
   const MANIFEST_URL = "https://raw.githubusercontent.com/K410Sh4/apk/main/ota/latest.json";
   const PREF_KEY = "appspace.ota.auto";
   const VERSION = /^\d+\.\d+\.\d+$/;
@@ -46,10 +47,11 @@
     }
     return data;
   }
-  let currentVersion = NATIVE_VERSION;
+  let currentVersion = "—";
   let candidate = null;
   let working = false;
   let staged = false;
+  let stagedVersion = null;
   let latestStatus = "Sem verificação recente.";
 
   function show(message, state = "neutral") {
@@ -61,7 +63,7 @@
     const current = document.getElementById("ota-current");
     if (current) current.textContent = currentVersion;
     const available = document.getElementById("ota-available");
-    if (available) available.textContent = candidate?.version || "—";
+    if (available) available.textContent = stagedVersion || candidate?.version || "—";
     const auto = document.getElementById("ota-auto");
     if (auto) { auto.checked = readAuto(); auto.disabled = !supported; }
     const check = document.getElementById("ota-check");
@@ -76,15 +78,18 @@
     if (state) state.textContent = latestStatus;
   }
   async function readCurrent() {
-    if (!supported) return NATIVE_VERSION;
-    try {
-      const response = await updater.current();
-      const installed = response?.bundle?.version;
-      currentVersion = installed && VERSION.test(installed) ? installed : NATIVE_VERSION;
-      if (response?.bundle?.id === "builtin") currentVersion = NATIVE_VERSION;
-    } catch (error) {
-      console.warn("[AppSpace OTA] Não foi possível ler versão instalada:", error);
-    }
+    if (!supported) return currentVersion;
+    const builtin = await updater.getBuiltinVersion();
+    if (!VERSION.test(builtin?.version || "")) throw Error("Reinstale a base Android atualizada: este APK não informa uma versão compatível.");
+    nativeVersion = builtin.version;
+    const response = await updater.current();
+    const installed = response?.bundle?.version;
+    if (response?.bundle?.id === "builtin") currentVersion = nativeVersion;
+    else if (VERSION.test(installed || "")) currentVersion = installed;
+    else throw Error("Versão instalada indisponível.");
+    const pending = await updater.getNextBundle();
+    staged = Boolean(pending?.id && VERSION.test(pending.version || "") && compare(pending.version,currentVersion)>0);
+    stagedVersion = staged ? pending.version : null;
     syncUI();
     return currentVersion;
   }
@@ -95,10 +100,14 @@
       return null;
     }
     if (working) return null;
-    working = true; syncUI();
+    working = true; candidate = null; syncUI();
     show("Consultando atualizações…");
     try {
       await readCurrent();
+      if (staged) {
+        show("Atualização " + stagedVersion + " já baixada. Use Aplicar para ativá-la.", "success");
+        return null;
+      }
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 11000);
       let response;
@@ -116,7 +125,7 @@
         return null;
       }
       const update = validateManifest(raw);
-      if (compare(NATIVE_VERSION, update.minNative) < 0) {
+      if (compare(nativeVersion, update.minNative) < 0) {
         candidate = null;
         show("Esta atualização exige um APK mais novo.", "warning");
         return null;
@@ -126,12 +135,13 @@
       return update;
     } catch (e) {
       if (!silent) console.warn("[AppSpace OTA] Verificação:", e);
-      show("Sem conexão ou atualização indisponível. O portal offline continua funcionando.", "warning");
+      show(nativeVersion ? "Sem conexão ou atualização indisponível. O portal offline continua funcionando." :
+        "Não foi possível confirmar a versão nativa. Instale a base Android atualizada antes de aplicar OTA.", "warning");
       return null;
     } finally { working = false; syncUI(); }
   }
   async function installUpdate({ background = false } = {}) {
-    if (!supported || !candidate || working) return;
+    if (!supported || !candidate || working || staged || !nativeVersion) return;
     working = true; syncUI();
     show("Baixando e validando versão " + candidate.version + "…");
     try {
@@ -142,6 +152,7 @@
       if (background) {
         await updater.next({ id: info.id });
         staged = true;
+        stagedVersion = candidate.version;
         show("Atualização baixada. Feche e reabra o aplicativo para ativá-la.", "success");
       } else {
         show("Instalando nova versão. O aplicativo será reiniciado…", "success");
@@ -157,9 +168,10 @@
     working = true; syncUI();
     show("Restaurando conteúdo original do APK…");
     try {
-      await updater.reset({ toLastSuccessful: true });
-      show("Versão anterior restaurada. Reiniciando…", "success");
-      await updater.reload();
+      // Evita reinstalar automaticamente o mesmo pacote logo após restaurar.
+      saveAuto(false);
+      await updater.reset({ toLastSuccessful: false });
+      show("Conteúdo original restaurado. Atualização automática desativada.", "success");
     } catch (e) {
       show("Não foi possível restaurar automaticamente.", "warning");
       console.warn("[AppSpace OTA] rollback:", e);
@@ -172,7 +184,7 @@
     document.getElementById("ota-check")?.addEventListener("click", () => { void checkUpdates(); });
     document.getElementById("ota-install")?.addEventListener("click", () => { void installUpdate(); });
     document.getElementById("ota-apply")?.addEventListener("click", () => {
-      if (supported) { show("Aplicando atualização…"); updater.reload().catch(() => show("Reabra o aplicativo para aplicar.")); }
+      if (supported && !working && staged) { show("Aplicando atualização…"); updater.reload().catch(() => show("Reabra o aplicativo para aplicar.")); }
     });
     document.getElementById("ota-reset")?.addEventListener("click", () => { void rollback(); });
     document.getElementById("ota-auto")?.addEventListener("change", (event) => {
@@ -187,8 +199,12 @@
           const found = await checkUpdates({ silent:true });
           if (found) await installUpdate({ background:true });
         }
+      }).catch((error) => {
+        console.warn("[AppSpace OTA] Versão instalada:", error);
+        show("Não foi possível confirmar a versão do APK. Instale a base Android atualizada antes de aplicar OTA.", "warning");
       });
     }
   });
   window.AppSpaceOTA = Object.freeze({ checkUpdates, readCurrent, compare });
 })();
+
