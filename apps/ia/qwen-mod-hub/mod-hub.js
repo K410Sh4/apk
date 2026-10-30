@@ -4,7 +4,7 @@
   const KEY = "appspace.ia.qwen-mod-hub.v1";
   const HOST_KEY = "appspace.ia.rea-host.v1";
   const IDS = ["think", "memory", "vulkan", "verify"];
-  const DEFAULTS = Object.freeze({ schema: 1, target: "qwen2.5-coder-7b-instruct", mods: {think:true,memory:true,vulkan:true,verify:false}, thinkMode:"balanced", contextSize:4096 });
+  const DEFAULTS = Object.freeze({ schema: 1, target: "qwen2.5-coder-7b-instruct", mods: {think:true,memory:false,vulkan:false,verify:false}, thinkMode:"balanced", contextSize:4096 });
   const el = id => document.getElementById(id);
   let connected = false, applying = false, pending = false, modelReady = false;
   let config;
