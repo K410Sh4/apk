@@ -113,6 +113,8 @@ const server=http.createServer((req,res)=>{
     assert.equal(await labelsPage.locator('#studio-snap').getAttribute('aria-pressed'),'true');
     if(width===412)await labelsPage.screenshot({path:path.join(output,'etiqueta-editor-mobile.png'),fullPage:true});
     await labelsPage.goto(base+'/apps/estoque/etiquetas/lote/index.html');
+    await labelsPage.evaluate(()=>localStorage.removeItem('appspace.estoque.lote.v1'));
+    await labelsPage.reload();
     await labelsPage.locator('#next-list').click();
     await labelsPage.locator('#next-preview').click();
     await labelsPage.locator('#layout-start-slot').fill('2');
