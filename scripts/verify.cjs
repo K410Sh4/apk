@@ -203,4 +203,6 @@ for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "a
 }
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels.cjs")], { stdio: "inherit" });
+execFileSync(process.execPath, ["--test", path.join(root, "scripts/test-regressions.cjs")], { stdio: "inherit" });
 console.log("[AppSpace] Estrutura, links e cópia dos recursos: OK.");
+

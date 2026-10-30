@@ -1,0 +1,184 @@
+'use strict';
+const assert = require('node:assert/strict');
+const {test} = require('node:test');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const vm = require('node:vm');
+const {EventEmitter} = require('node:events');
+const root = path.resolve(__dirname, '..');
+const source = name => fs.readFileSync(path.join(root, name), 'utf8');
+const tick = () => new Promise(resolve => setImmediate(resolve));
+function loadModule(name, overrides = {}, globals = {}) {
+  const module = {exports:{}};
+  vm.runInNewContext(source(name), {module, exports:module.exports,
+    require:id => Object.hasOwn(overrides,id) ? overrides[id] : require(id),
+    console, Buffer, URL, Response, AbortSignal, setTimeout, clearTimeout, ...globals}, {filename:name});
+  return module.exports;
+}
+class Node {
+  constructor() { this.listeners={}; this.children=[]; this.attributes={}; this.dataset={}; this.style={setProperty(){}}; this.value=''; this.textContent=''; this.hidden=false; this.classList={add(){},remove(){}}; }
+  addEventListener(type,fn) { (this.listeners[type] ||= []).push(fn); }
+  emit(type,event={}) { event.target ||= this; event.preventDefault ||= ()=>{}; for(const fn of this.listeners[type]||[]) fn(event); }
+  append(...nodes) { for(const node of nodes) { if(node.parent) node.parent.children.splice(node.parent.children.indexOf(node),1); node.parent=this; this.children.push(node); } }
+  replaceChildren(...nodes) { this.children=[]; this.append(...nodes); }
+  get childNodes() {return this.children;}
+  get firstChild() {return this.children[0]||null;}
+  setAttribute(name,value) {this.attributes[name]=String(value);}
+  getAttribute(name) {return this.attributes[name]||null;}
+  closest(selector) {return selector==='[data-resize-id]' && this.attributes['data-resize-id'] ? this : selector==='[data-item-id]' && this.attributes['data-item-id'] ? this : null;}
+  cloneNode(deep) {const n=new Node();n.attributes={...this.attributes}; if(deep)n.append(...this.children.map(x=>x.cloneNode(true)));return n;}
+  setPointerCapture() {}
+  getScreenCTM() {return {inverse:()=>({})};}
+  createSVGPoint() {return {x:0,y:0,matrixTransform(){return this;}};}
+}
+function browser(name, {stored={},capacitor,fetch,query={}}={}) {
+  const nodes=new Map(),window=new Node(),document=new Node();
+  const intervals=new Map(); let timer=0;
+  document.documentElement=new Node(); document.hidden=false; document.readyState='loading';
+  document.getElementById=id=>{if(!nodes.has(id))nodes.set(id,new Node());return nodes.get(id);};
+  document.querySelectorAll=s=>query[s]||[];
+  document.createElementNS=()=>new Node();
+  window.Capacitor=capacitor;
+  window.EtiquetaModel=require('../apps/estoque/etiquetas/model.js');
+  const storage=new Map(Object.entries(stored));
+  const context={window,document,location:{protocol:'https:'},console,URL,AbortController,
+    localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},
+    fetch, setTimeout:()=>++timer,clearTimeout(){},setInterval:fn=>{intervals.set(++timer,fn);return timer;},clearInterval:id=>intervals.delete(id)};
+  for(const [id,value] of Object.entries({'zoom':'100','sheet-gap':'2','sheet-margin':'5','sheet-copies':'12'}))document.getElementById(id).value=value;
+  vm.runInNewContext(source(name), context, {filename:name});
+  return {window,document,nodes,storage,intervals,get:id=>document.getElementById(id)};
+}
+function lanHarness() {
+  let handler;
+  const server=new EventEmitter(); server.listen=()=>{server.listening=true;};server.unref=()=>{};server.close=()=>{};
+  const api=loadModule('desktop/lan.cjs',{'node:http':{createServer:fn=>{handler=fn;return server;}},'node:os':{...os,networkInterfaces:()=>({})}}).startLanServer();
+  function request(body,finish=true) {
+    const req=new EventEmitter();req.headers={host:'127.0.0.1:38473'};req.socket={remoteAddress:'127.0.0.1'};req.method='POST';req.url='/pair';req.destroy=()=>{};
+    const res={setHeader(){},writeHead(code){this.status=code;},end(body){this.body=body;}};
+    handler(req,res);
+    const end=()=>{req.emit('data',Buffer.from(body));req.emit('end');};
+    if(finish)end();
+    return {res,end};
+  }
+  return {api,request};
+}
+test('LAN rejects JSON null without crashing the desktop process',()=>{
+  const {request}=lanHarness();
+  assert.equal(request('null').res.status,400);
+  assert.equal(request('[]').res.status,400);
+  assert.equal(request('"text"').res.status,400);
+});
+test('LAN reserves attempts before concurrent request bodies arrive',()=>{
+  const {request}=lanHarness();
+  const queued=Array.from({length:8},()=>request('{"code":"000000"}',false));
+  assert.equal(request('{"code":"000000"}').res.status,429);
+  queued.forEach(x=>x.end());
+});
+test('OTA checks the installed native version, not the version of downloaded JavaScript',async()=>{
+  const updater={notifyAppReady:async()=>{},current:async()=>({native:'0.6.0',bundle:{id:'web',version:'0.6.3'}}),getBuiltinVersion:async()=>({version:'0.6.0'}),getNextBundle:async()=>null};
+  const b=browser('assets/ota.js',{capacitor:{isNativePlatform:()=>true,Plugins:{CapacitorUpdater:updater}},fetch:async()=>({ok:true,json:async()=>({schema:1,version:'0.7.2',minNative:'0.7.0',url:'https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.2/appspace-web-v0.7.2.zip',sha256:'a'.repeat(64)})})});
+  assert.equal(await b.window.AppSpaceOTA.checkUpdates(),null);
+  assert.match(b.get('ota-status').textContent,/APK mais novo/);
+});
+test('OTA restore selects builtin and disables automatic reinstall',async()=>{
+  let resetOptions;
+  const updater={notifyAppReady:async()=>{},current:async()=>({native:'0.7.0',bundle:{id:'builtin'}}),getBuiltinVersion:async()=>({version:'0.7.0'}),getNextBundle:async()=>null,reset:async opts=>{resetOptions=opts;},reload:async()=>{}};
+  const b=browser('assets/ota.js',{stored:{'appspace.ota.auto':'off'},capacitor:{isNativePlatform:()=>true,Plugins:{CapacitorUpdater:updater}}});
+  b.document.emit('DOMContentLoaded');await tick();
+  b.storage.set('appspace.ota.auto','on'); b.get('ota-reset').emit('click');await tick();
+  assert.equal(resetOptions.toLastSuccessful,false);
+  assert.equal(b.storage.get('appspace.ota.auto'),'off');
+});
+test('OTA restores the queued update button after changing pages',async()=>{
+  const updater={notifyAppReady:async()=>{},current:async()=>({native:'0.7.0',bundle:{id:'builtin'}}),getBuiltinVersion:async()=>({version:'0.7.0'}),getNextBundle:async()=>({id:'pending',version:'0.7.2'})};
+  const b=browser('assets/ota.js',{stored:{'appspace.ota.auto':'off'},capacitor:{isNativePlatform:()=>true,Plugins:{CapacitorUpdater:updater}}});
+  b.document.emit('DOMContentLoaded');await tick();assert.equal(b.get('ota-apply').hidden,false);
+});
+test('label resize can return to its starting size during the same drag',()=>{
+  const b=browser('apps/estoque/etiquetas/editor.js');const svg=b.get('label-canvas');
+  const group=svg.children.find(n=>n.getAttribute('data-item-id'));const id=group.getAttribute('data-item-id');
+  const handle=new Node();handle.setAttribute('data-resize-id',id);
+  svg.emit('pointerdown',{target:handle,pointerId:1,clientX:56,clientY:13});
+  svg.emit('pointermove',{pointerId:1,clientX:61,clientY:18});
+  svg.emit('pointermove',{pointerId:1,clientX:56,clientY:13});
+  svg.emit('pointerup',{pointerId:1});b.window.emit('pagehide');
+  const doc=JSON.parse(b.storage.get('appspace.estoque.etiqueta.v1'));
+  assert.equal(doc.objects[0].w,52);assert.equal(doc.objects[0].h,9);
+});
+test('A4 preview clears old artwork when label no longer fits',()=>{
+  const a4=new Node();a4.dataset.viewMode='a4';
+  const b=browser('apps/estoque/etiquetas/editor.js',{query:{'[data-view-mode]':[a4]}});
+  a4.emit('click');assert.ok(b.get('a4-preview').children.length>0);
+  b.get('label-width').value='210';b.get('label-width').emit('change');
+  assert.equal(b.get('a4-preview').children.length,0);
+});
+test('monitor ignores a metrics response received after disconnect',async()=>{
+  let resolve;const pending=new Promise(r=>resolve=r);
+  const b=browser('assets/pc-monitor.js',{stored:{'appspace.pcmonitor.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64)})},fetch:()=>pending});
+  b.document.emit('DOMContentLoaded');b.get('monitor-disconnect').emit('click');
+  resolve({ok:true,json:async()=>({cpu:{percent:20},memory:{percent:30}})});await tick();
+  assert.equal(b.get('monitor-connection-text').textContent,'Desconectado');
+});
+test('monitor resumes after browser back/forward cache restores the page',async()=>{
+  const b=browser('assets/pc-monitor.js',{stored:{'appspace.pcmonitor.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64)})},fetch:async()=>({ok:true,json:async()=>({cpu:{},memory:{}})})});
+  b.document.emit('DOMContentLoaded');await tick();b.window.emit('pagehide',{persisted:true});
+  assert.equal(b.intervals.size,0);b.window.emit('pageshow',{persisted:true});await tick();
+  assert.equal(b.intervals.size,1);
+});
+test('new desktop binary ignores an older cached OTA bundle',()=>{
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'appspace-test-'));
+  try{
+    const folder=path.join(dir,'web-updates','v0.6.3');fs.mkdirSync(folder,{recursive:true});fs.writeFileSync(path.join(folder,'index.html'),'old');
+    fs.writeFileSync(path.join(dir,'web-updates','active.json'),JSON.stringify({version:'0.6.3'}));
+    const {createDesktopUpdater}=loadModule('desktop/updates.cjs',{'extract-zip':async()=>{}});
+    assert.equal(createDesktopUpdater(dir,'0.7.0').status().currentVersion,'0.7.0');
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+test('desktop reset cannot race an active installation',async()=>{
+  let resolve;const pending=new Promise(r=>resolve=r);
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'appspace-test-'));
+  try{
+    const {createDesktopUpdater}=loadModule('desktop/updates.cjs',{'extract-zip':async()=>{}},{fetch:()=>pending});
+    const updater=createDesktopUpdater(dir,'0.7.0');const install=updater.install();
+    const resetting=assert.rejects(updater.reset(),/andamento/);
+    resolve(new Response(JSON.stringify({schema:1,version:'0.7.0',minNative:'0.7.0',url:'https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.0/appspace-web-v0.7.0.zip',sha256:'a'.repeat(64)})));
+    await install;await resetting;
+  }finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+test('Android preparation stamps package version and is idempotent',()=>{
+  const gradlePath=path.join(root,'mobile/android/app/build.gradle');
+  const manifestPath=path.join(root,'mobile/android/app/src/main/AndroidManifest.xml');
+  const files=new Map([[path.join(root,'package.json'),'{"version":"0.7.0"}'],[gradlePath,'android {\n defaultConfig {\n  versionCode 1\n  versionName "1.0"\n }\n}\n'],[manifestPath,'<manifest><application /></manifest>']]);
+  const fakeFs={existsSync:p=>files.has(p),readFileSync:p=>{if(!files.has(p))throw Error('Missing '+p);return files.get(p);},writeFileSync:(p,s)=>files.set(p,s),mkdirSync(){}};
+  const run=()=>loadModule('scripts/prepare-mobile-lan.cjs',{'node:fs':fakeFs},{__dirname:path.join(root,'scripts')});
+  run();const once=new Map(files);run();assert.deepEqual(files,once);
+  assert.match(files.get(gradlePath),/versionName "0\.7\.0"/);
+  assert.match(files.get(gradlePath),/versionCode 7000/);
+});
+test('OTA still offers and installs a compatible update',async()=>{
+  let downloaded,activated;
+  const updater={notifyAppReady:async()=>{},current:async()=>({native:'0.7.0',bundle:{id:'builtin'}}),getBuiltinVersion:async()=>({version:'0.7.0'}),getNextBundle:async()=>null,
+    download:async args=>{downloaded=args;return {id:'new-bundle'};},set:async args=>{activated=args.id;}};
+  const b=browser('assets/ota.js',{stored:{'appspace.ota.auto':'off'},capacitor:{isNativePlatform:()=>true,Plugins:{CapacitorUpdater:updater}},fetch:async()=>({ok:true,json:async()=>({schema:1,version:'0.7.2',minNative:'0.7.0',url:'https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.2/appspace-web-v0.7.2.zip',sha256:'a'.repeat(64)})})});
+  b.document.emit('DOMContentLoaded');await tick();
+  assert.equal((await b.window.AppSpaceOTA.checkUpdates()).version,'0.7.2');
+  b.get('ota-install').emit('click');await tick();
+  assert.equal(downloaded.checksum,'a'.repeat(64));assert.equal(activated,'new-bundle');
+});
+test('label movement still persists and supports undo/redo',()=>{
+  const b=browser('apps/estoque/etiquetas/editor.js'),svg=b.get('label-canvas');
+  const group=svg.children.find(n=>n.getAttribute('data-item-id'));
+  svg.emit('pointerdown',{target:group,pointerId:1,clientX:4,clientY:4});
+  svg.emit('pointermove',{pointerId:1,clientX:8,clientY:9});svg.emit('pointerup',{pointerId:1});
+  const saved=()=>{b.window.emit('pagehide');return JSON.parse(b.storage.get('appspace.estoque.etiqueta.v1'));};
+  assert.equal(saved().objects[0].x,8);
+  b.get('undo-btn').emit('click');assert.equal(saved().objects[0].x,4);
+  b.get('redo-btn').emit('click');assert.equal(saved().objects[0].x,8);
+});
+test('LAN still accepts the correct code after invalid requests',()=>{
+  const {api,request}=lanHarness();
+  assert.equal(request('null').res.status,400);
+  const response=request(JSON.stringify({code:api.status().pin})).res;
+  assert.equal(response.status,200);assert.match(JSON.parse(response.body).token,/^[a-f0-9]{64}$/);
+});

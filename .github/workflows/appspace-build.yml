@@ -2,10 +2,13 @@ name: AppSpace - Android APK + Windows EXE
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
       - "index.html"
+      - "configuracoes.html"
       - "assets/**"
       - "apps/**"
       - "package.json"
@@ -92,3 +95,4 @@ jobs:
           path: dist/electron/*.exe
           if-no-files-found: error
           retention-days: 14
+

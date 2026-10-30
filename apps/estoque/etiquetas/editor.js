@@ -30,8 +30,9 @@ function persist(){
 function saveSoon(){markSave("Salvando…");clearTimeout(saveTimer);saveTimer=setTimeout(persist,300);}
 function trans(fn){
   const before=JSON.stringify(doc);
+  const beforeSelected=selected;
   try{fn();doc=M.validate(doc);}
-  catch(e){doc=JSON.parse(before);toast(e.message||"Alteração inválida");return;}
+  catch(e){doc=JSON.parse(before);selected=beforeSelected;render();toast(e.message||"Alteração inválida");return;}
   if(JSON.stringify(doc)===before)return;
   undoStack.push(before);if(undoStack.length>50)undoStack.shift();
   redoStack=[];saveSoon();render();
@@ -142,12 +143,12 @@ function downloadBlob(name,blob){
 function downloadText(name,content,type){
   downloadBlob(name,new Blob([content],{type:type||"image/svg+xml;charset=utf-8"}));
 }
-function makeSheetPages(){
+function makeSheetPages(firstPageOnly=false){
   const gap=number($("sheet-gap").value,0,20,2),margin=number($("sheet-margin").value,0,30,5);
-  const count=number($("sheet-copies").value,1,200,12);
+  const count=Math.round(number($("sheet-copies").value,1,200,12));
   const layout=M.sheet(doc.width,doc.height,gap,margin);
   if(!layout.perPage)throw Error("Etiqueta maior que a área imprimível. Ajuste o tamanho ou as margens.");
-  const total=Math.ceil(count/layout.perPage);
+  const total=firstPageOnly?1:Math.ceil(count/layout.perPage);
   const pages=[];
   for(let page=0;page<total;page++){
     const paper=s("svg",{xmlns:NS,width:"210mm",height:"297mm",viewBox:"0 0 210 297",stroke:"none"});
@@ -173,7 +174,7 @@ function updateA4Preview(){
   const preview=$("a4-preview");
   if(!preview||viewMode!=="a4")return;
   try{
-    const {pages}=makeSheetPages();
+    const {pages}=makeSheetPages(true);
     if(!pages.length)return;
     preview.replaceChildren(...[...pages[0].childNodes].map(node=>node.cloneNode(true)));
     preview.setAttribute("viewBox","0 0 210 297");
@@ -181,12 +182,12 @@ function updateA4Preview(){
     preview.setAttribute("stroke-width","0");
     // Apenas na tela: guia sutil para visualizar o limite de cada etiqueta.
     const layout=M.sheet(doc.width,doc.height,$("sheet-gap").value,$("sheet-margin").value);
-    const copies=number($("sheet-copies").value,1,200,12);
+    const copies=Math.round(number($("sheet-copies").value,1,200,12));
     for(const p of layout.positions.slice(0,Math.min(layout.perPage,copies))){
       preview.append(s("rect",{x:p.x,y:p.y,width:doc.width,height:doc.height,
         fill:"none",stroke:"#b6bdc9","stroke-width":0.18,"pointer-events":"none"}));
     }
-  }catch(e){$("sheet-summary").textContent=e.message;}
+  }catch(e){preview.replaceChildren();$("sheet-summary").textContent=e.message;}
 }
 function updateSheet(){
   const info=M.sheet(doc.width,doc.height,$("sheet-gap").value,$("sheet-margin").value);
@@ -245,6 +246,7 @@ function svgPoint(e){
   return {x:local.x,y:local.y};
 }
 svg.addEventListener("pointerdown",e=>{
+  if(drag)return;
   if(e.button!==0&&e.pointerType==="mouse")return;
   const handle=e.target.closest?.("[data-resize-id]");
   const group=e.target.closest?.("[data-item-id]");
@@ -264,11 +266,13 @@ svg.addEventListener("pointermove",e=>{
   const pt=svgPoint(e);
   const newX=Math.round((drag.x+pt.x-drag.startX)*4)/4;
   const newY=Math.round((drag.y+pt.y-drag.startY)*4)/4;
-  if(newX===obj.x&&newY===obj.y)return;
   if(drag.mode==="resize"){
-    obj.w=M.clamp(Math.round((drag.w+pt.x-drag.startX)*4)/4,1,doc.width-obj.x+5);
-    obj.h=M.clamp(Math.round((drag.h+pt.y-drag.startY)*4)/4,1,doc.height-obj.y+5);
+    const w=M.clamp(Math.round((drag.w+pt.x-drag.startX)*4)/4,1,240);
+    const h=M.clamp(Math.round((drag.h+pt.y-drag.startY)*4)/4,1,320);
+    if(w===obj.w&&h===obj.h)return;
+    obj.w=w;obj.h=h;
   }else{
+    if(newX===obj.x&&newY===obj.y)return;
     obj.x=M.clamp(newX,-5,doc.width-1);
     obj.y=M.clamp(newY,-5,doc.height-1);
   }
@@ -287,6 +291,7 @@ function endDrag(e){
 }
 svg.addEventListener("pointerup",endDrag);
 svg.addEventListener("pointercancel",endDrag);
+svg.addEventListener("lostpointercapture",endDrag);
 svg.addEventListener("dblclick",e=>{
   if(e.target.closest?.("[data-item-id]")&&current()?.type==="text")$("item-text").focus();
 });
@@ -474,3 +479,4 @@ document.addEventListener("keydown",e=>{
 window.addEventListener("pagehide",persist);
 render();
 })();
+
