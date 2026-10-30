@@ -7,11 +7,14 @@
 <link rel="stylesheet" href="../../../assets/personalization.css">
 <link rel="stylesheet" href="../../../assets/rgb-controller.css">
 <link rel="stylesheet" href="../../../assets/rgb-sync.css">
+<link rel="stylesheet" href="../../../assets/rgb-hub-setup.css">
 <script src="../../../assets/ota.js" defer></script>
 <script src="../../../assets/pc-connection.js" defer></script>
 <script src="../../../assets/rgb-controller.js" defer></script>
 <script src="../../../assets/rgb-sync-engine.js" defer></script>
 <script src="../../../assets/rgb-sync-ui.js" defer></script>
+<script src="../../../assets/rgb-hub-model.js" defer></script>
+<script src="../../../assets/rgb-hub-setup.js" defer></script>
 </head>
 <body class="rgb-page">
 <div class="rgb-app">
@@ -60,6 +63,83 @@
         <div class="rgb-device-detail" id="rgb-redragon-detail">USB VID 04D9 · PID FC30</div>
         <p class="rgb-device-tip">Não executaremos comandos não documentados no periférico.</p>
       </article>
+    </section>
+    <section class="rgb-section rgb-hub-section" aria-labelledby="rgb-hub-title">
+      <div class="rgb-section-head">
+        <div>
+          <span class="rgb-eyebrow">INSTALAÇÃO FÍSICA · CONFIGURAÇÃO MANUAL</span>
+          <h2 id="rgb-hub-title">Sua controladora SATA + ARGB</h2>
+        </div>
+        <span class="rgb-pill" id="rgb-hub-control-status">Controle físico não habilitado</span>
+      </div>
+      <p>O diagrama da sua controladora mostra <strong>SATA para energia</strong>, <strong>PWM/CFAN para ventoinhas</strong> e <strong>ARGB 5 V/3 pinos para iluminação</strong>. Essas conexões têm funções diferentes.</p>
+      <div class="rgb-hub-map" role="group" aria-label="Mapa da instalação informada">
+        <div class="rgb-hub-node">
+          <span class="rgb-hub-node-tag">ENERGIA</span>
+          <strong>SATA</strong>
+          <small>Fonte → hub</small>
+        </div>
+        <span class="rgb-hub-arrow" aria-hidden="true">→</span>
+        <div class="rgb-hub-node rgb-hub-node-center">
+          <span class="rgb-hub-node-tag">DISTRIBUIÇÃO</span>
+          <strong>Controladora 9 fans</strong>
+          <small>RGB e ventilação</small>
+        </div>
+        <span class="rgb-hub-arrow" aria-hidden="true">←</span>
+        <div class="rgb-hub-node">
+          <span class="rgb-hub-node-tag">ROTAÇÃO</span>
+          <strong>CFAN / PWM</strong>
+          <small>Não envia cores</small>
+        </div>
+      </div>
+      <div class="rgb-hub-rgb-path">
+        <span class="rgb-hub-node-tag">ILUMINAÇÃO · ENTRADA SEPARADA</span>
+        <strong>ARGB 5 V · 3 pinos</strong>
+        <span id="rgb-hub-argb-status">Ainda não confirmado se recebe sinal externo.</span>
+      </div>
+      <p class="rgb-hub-note">A placa-mãe Pichau H610M-T não possui conector RGB/ARGB conforme a ficha oficial. O AppSpace não detecta uma controladora alimentada apenas por SATA como dispositivo USB.</p>
+      <form class="rgb-hub-form" id="rgb-hub-form">
+        <label>Alimentação da controladora
+          <select id="rgb-hub-power">
+            <option value="sata">SATA da fonte (informado)</option>
+            <option value="unknown">Ainda não confirmei</option>
+          </select>
+        </label>
+        <label>Cabo de sinal das ventoinhas
+          <select id="rgb-hub-fan">
+            <option value="cfan">CFAN / CPU FAN (informado)</option>
+            <option value="sfan">SFAN / SYS FAN</option>
+            <option value="none">Não está conectado</option>
+            <option value="unknown">Não sei</option>
+          </select>
+        </label>
+        <label>Entrada de sincronização ARGB
+          <select id="rgb-hub-argb">
+            <option value="unknown">Ainda não sei</option>
+            <option value="not-connected">Livre / sem conexão externa</option>
+            <option value="usb-bridge">Ligada a ponte USB–ARGB 5 V</option>
+            <option value="motherboard">Acho que está ligada à placa-mãe</option>
+          </select>
+        </label>
+        <label>Ligação do cooler do processador
+          <select id="rgb-hub-cooler">
+            <option value="unknown">Ainda não verifiquei</option>
+            <option value="hub">Cooler conectado ao hub</option>
+            <option value="independent">Cooler em conexão separada</option>
+          </select>
+        </label>
+      </form>
+      <div class="rgb-hub-status-box">
+        <strong id="rgb-hub-physical-status">Conexão ARGB ainda não confirmada</strong>
+        <p id="rgb-hub-next-step">Verifique onde está ligado o cabo ARGB de 3 pinos da controladora.</p>
+        <ul id="rgb-hub-warnings" class="rgb-hub-warnings"></ul>
+      </div>
+      <div class="rgb-hub-actions">
+        <button class="rgb-refresh" type="button" id="rgb-hub-save">Salvar configuração</button>
+        <button class="rgb-hub-reset" type="button" id="rgb-hub-reset">Restaurar informações iniciais</button>
+        <span id="rgb-hub-saved" role="status" aria-live="polite">Preencha apenas o que tiver certeza.</span>
+      </div>
+      <p class="rgb-hub-safety"><strong>Segurança:</strong> não conecte ARGB 5 V aos conectores FAN/PWM nem aos conectores RGB 12 V. Desligue o PC e retire o cabo de energia antes de inspecionar os conectores. Este painel registra sua configuração, mas não altera eletricamente o hardware.</p>
     </section>
     <section class="rgb-section rgb-sync-section" aria-labelledby="rgb-sync-title">
       <div class="rgb-section-head">
