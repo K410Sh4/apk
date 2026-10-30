@@ -164,7 +164,7 @@
 }
 .launcher-preview-icon.stock>span { background:linear-gradient(140deg,#3ccfb1,#117c7b); }
 .launcher-preview-icon.video>span { background:linear-gradient(140deg,#b48dff,#5d58c6); }
-.launcher-preview-icon.first>span { background:linear-gradient(140deg,#69c9f9,var(--accent-bright)); }
+.launcher-preview-icon.mypc>span { background:linear-gradient(140deg,#7992ff,#4f64b2); }
 .launcher-preview-icon small {
   color:var(--muted);font-size:10px;line-height:1.25;
 }
