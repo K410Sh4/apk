@@ -16,7 +16,7 @@ const POWERSHELL=[
  "  [pscustomobject]@{VID=$vendor;ProductID=$product;MI=$iface;Name=[string]$_.Name;Class=[string]$_.PNPClass;Manufacturer=[string]$_.Manufacturer;Status=[string]$_.Status;Bus=($id -split '\\\\')[0];VendorHID=($id -match '(?i)^HID\\\\' -and $_.Name -match '(?i)fornecedor|vendor.defin|vendor.specific');Keyboard=($_.PNPClass -eq 'Keyboard');Mouse=($_.PNPClass -eq 'Mouse');Audio=($_.PNPClass -eq 'MEDIA')} }",
  "})",
  "$out|ConvertTo-Json -Compress -Depth 4"
-].join("; ");
+].join("\n");
 const PAIRS=Object.freeze([
  {id:"redragon",vid:"04D9",pid:"FC30",category:"mouse",label:"Mouse USB (provável Redragon)",confidence:"provável"},
  {id:"keyboard",vid:"0C45",pid:"8006",category:"keyboard",label:"Teclado USB (possível Sate G50)",confidence:"a confirmar"},
