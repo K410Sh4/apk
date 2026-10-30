@@ -24,7 +24,7 @@ const server=http.createServer((req,res)=>{
    const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
    for(const [width,height] of [[320,640],[360,800],[412,915],[844,390],[1280,800]]){
     await page.setViewportSize({width,height});
-    for(const [folder,count] of [['estoque',2],['edicao-de-video',0],['meu-pc',1]]){
+    for(const [folder,count] of [['estoque',2],['edicao-de-video',0],['meu-pc',2]]){
      await page.goto(base+'/apps/'+folder+'/index.html');
      await page.waitForSelector('[data-app-drawer]');
      assert.equal(await page.locator('[data-drawer-app]:visible').count(),count,folder+' app count');
