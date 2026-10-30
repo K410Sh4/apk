@@ -65,9 +65,16 @@
    drawLabel(svg,label);
    return svg;
  }
- function a4Page(items,preview=false){
+ function a4Page(items,preview=false,guidePositions=[]){
    const svg=s("svg",{xmlns:NS,width:"210mm",height:"297mm",viewBox:"0 0 210 297",stroke:"none"});
    svg.append(s("rect",{width:210,height:297,fill:"#ffffff",stroke:"none"}));
+   if(preview&&items.length){
+     const first=items[0].label;
+     for(const pos of guidePositions){
+       svg.append(s("rect",{x:pos.x,y:pos.y,width:first.width,height:first.height,fill:"none",
+         stroke:"#dce1e9","stroke-width":.15,"stroke-dasharray":"1 .7","pointer-events":"none"}));
+     }
+   }
    items.forEach(({label,position},i)=>{
      const id="batch-clip-"+i,def=s("defs"),clip=s("clipPath",{id});
      clip.append(s("rect",{width:label.width,height:label.height}));def.append(clip);svg.append(def);
