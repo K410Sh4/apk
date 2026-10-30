@@ -181,12 +181,45 @@ const server=http.createServer((req,res)=>{
   }));
   assert.ok(monLayout.cssLoaded);
   assert.equal(monLayout.columns,5);
+  const visual=await monitorPage.evaluate(()=>{
+    const cards=[...document.querySelectorAll('.monitor-metrics>.monitor-metric')];
+    const container=document.querySelector('.monitor-metrics').getBoundingClientRect();
+    return {
+      cssLoaded:[...document.styleSheets].some(sheet=>sheet.href?.includes('pc-monitor-v3.css')),
+      icons:cards.map(card=>card.querySelectorAll('.monitor-icon svg').length),
+      subtitles:cards.map(card=>card.querySelector('.monitor-metric-subtitle')?.textContent.trim()),
+      accents:cards.map(card=>getComputedStyle(card).getPropertyValue('--mon-color').trim()),
+      rects:cards.map(card=>{const r=card.getBoundingClientRect();return {x:r.x,right:r.right,y:r.y,bottom:r.bottom,width:r.width,height:r.height}}),
+      container:{x:container.x,right:container.right,y:container.y,bottom:container.bottom},
+      headerIcon:!!document.querySelector('.monitor-v2-logo svg')
+    };
+  });
+  assert.ok(visual.cssLoaded,'Monitor PRO V3 CSS precisa estar carregado');
+  assert.equal(visual.headerIcon,true);
+  assert.deepEqual(visual.icons,[1,1,1,1,1]);
+  assert.deepEqual(visual.subtitles,['PROCESSADOR','MEMÓRIA','PLACA DE VÍDEO','TAXA DE QUADROS','TEMPO DE ATIVIDADE']);
+  assert.equal(new Set(visual.accents).size,5,'Cada sensor deve ter uma cor distinta');
+  assert.ok(visual.rects.every(card=>card.width>=100&&card.height>100));
+  assert.ok(visual.rects.every(card=>card.x>=visual.container.x-1&&card.right<=visual.container.right+1));
+  assert.ok(visual.rects.every(card=>card.y>=visual.container.y-1&&card.bottom<=visual.container.bottom+1));
+
   assert.ok(monLayout.fps>0&&monLayout.fps<300);
-  await monitorPage.screenshot({path:path.join(output,'pc-monitor-v2-landscape.png'),fullPage:true});
+  await monitorPage.screenshot({path:path.join(output,'pc-monitor-v3-landscape-mobile.png'),fullPage:true});
+  await monitorPage.setViewportSize({width:1536,height:708});
+  const desktopVisual=await monitorPage.evaluate(()=>{
+    const metrics=document.querySelector('.monitor-metrics').getBoundingClientRect();
+    const cards=[...document.querySelectorAll('.monitor-metrics>.monitor-metric')].map(el=>el.getBoundingClientRect());
+    return {visible:cards.length===5&&cards.every(r=>r.x>=metrics.x-1&&r.right<=metrics.right+1),
+      text:getComputedStyle(document.querySelector('.monitor-metric-label')).fontSize};
+  });
+  assert.ok(desktopVisual.visible,'Monitor desktop mantém cinco cartões');
+  assert.ok(parseFloat(desktopVisual.text)>=17,'Títulos grandes no PC');
+  await monitorPage.screenshot({path:path.join(output,'pc-monitor-v3-landscape-desktop.png'),fullPage:true});
+  await monitorPage.setViewportSize({width:844,height:390});
   await monitorPage.evaluate(()=>window.__monitorMockGpu=null);
   await monitorPage.waitForFunction(()=>document.getElementById('monitor-gpu').textContent==='N/D',{timeout:10000});
   assert.match(await monitorPage.locator('#monitor-gpu-details').innerText(),/indisponível/);
-  assertions+=8;
+  assertions+=20;
   await monitorCtx.close();
   // Local files keep the folder and editor available without networking.
   const offline=await browser.newContext({offline:true,viewport:{width:412,height:915}});
