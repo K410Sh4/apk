@@ -101,20 +101,20 @@ const server=http.createServer((req,res)=>{
 
   // Editor de etiquetas e fluxo A4: controles reais em mobile e desktop.
   const labelsContext=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true});
+  await labelsContext.addInitScript(()=>{
+    localStorage.removeItem('appspace.estoque.precision.v1');
+    localStorage.removeItem('appspace.estoque.lote.v1');
+  });
   const labelsPage=await labelsContext.newPage();labelsPage.on('pageerror',e=>errors.push(e.message));
   for(const [width,height] of [[320,640],[412,915],[1280,800]]){
     await labelsPage.setViewportSize({width,height});
     await labelsPage.goto(base+'/apps/estoque/etiquetas/index.html');
-    await labelsPage.evaluate(()=>localStorage.removeItem('appspace.estoque.precision.v1'));
-    await labelsPage.reload();
     await labelsPage.locator('#studio-grid').click();
     assert.equal(await labelsPage.locator('#studio-grid').getAttribute('aria-pressed'),'true');
     await labelsPage.locator('#studio-snap').click();
     assert.equal(await labelsPage.locator('#studio-snap').getAttribute('aria-pressed'),'true');
     if(width===412)await labelsPage.screenshot({path:path.join(output,'etiqueta-editor-mobile.png'),fullPage:true});
     await labelsPage.goto(base+'/apps/estoque/etiquetas/lote/index.html');
-    await labelsPage.evaluate(()=>localStorage.removeItem('appspace.estoque.lote.v1'));
-    await labelsPage.reload();
     await labelsPage.locator('#next-list').click();
     await labelsPage.locator('#next-preview').click();
     await labelsPage.locator('#layout-start-slot').fill('2');
