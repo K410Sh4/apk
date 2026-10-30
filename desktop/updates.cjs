@@ -4,7 +4,6 @@ const fs=require("node:fs");
 const fsp=require("node:fs/promises");
 const path=require("node:path");
 const crypto=require("node:crypto");
-const extract=require("extract-zip");
 const MANIFEST="https://raw.githubusercontent.com/K410Sh4/apk/main/ota/latest.json";
 const zipPattern=/^https:\/\/github\.com\/K410Sh4\/apk\/releases\/download\/appspace-web-v(\d+\.\d+\.\d+)\/appspace-web-v\1\.zip$/;
 const semver=/^\d+\.\d+\.\d+$/;
@@ -42,7 +41,16 @@ async function validateDirectory(root){
 function createDesktopUpdater(userData,builtinVersion){
   const root=path.join(userData,"web-updates");
   const activeFile=path.join(root,"active.json");
-  let active=null;
+  const pendingFile=path.join(root,"pending.json");
+  let active=null,pending=false;
+  // A process that exited before finishing the first OTA navigation falls
+  // back to its built-in web app at the next launch.
+  if(fs.existsSync(pendingFile)){
+    try{
+      fs.rmSync(activeFile,{force:true});
+      fs.rmSync(pendingFile,{force:true});
+    }catch(error){console.error("[AppSpace] Não foi possível reverter OTA incompleto:",error);}
+  }
   try{
     const x=JSON.parse(fs.readFileSync(activeFile,"utf8"));
     if(semver.test(x.version)&&x.version.length<20&&cmp(x.version,builtinVersion)>0){
@@ -51,7 +59,12 @@ function createDesktopUpdater(userData,builtinVersion){
     }
   }catch(_){}
   let busy=false;
-  const status=()=>({platform:"windows",nativeVersion:builtinVersion,currentVersion:active?.version||builtinVersion,updated:Boolean(active),busy});
+  const status=()=>({platform:"windows",nativeVersion:builtinVersion,currentVersion:active?.version||builtinVersion,updated:Boolean(active),pending,busy});
+  async function confirmBoot(){
+    if(!pending)return;
+    await fsp.rm(pendingFile,{force:true});
+    pending=false;
+  }
   async function check(){
     const m=validateManifest(JSON.parse((await download(MANIFEST,16000)).toString("utf8")));
     if(cmp(m.version,status().currentVersion)<=0)return {available:false,version:status().currentVersion};
@@ -75,16 +88,21 @@ function createDesktopUpdater(userData,builtinVersion){
       const zippedPath=path.join(root,"tmp-"+crypto.randomBytes(8).toString("hex")+".zip");
       try{
         await fsp.writeFile(zippedPath,zipped);
-        await extract(zippedPath,{dir:staging});
+        await require("extract-zip")(zippedPath,{dir:staging});
       }finally{await fsp.rm(zippedPath,{force:true});}
       await validateDirectory(staging);
       const dst=path.join(root,"v"+m.version);
       await fsp.rm(dst,{recursive:true,force:true});
       await fsp.rename(staging,dst);staging=null;
       const tmp=activeFile+".tmp";
+      const pendingTmp=pendingFile+".tmp";
+      // Persist a crash marker before activating any new web content.
+      await fsp.writeFile(pendingTmp,JSON.stringify({version:m.version})+"\n");
+      await fsp.rename(pendingTmp,pendingFile);
       await fsp.writeFile(tmp,JSON.stringify({version:m.version})+"\n");
       await fsp.rename(tmp,activeFile);
       active={version:m.version,folder:dst};
+      pending=true;
       return {updated:true,version:m.version,restartRequired:true};
     }finally{if(staging)await fsp.rm(staging,{recursive:true,force:true});busy=false;}
   }
@@ -93,7 +111,9 @@ function createDesktopUpdater(userData,builtinVersion){
     busy=true;
     try{
       await fsp.rm(activeFile,{force:true});
+      await fsp.rm(pendingFile,{force:true});
       active=null;
+      pending=false;
       return {ok:true,restartRequired:true};
     }finally{busy=false;}
   }
@@ -106,7 +126,7 @@ function createDesktopUpdater(userData,builtinVersion){
     }
     return contains(builtinFolder,bundled)?bundled:null;
   }
-  return {status,check,install,reset,resolve};
+  return {status,check,install,reset,confirmBoot,resolve};
 }
 module.exports={createDesktopUpdater};
 

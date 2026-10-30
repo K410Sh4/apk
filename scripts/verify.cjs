@@ -300,6 +300,7 @@ for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css"
 }
 execFileSync(process.execPath, [path.join(root, "scripts/test-my-pc.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
+execFileSync(process.execPath, [path.join(root, "scripts/test-desktop-hardening.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-modern.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-gestures.cjs")], { stdio: "inherit" });
