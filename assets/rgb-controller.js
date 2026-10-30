@@ -66,7 +66,7 @@ function render(data){
 // antigas mantêm uma lista de rotas desatualizada em AppSpacePC.request,
 // embora o EXE novo já tenha /__api/rgb/devices. Não contornar token no celular.
 async function readInventory(){
- if(window.location.protocol!=="appspace:")return PC.request("/rgb/devices");
+ if(!PC?.isDesktop&&window.location.protocol!=="appspace:")return PC.request("/rgb/devices");
  const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),9500);
  try{
   const response=await window.fetch("/__api/rgb/devices",{
