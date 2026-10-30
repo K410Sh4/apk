@@ -494,3 +494,13 @@ A experiência está dividida em três etapas, acessíveis pelo botão **Criar l
 Na OTA 0.7.12, o catálogo principal já mostrava somente Etiqueta Studio e PC Monitor, mas a **prévia de personalização em Configurações** ainda exibia o cartão fictício `Primeiro app`. A orientação de pareamento da versão Windows ainda mencionava a pasta antiga Sistema. A versão 0.7.13 ajusta esses textos e substitui a imagem decorativa da prévia por `Meu PC`.
 
 Esta correção é apenas web: usa a mesma base Android 0.7.4+, não altera o armazenamento local, o fluxo OTA nem as credenciais. `scripts/verify.cjs` passou a bloquear o retorno dos nomes antigos à prévia de Configurações. O usuário deve abrir `Início` após a atualização para ver o catálogo atualizado. Não tocar em `Restaurar conteúdo do APK` para atualizar (essa ação desfaz a OTA).
+
+## OTA 0.7.14 — atalhos somente dentro das pastas
+
+**Correção:** no modo minimalista, `refreshLibraryView()` adicionava `folderCards` e `appCards` à mesma grade, exibindo **05 ícones** (03 pastas + Etiqueta Studio + PC Monitor) e duplicando aplicativos fora de suas pastas. A grade do launcher agora usa **exclusivamente** `folderCards`, com título **Suas pastas** e contador dinâmico **03**.
+
+A biblioteca visual de aplicativos duplicados foi ocultada também no layout padrão da Home por CSS, conservando os links e metadados originais no HTML. Os aplicativos seguem plenamente acessíveis por `Estoque → Etiqueta Studio` e `Meu PC → PC Monitor`. `Edição de vídeo` continua como pasta vazia. A busca do launcher continua encontrando as pastas pelos termos dos aplicativos associados, pois seus metadados `data-search` já incluem esses nomes.
+
+**Arquivos:** `assets/portal.js`, `assets/launcher.css`, `index.html`. `scripts/verify.cjs` verifica que a grade minimalista é composta somente pelas pastas, impede a concatenação de apps e impede regressão no contador/título. Nenhum modelo de etiquetas, token de pareamento, fluxo de impressão ou código nativo foi alterado.
+
+**Teste no celular:** atualizar a OTA e reabrir o AppSpace. Em Início (modo minimalista), conferir apenas Estoque, Edição de vídeo e Meu PC, número 03, navegação e busca. Dentro de Estoque, o Etiqueta Studio deve continuar visível; dentro de Meu PC, PC Monitor deve aparecer. O resultado visual em hardware real ainda precisa de confirmação.
