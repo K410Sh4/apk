@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.30",
+  "version": "0.7.31",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.30/appspace-web-v0.7.30.zip",
-  "sha256": "9d9a47bc1610f3355602cf1150cd8cd362685efc687f984161454afc5b8341b7",
-  "notes": "Monitor PRO V3: ícones SVG grandes para CPU, RAM, GPU, FPS e tempo ligado, cores neon individuais, títulos claros e cartões responsivos inspirados no visual apr"
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.31/appspace-web-v0.7.31.zip",
+  "sha256": "834e3925e7df8c395e3a1cf319548a6fb5237077cfaa271690997b7eb645c9c3",
+  "notes": "Meu PC ganha RGB Controller: descoberta read-only de mouse Redragon, microfone FIFINE, possível teclado Sate G50 com busca HID/MI e controladora genérica; integ"
 }
