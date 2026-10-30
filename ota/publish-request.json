@@ -1,4 +1,4 @@
 {
-  "version": "0.7.30",
-  "notes": "Monitor PRO V3: ícones SVG grandes para CPU, RAM, GPU, FPS e tempo ligado, cores neon individuais, títulos claros e cartões responsivos inspirados no visual aprovado. Preserva sensores, histórico, FPS da tela e telemetria do PC."
+  "version": "0.7.31",
+  "notes": "Meu PC ganha RGB Controller: descoberta read-only de mouse Redragon, microfone FIFINE, possível teclado Sate G50 com busca HID/MI e controladora genérica; integração opcional OpenRGB local. Exige EXE Windows atualizado para inventário em tempo real; sem comandos de alteração RGB nesta versão."
 }
