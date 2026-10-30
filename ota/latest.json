@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.28",
+  "version": "0.7.29",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.28/appspace-web-v0.7.28.zip",
-  "sha256": "576d05491c1f99bbf12dfba20fc813128432f8bebe83a1f834ab78adccc11122",
-  "notes": "Redesenho Android do Etiqueta Studio: canvas amplo, dock de ferramentas e propriedades em painéis; gerador com cartões editáveis de produtos, fluxo de produção "
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.29/appspace-web-v0.7.29.zip",
+  "sha256": "ef01eeef7b76072c5e6249e99e13b6906248a997ec89b02a72adb9db36c924ba",
+  "notes": "PC Monitor V2: dashboard moderno em paisagem com CPU, RAM, GPU, FPS da tela e tempo ligado; gráficos e status ao vivo. A leitura real de GPU requer o novo EXE W"
 }
