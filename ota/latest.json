@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.2",
-  "minNative": "0.7.0",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.2/appspace-web-v0.7.2.zip",
-  "sha256": "3176970650494a9fc61040e6c521fa872d546e7ab82a91369722031c10290dd5",
-  "notes": "Etiqueta Studio: texto/cores SVG corrigidos, folha A4 proporcional e impressão nativa via Wi-Fi no APK Android 0.7.0."
+  "version": "0.7.4",
+  "minNative": "0.7.3",
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.4/appspace-web-v0.7.4.zip",
+  "sha256": "7d46a2a4a58e0a3d1b2458f863f900565a914c83f621527c1062c7cb0ef15702",
+  "notes": "Correções da auditoria: OTA nativo seguro, PC Monitor, Code39 sem alteração silenciosa, backup de etiquetas Android e exportação A4 completa."
 }
