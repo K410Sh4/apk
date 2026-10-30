@@ -215,3 +215,12 @@
  .batch-steps button{font-size:10px}
  .batch-steps b{width:20px;flex-basis:20px}
 }
+
+
+/* Tabela: ações de linha separadas e exportação de planilhas acessível no celular. */
+.batch-table td:last-child{white-space:nowrap;min-width:96px}
+.batch-table td button+button{margin-left:5px}
+.batch-table td .batch-duplicate-row{background:rgba(var(--accent-rgb,139,115,245),.12);color:var(--accent,#a78bfa)}
+.batch-csv-hint{color:var(--muted);font-size:11px;line-height:1.55;margin:10px 0 0;overflow-wrap:anywhere}
+.batch-list-file-actions{display:flex;gap:8px;flex-wrap:wrap}
+.batch-list-file-actions button{flex:1 1 120px}
