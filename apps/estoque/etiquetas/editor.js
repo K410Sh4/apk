@@ -146,7 +146,8 @@ function downloadText(name,content,type){
   return downloadBlob(name,new Blob([content],{type:type||"image/svg+xml;charset=utf-8"}));
 }
 function notifyExport(result,label){
-  toast(result==="shared" ? label+" preparado. Salve em Arquivos ou Drive antes de desinstalar o aplicativo." : label+" exportado.");
+  if(result==="cancelled"){toast("Salvamento cancelado. O modelo continua no aplicativo.");return;}
+  toast(result==="shared" ? "Compartilhamento aberto. Confirme o destino para salvar." : label+" salvo/exportado.");
 }
 function makeSheetPages(firstPageOnly=false){
   const gap=number($("sheet-gap").value,0,20,2),margin=number($("sheet-margin").value,0,30,5);
@@ -492,7 +493,17 @@ $("download-project").addEventListener("click",async()=>{
     notifyExport(result,"Projeto JSON");
   }catch(e){toast("Falha ao salvar projeto: "+e.message);}
 });
-$("import-project").addEventListener("click",()=>$("project-file").click());
+$("import-project").addEventListener("click",async()=>{
+  try{
+    const chosen=await window.EtiquetaFiles.openText?.("application/json");
+    if(chosen===undefined){$("project-file").click();return;}
+    if(chosen===null)return;
+    if(chosen.size>3000000)throw Error("Projeto maior que 3 MB.");
+    const candidate=M.validate(JSON.parse(chosen.text));
+    trans(()=>{doc=candidate;selected=null;});
+    toast("Modelo aberto pelo Android.");
+  }catch(e){toast("Não foi possível importar: "+e.message);}
+});
 $("project-file").addEventListener("change",async e=>{
   const file=e.target.files?.[0];e.target.value="";
   if(!file)return;if(file.size>3000000){toast("Projeto JSON maior que 3 MB.");return;}
