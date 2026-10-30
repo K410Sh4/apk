@@ -144,3 +144,10 @@
  #batch-print-root .print-page:last-child{page-break-after:auto;break-after:auto}
  #batch-print-root svg{display:block;width:210mm!important;height:297mm!important;stroke:none!important}
 }
+
+/* Em Android, o cabeçalho permanece abaixo da barra de status do sistema. */
+@media(max-width:850px){
+ html[data-appspace-native="true"] .batch-topbar{
+   padding-top:calc(12px + max(26px,env(safe-area-inset-top,0px)));
+ }
+}
