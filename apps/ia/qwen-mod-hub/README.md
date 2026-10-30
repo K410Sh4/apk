@@ -29,7 +29,7 @@ Se VRAM ficar insuficiente, diminua contexto e camadas de offload; não suponha 
 **Terminal 2 — na pasta do repositório apk:**
 
 ~~~powershell
-npm run ai:agent
+npm.cmd run ai:agent
 ~~~
 
 O serviço exibe a URL **http://127.0.0.1:8765** e um token aleatório **de cada execução**. Não compartilhe o token.
@@ -73,8 +73,8 @@ A API só escuta loopback nesta versão, exige um Host adequado, restringe orige
 ## Testes
 
 ~~~powershell
-npm run ai:test
-npm run check
+npm.cmd run ai:test
+npm.cmd run check
 ~~~
 
 Compare Qwen original e Think com um conjunto fixo de tarefas Luau, respostas cegas e testes reproduzíveis. Só medições demonstram ganhos.
