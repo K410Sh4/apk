@@ -1,4 +1,4 @@
 {
-  "version": "0.7.36",
-  "notes": "AppSpace RGB Sync: novo motor interno de sincronização e prévia de LEDs com cor fixa, respiração, arco-íris, onda e pulso. Brilho, velocidade e cenas salvos localmente. Somente simulação: não controla fisicamente periféricos sem protocolo validado."
+  "version": "0.7.37",
+  "notes": "RGB Controller: configuração da sua controladora SATA + CFAN/PWM + entrada ARGB 5 V, mapa de cabos, estado físico, alertas de cooler da CPU e pinagem. Salva no AppSpace. Nenhum LED físico ativado sem ponte USB–ARGB validada."
 }
