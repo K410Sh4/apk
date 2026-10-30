@@ -77,3 +77,10 @@
 .monitor-app-card{width:100%;max-width:390px;min-height:220px}
 .monitor-app-card .card-top{padding-bottom:10px}
 .monitor-app-card .card-body{padding-top:10px}
+
+
+/* Meu PC · quarta pasta, tema tecnológico azul-violeta */
+.folder-card--mypc .folder-card-art::before{background:#7d97ff}
+.folder-card--mypc .folder-big-icon{background:linear-gradient(135deg,rgba(116,139,255,.24),rgba(96,109,212,.07));color:#a0b2ff}
+.folder-header--mypc{background:radial-gradient(circle at 90% 25%,rgba(104,131,245,.14),transparent 50%),var(--surface)}
+.folder-header--mypc .folder-header-icon{background:rgba(106,133,255,.1);color:#9aafff}
