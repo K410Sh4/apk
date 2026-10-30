@@ -50,7 +50,7 @@ test("REA Mod Host autentica, aplica perfil, conversa no Qwen e apaga memória",
   assert.equal(status.body.model.ready,true);
   assert.equal(status.body.model.id,"qwen-test");
   let bad=await call(url,"/api/v1/mods/apply",token,"POST",{schema:1,profile:{...DEFAULT,mods:{...DEFAULT.mods,think:"on"}}});
-  assert.equal(bad.status,500); // schema validation errors are never silently accepted
+  assert.equal(bad.status,400); // schema validation errors are never silently accepted
   const profile={...DEFAULT,mods:{think:true,memory:true,vulkan:true,verify:true},thinkMode:"balanced",contextSize:4096};
   const applied=await call(url,"/api/v1/mods/apply",token,"POST",{schema:1,profile});
   assert.equal(applied.status,200);
