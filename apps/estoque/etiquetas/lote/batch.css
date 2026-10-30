@@ -151,3 +151,67 @@
    padding-top:calc(12px + max(26px,env(safe-area-inset-top,0px)));
  }
 }
+
+
+/* V0.7.9 · foco no conteúdo e controles progressivos */
+.batch-help-details{min-width:0;color:var(--muted);font-size:11px;line-height:1.55}
+.batch-help-details summary{display:inline-flex;align-items:center;gap:6px;min-height:36px;
+ padding:5px 0;cursor:pointer;font-size:11px;font-weight:700;list-style:none}
+.batch-help-details summary::-webkit-details-marker{display:none}
+.batch-help-details summary::before{content:"?";width:18px;height:18px;flex:0 0 18px;
+ display:grid;place-items:center;border:1px solid var(--stroke);border-radius:50%;
+ font-size:10px;color:var(--muted)}
+.batch-help-details[open] p{font-size:11px;line-height:1.6;margin:6px 0 10px}
+.batch-heading{margin-bottom:15px}
+.batch-heading h1{font-size:clamp(23px,3vw,30px);margin:0;letter-spacing:-.7px}
+.batch-steps{margin-bottom:17px;gap:7px}
+.batch-steps button{min-height:48px;padding:9px 11px;border-radius:11px}
+.batch-steps b{width:25px;height:25px;flex-basis:25px;border-radius:8px;font-size:10px}
+.batch-section-heading{margin-bottom:11px}
+.batch-section-heading h2{font-size:clamp(19px,2.3vw,24px);margin:0}
+.batch-panel{padding:16px}
+.batch-panel-head{margin-bottom:12px}
+.batch-model-visual{min-height:200px}
+.batch-field{min-height:50px}
+.batch-footer-actions{margin-top:13px;padding-top:13px}
+.batch-list-controls{gap:9px}
+.batch-list-more{min-width:0;align-self:center}
+.batch-list-file-actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.batch-fine-tune{margin-top:12px}
+.batch-fine-tune[open]{padding-top:7px;border-top:1px solid var(--stroke)}
+.batch-fine-tune .batch-controls-grid{margin:10px 0}
+.batch-controls-grid label:nth-last-child(-n+2){grid-column:auto}
+.batch-layout-result{min-height:0;margin:10px 0;padding:11px}
+.batch-paper-panel .batch-help-details{margin-top:7px}
+.batch-bottom-note{opacity:.65;padding-top:22px}
+@media(max-width:780px){
+ .batch-main{padding-top:13px}
+ .batch-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+ .batch-heading h1{font-size:22px;white-space:nowrap}
+ .batch-heading .batch-help-details summary{min-height:44px}
+ .batch-heading .batch-help-details[open] {max-width:50%}
+ .batch-steps{margin-bottom:15px;gap:5px}
+ .batch-steps button{flex-direction:row;min-height:48px;padding:6px 7px;gap:5px;font-size:11px;white-space:nowrap}
+ .batch-steps b{width:22px;height:22px;flex-basis:22px;font-size:9px}
+ .batch-section-heading h2{font-size:19px}
+ .batch-panel{padding:13px}
+ .batch-summary>div{padding:11px;border-radius:10px;gap:3px}
+ .batch-summary strong{font-size:21px}
+ .batch-model-visual{min-height:170px}
+ .batch-preview-layout{display:flex;flex-direction:column;gap:10px}
+ .batch-preview-main{display:contents}
+ .batch-paper-panel{order:1;width:100%}
+ .batch-layout-panel{order:2;width:100%}
+ .batch-print-panel{order:3;width:100%}
+ .batch-preview-stage{padding:11px;min-height:240px}
+ .batch-paper{max-width:300px}
+ .batch-print-panel{gap:9px}
+ .batch-print-panel h3{font-size:13px}
+ .batch-print-actions .batch-button{min-height:46px}
+ .batch-bottom-note{display:none}
+}
+@media(max-width:375px){
+ .batch-heading h1{font-size:20px}
+ .batch-steps button{font-size:10px}
+ .batch-steps b{width:20px;flex-basis:20px}
+}
