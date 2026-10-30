@@ -143,6 +143,7 @@ const server=http.createServer((req,res)=>{
   assert.equal(await aiPage.locator('#ai-chat-response script').count(),0,'Resposta não deve virar HTML executável');
   assert.match(await aiPage.locator('#ai-chat-meta').innerText(),/3 passagem/);
   await aiPage.locator('#ai-clear-memory').click();
+  await aiPage.waitForFunction(()=>document.getElementById('ai-feedback').textContent.includes('Memória persistente do agente apagada'));
   assert.match(await aiPage.locator('#ai-feedback').innerText(),/Memória persistente do agente apagada/);
   assertions+=8;await aiCtx.close();
   // A delayed native metrics callback must not reconnect the UI after disconnect.
