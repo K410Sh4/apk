@@ -1,4 +1,4 @@
 {
-  "version": "0.7.27",
-  "notes": "REA: Etiqueta Studio focado no visual; dados de produtos e SKU estáveis; avisos de texto cortado; gerador A4 consistente; preparar integração Android Arquivos, compartilhar e salvar como PDF (seletor nativo exige APK 0.7.5)."
+  "version": "0.7.28",
+  "notes": "Redesenho Android do Etiqueta Studio: canvas amplo, dock de ferramentas e propriedades em painéis; gerador com cartões editáveis de produtos, fluxo de produção e prévia A4 reorganizados."
 }
