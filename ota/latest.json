@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.5",
+  "version": "0.7.6",
   "minNative": "0.7.3",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.5/appspace-web-v0.7.5.zip",
-  "sha256": "b0e4a5527e805c46bcf961dd28c2e5da2ba4af1e7230062b462ba817e13548a5",
-  "notes": "Etiqueta Studio: corrigida somente a inclinação da barra divisória cinza e a posição de seu ponto de seleção."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.6/appspace-web-v0.7.6.zip",
+  "sha256": "755ff783246b752e50534feee4b212de7c3b42b5f8c5c3cf6fb09e27f611a784",
+  "notes": "Etiqueta Studio modernizado: mais área para criação, ferramentas inferiores compactas, propriedades contextuais e painel de exportação minimalista."
 }
