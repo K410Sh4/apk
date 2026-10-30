@@ -227,6 +227,12 @@ assert.match(settings, /id="ota-check"/);
 assert.match(settings, /id="ota-install"/);
 assert.match(settings, /id="ota-auto"/);
 assert.match(settings, /id="ota-reset"/);
+assert.doesNotMatch(settings, /Primeiro app/,"A prévia de Configurações não pode exibir aplicativo removido");
+assert.doesNotMatch(settings, /Sistema → PC Monitor/,"A orientação de pareamento deve apontar para Meu PC");
+assert.doesNotMatch(settings, /href="\.\/apps\/sistema\/pc-monitor\/index\.html"/);
+assert.match(settings, /<strong>PC Monitor<\/strong>/);
+assert.match(settings, /launcher-preview-icon mypc/);
+assert.match(settings, /href="\.\/apps\/meu-pc\/index\.html"/);
 
 assert.doesNotMatch(home, /href="\.\/apps\/sistema\/index\.html"/);
 assert.match(home, /href="\.\/apps\/meu-pc\/index\.html"/);
