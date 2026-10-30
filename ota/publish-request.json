@@ -1,4 +1,4 @@
 {
-  "version": "0.7.31",
-  "notes": "Meu PC ganha RGB Controller: descoberta read-only de mouse Redragon, microfone FIFINE, possível teclado Sate G50 com busca HID/MI e controladora genérica; integração opcional OpenRGB local. Exige EXE Windows atualizado para inventário em tempo real; sem comandos de alteração RGB nesta versão."
+  "version": "0.7.32",
+  "notes": "Nova pasta IA e Qwen Mod Hub: perfis Think, Memory, Verify e Vulkan, laboratorio Qwen e integracao local opcional com REA Mod Host Windows."
 }
