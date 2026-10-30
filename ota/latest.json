@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.8",
+  "version": "0.7.9",
   "minNative": "0.7.3",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.8/appspace-web-v0.7.8.zip",
-  "sha256": "561bd50bf4204db15440f97c9406298689942d24e4cec912e171af387fa1137a",
-  "notes": "Etiqueta Studio: fluxo guiado modelo → lista de valores e quantidades → prévia A4 com grade, alinhamento e margens personalizáveis → impressão em lote."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.9/appspace-web-v0.7.9.zip",
+  "sha256": "216d22dbf5f73a5fa371af4634a5e8c91f5a4246a37d4222ee574b7dab1981f0",
+  "notes": "Etiqueta Studio: navegação mais limpa, instruções recolhíveis, lista de produtos compacta e prévia A4 em destaque."
 }
