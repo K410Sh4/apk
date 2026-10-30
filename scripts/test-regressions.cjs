@@ -266,7 +266,7 @@ test('batch CSV round trip preserves products, quotes, quantities and neutralize
   assert.equal(imported.rows[0].values[ids[0]],'Produto; "premium"');
   assert.equal(imported.rows[0].values[ids[1]],'=SUM(A1:A2)');
   assert.equal(imported.rows[1].values[ids[0]],'Biscoito');
-  assert.throws(()=>B.fromCsv('Quantidade;Outro campo\\n1;A',doc,batch),/não reconhecida/);
+  assert.throws(()=>B.fromCsv('Quantidade;Outro campo\n1;A',doc,batch),/não reconhecida/);
   assert.throws(()=>B.fromCsv(csv.replace('"3"','"501"'),doc,batch),/1 a 200/);
 });
 test('editor precision toggles never leak grid to exported document and alignment is undoable',()=>{
