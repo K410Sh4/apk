@@ -72,9 +72,13 @@
         <div class="batch-list-file-actions">
           <button type="button" class="batch-button batch-quiet" id="download-list">Exportar JSON</button>
           <button type="button" class="batch-button batch-quiet" id="import-list">Importar JSON</button>
+          <button type="button" class="batch-button batch-quiet" id="download-csv">Exportar CSV</button>
+          <button type="button" class="batch-button batch-quiet" id="import-csv">Importar CSV</button>
         </div>
       </details>
       <input id="list-file" type="file" accept=".json,application/json" hidden>
+      <input id="csv-file" type="file" accept=".csv,text/csv,text/plain" hidden>
+      <p class="batch-csv-hint">CSV separado por ponto e vírgula: primeira coluna Quantidade; os campos seguem o modelo. Até 100 produtos e 500 etiquetas.</p>
      </div>
      <div id="list-error" role="alert" class="batch-error" hidden></div>
     </div>
@@ -88,6 +92,7 @@
        <div class="batch-controls-grid">
          <label>Colunas<select id="layout-cols"><option value="auto">Automático</option></select></label>
          <label>Linhas<select id="layout-rows"><option value="auto">Automático</option></select></label>
+         <label>Primeira posição livre<input type="number" id="layout-start-slot" min="1" max="300" step="1" value="1" inputmode="numeric" aria-describedby="layout-start-help"></label>
          </div>
        <details class="batch-help-details batch-fine-tune">
         <summary>Ajustes de posição</summary>
@@ -99,6 +104,7 @@
           <label>Vertical<select id="layout-align-y" aria-label="Alinhamento vertical"><option value="start">Topo</option><option value="center">Centro</option><option value="end">Base</option></select></label>
        </div>
        </details>
+       <p id="layout-start-help" class="batch-csv-hint">Use 1 para folha nova; 2 ou mais para ignorar posições já usadas na primeira página, lendo da esquerda para a direita.</p>
        <div class="batch-layout-result" id="batch-layout-result" role="status">Calculando grade...</div>
        <button type="button" class="batch-button batch-quiet" id="reset-layout">Redefinir grade</button>
      </aside>
@@ -111,7 +117,7 @@
           <span id="page-counter">Página 1 de 1</span>
           <button type="button" id="page-next" aria-label="Próxima página">→</button>
         </div>
-        <details class="batch-help-details"><summary>Escala correta</summary><p>A tela mostra a proporção da folha. Ao imprimir: A4, escala 100%, sem margens extras.</p></details>
+        <details class="batch-help-details"><summary>Escala correta</summary><p>A tela mostra a proporção da folha. Ao imprimir: A4, escala 100%, sem margens extras. Confira o alinhamento em uma folha de teste antes do lote.</p></details>
         <div id="preview-error" class="batch-error" role="alert" hidden></div>
       </div>
       <div class="batch-panel batch-print-panel">
