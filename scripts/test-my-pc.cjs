@@ -55,3 +55,22 @@ function setup(legacy={},handler){
  assert.ok(fs.readFileSync(path.join(root,"assets/my-pc.js"),"utf8").includes("Ancoragem USB"));
  console.log("[Meu PC] Migração, Wi-Fi, USB, token único, proteção e monitor compartilhado: OK");
 })().catch(error=>{console.error(error);process.exitCode=1});
+
+// Respostas atrasadas nunca podem recriar uma sessão removida pelo usuário.
+(async()=>{
+ let finish;
+ const delayed=new Promise(resolve=>{finish=resolve;});
+ const pending=setup({},async url=>url.endsWith('/pair')?delayed:{cpu:{},memory:{}});
+ const pairing=pending.api.pair('192.168.1.15','123456');
+ pending.api.disconnect();finish({token,host:'PC-Teste'});
+ await assert.rejects(pairing,/cancelada/);
+ assert.equal(pending.api.get(),null);
+ let release;
+ const waiting=new Promise(resolve=>{release=resolve;});
+ const changed=setup({'appspace.pc.connection.v1':JSON.stringify({ip:'192.168.1.10',token})},()=>waiting);
+ const switching=changed.api.changeAddress('192.168.1.20','usb');
+ changed.api.disconnect();release({cpu:{},memory:{}});
+ await assert.rejects(switching,/cancelada/);
+ assert.equal(changed.api.get(),null);
+ console.log('[Meu PC] Desconexão durante pareamento e troca de rede: OK');
+})().catch(error=>{console.error(error);process.exitCode=1;});

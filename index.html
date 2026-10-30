@@ -134,6 +134,12 @@
               <p>Separe seus projetos por categoria e encontre tudo com facilidade.</p>
             </div>
           </div>
+          <div class="folder-search-row">            <label class="search-field">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+              <span class="sr-only">Pesquisar pastas</span>
+              <input type="search" id="app-search" placeholder="Buscar pastas..." autocomplete="off">
+              <kbd>/</kbd>
+            </label></div>
           <div class="folder-grid">
             <a class="folder-card folder-card--stock" href="./apps/estoque/index.html" data-search="pasta estoque inventário inventario produtos materiais armazém almoxarifado etiquetas gerador etiqueta studio imprimir rótulos codigo de barras">
               <div class="folder-card-art">
@@ -144,7 +150,7 @@
                 <h3>Estoque</h3>
                 <p>Identificação, organização de materiais e gerador visual de etiquetas.</p>
               </div>
-              <div class="folder-card-footer"><span>1 aplicativo · Etiqueta Studio</span><span class="card-arrow" aria-hidden="true">↗</span></div>
+              <div class="folder-card-footer"><span>2 aplicativos · Etiquetas</span><span class="card-arrow" aria-hidden="true">↗</span></div>
             </a>
             <a class="folder-card folder-card--video" href="./apps/edicao-de-video/index.html" data-search="pasta edição de vídeo edicao video audiovisual davinci resolve atalhos roteiros montagem">
               <div class="folder-card-art">
@@ -170,17 +176,15 @@
               <div class="folder-card-footer"><span>1 aplicativo · PC Monitor</span><span class="card-arrow" aria-hidden="true">↗</span></div>
             </a>
           </div>
+                  <div id="search-empty" class="empty-state" hidden>
+            <span class="empty-icon" aria-hidden="true">⌕</span><strong>Nenhuma pasta encontrada</strong><p>Tente buscar por outro nome.</p>
+          </div>
         </section>
 
         <section class="library" id="apps" aria-labelledby="library-title">
           <div class="section-head">
             <div><span class="section-kicker">BIBLIOTECA</span><h2 id="library-title">Seus aplicativos <span class="section-count">02</span></h2><p>Acesse as ferramentas disponíveis.</p></div>
-            <label class="search-field">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
-              <span class="sr-only">Pesquisar aplicativos</span>
-              <input type="search" id="app-search" placeholder="Buscar aplicativo..." autocomplete="off">
-              <kbd>/</kbd>
-            </label>
+
           </div>
 
           <div class="app-grid" id="app-grid">
@@ -232,9 +236,7 @@
             </a>
           </div>
 
-          <div id="search-empty" class="empty-state" hidden>
-            <span class="empty-icon" aria-hidden="true">⌕</span><strong>Nenhum aplicativo encontrado</strong><p>Tente buscar por outro nome.</p>
-          </div>
+
         </section>
 
         <section class="next-step" id="sobre">

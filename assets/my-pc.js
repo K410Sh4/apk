@@ -4,7 +4,11 @@
 const PC=window.AppSpacePC;
 if(!PC)throw Error("AppSpacePC não carregado");
 const $=id=>document.getElementById(id);
-let transport="wifi",switching=false,busy=false;
+let transport="wifi",switching=false,busy=false,generation=0;
+function setBusy(value){
+ busy=value;$("mypc-submit").disabled=value;$("mypc-test").disabled=value;
+}
+function openConnection(){const panel=$("mypc-connection-panel");if(panel)panel.open=true;}
 const instructions={
  wifi:"Use o IP e o código exibidos em Configurações do AppSpace no Windows. Ambos na mesma rede Wi-Fi.",
  usb:"Conecte o cabo USB e ative Ancoragem USB no Android. O Windows criará um adaptador de rede; copie o IP dele em Configurações do AppSpace."
@@ -46,7 +50,9 @@ function show(){
  }
 }
 async function check(){
+ const session=generation;
  const result=await PC.check();
+ if(session!==generation)return;
  $("mypc-status").textContent="Online";
  $("mypc-status").dataset.online="true";
  if(result.hostname)$("mypc-host").textContent=result.hostname;
@@ -54,13 +60,15 @@ async function check(){
 }
 async function run(action){
  if(busy)return;
- busy=true;$("mypc-submit").disabled=true;$("mypc-test").disabled=true;
+ const session=generation;setBusy(true);
  try{await action();}
  catch(e){
+   if(session!==generation)return;
+   openConnection();
    $("mypc-status").textContent=PC.get()?"Sem sinal":"Não conectado";
    $("mypc-status").dataset.online="false";
    message(e.message||"Não foi possível conectar",true);
- }finally{busy=false;$("mypc-submit").disabled=false;$("mypc-test").disabled=false;}
+ }finally{if(session===generation)setBusy(false);}
 }
 function init(){
  for(const button of document.querySelectorAll("[data-transport]"))
@@ -68,6 +76,7 @@ function init(){
  $("mypc-form").addEventListener("submit",event=>{
    event.preventDefault();
    const ip=$("mypc-ip").value.trim(),code=$("mypc-code").value.trim(),method=transport;
+   const session=generation;
    void run(async()=>{
      if(switching&&PC.get()&&!code){
        try{await PC.changeAddress(ip,method);}
@@ -75,11 +84,14 @@ function init(){
      }else{
        await PC.pair(ip,code,method);
      }
+     if(session!==generation)return;
      switching=false;show();await check();
+     if(session===generation&&$("mypc-connection-panel"))$("mypc-connection-panel").open=false;
    });
  });
  $("mypc-test").addEventListener("click",()=>void run(check));
  $("mypc-change").addEventListener("click",()=>{
+   if(busy)return;
    switching=true;show();
    message("Altere o IP e, se necessário, informe o código do computador.");
    $("mypc-ip").focus();
@@ -87,17 +99,20 @@ function init(){
  $("mypc-cancel").addEventListener("click",()=>{switching=false;show();message("");});
  $("mypc-disconnect").addEventListener("click",()=>{
    if(!window.confirm("Desconectar Meu PC? Os aplicativos deixarão de acessar este computador."))return;
-   PC.disconnect();switching=false;show();message("Pareamento removido deste dispositivo.");
+   generation++;setBusy(false);PC.disconnect();switching=false;show();message("Pareamento removido deste dispositivo.");
  });
  $("mypc-monitor-link").addEventListener("click",event=>{
    if(!PC.get()){
      event.preventDefault();
-     message("Conecte o computador acima para abrir o monitor.",true);
+     openConnection();
+     message("Conecte o computador para abrir o monitor.",true);
      $("mypc-ip").focus();
    }
  });
  const params=new URLSearchParams(location.search);
- if(params.get("connection")==="lost")message("O computador não respondeu. Confira o cabo/rede e toque em Testar conexão.",true);
+ if(params.get("connection")==="lost"){openConnection();message("O computador não respondeu. Confira o cabo/rede e toque em Testar conexão.",true);}
+ window.addEventListener("pagehide",()=>{generation++;setBusy(false);PC.cancelPending();});
+ window.addEventListener("pageshow",event=>{if(event.persisted){show();if(PC.get())void run(check);}});
  show();
  if(PC.get()&&!params.has("connection"))void run(check);
 }
