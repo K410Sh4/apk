@@ -22,7 +22,10 @@ async function status(){
     const data=await call("desktop");
     if(byId("desktop-version"))byId("desktop-version").textContent=data.currentVersion;
     if(byId("desktop-ota-new"))byId("desktop-ota-new").textContent=data.updated?"OTA ativo":"Web original";
-    if(byId("desktop-lan-ip"))byId("desktop-lan-ip").textContent=(data.lan.address||"sem IPv4 local")+":"+data.lan.port;
+    // Mostra também o IP do adaptador de ancoragem USB, não só o primeiro Wi-Fi.
+    const addresses=Array.isArray(data.lan.addresses)?data.lan.addresses:[data.lan.address].filter(Boolean);
+    if(byId("desktop-lan-ip"))byId("desktop-lan-ip").textContent=
+      addresses.length?addresses.map(ip=>ip+":"+data.lan.port).join(" · "):"sem IPv4 local";
     if(byId("desktop-lan-code"))byId("desktop-lan-code").textContent=data.lan.pin||"—";
     if(byId("desktop-lan-status"))byId("desktop-lan-status").textContent=data.lan.enabled?"Servidor local ativo":data.lan.error||"Servidor indisponível";
     if(byId("desktop-lan-details"))byId("desktop-lan-details").hidden=false;
