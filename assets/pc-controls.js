@@ -6,6 +6,22 @@
 const PC=window.AppSpacePC,$=id=>document.getElementById(id);
 if(!$("pc-controls"))return;
 let state=null,busy=false;
+// O EXE acessa sua API nativa diretamente. Nao depender da allowlist do JS OTA antigo.
+async function requestControls(method="GET",data=null){
+ if(PC?.isDesktop||window.location.protocol==="appspace:"){
+  const ac=new AbortController(),timer=setTimeout(()=>ac.abort(),12000);
+  try{
+   const response=await window.fetch("/__api/pc/controls",{
+    method,headers:{"Accept":"application/json",...(data?{"Content-Type":"application/json"}:{})},
+    body:data?JSON.stringify(data):undefined,signal:ac.signal,cache:"no-store"
+   });
+   let payload;try{payload=await response.json()}catch(_){payload={}}
+   if(!response.ok)throw Error(payload.error||"API de controles indisponível ("+response.status+")");
+   return payload;
+  }finally{clearTimeout(timer)}
+ }
+ return PC.request("/pc/controls",data?{method,data}:{});
+}
 const configs=[
  {key:"mic",endpoint:"microphone",action:"micVolume",valueKey:"volume"},
  {key:"speaker",endpoint:"speakers",action:"speakerVolume",valueKey:"volume"},
@@ -50,7 +66,7 @@ async function refresh(){
  }
  setBusy(true);text("pc-controls-message","Consultando configurações do Windows...");
  try{
-  const result=await PC.request("/pc/controls");
+  const result=await requestControls();
   if(result?.available!==true)throw Error(result?.reason||"EXE não oferece controles");
   state=result;
   text("pc-controls-message","Estado lido do Windows. Apenas as alterações confirmadas por Aplicar ou Silenciar são enviadas.");
@@ -63,7 +79,7 @@ async function change(action,value){
  if(busy||!state)return;
  setBusy(true);text("pc-controls-message","Aplicando ajuste no Windows...");
  try{
-  const result=await PC.request("/pc/controls",{method:"POST",data:{action,value}});
+  const result=await requestControls("POST",{action,value});
   if(result?.available!==true)throw Error("Sem confirmação do Windows");
   state=result;text("pc-controls-message","Alteração aplicada no Windows. Os dispositivos RGB permanecem intocados.");
  }catch(e){text("pc-controls-message","Não foi possível alterar: "+String(e.message||e).slice(0,160))}
