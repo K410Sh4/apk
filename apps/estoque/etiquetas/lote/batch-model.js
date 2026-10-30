@@ -74,26 +74,9 @@
     return {version:2,fields,rows,layout,activeStep:["model","list","preview"].includes(raw.activeStep)?raw.activeStep:"model"};
   }
   function calculate(template,layout){
-    const {width:w,height:h}=M.validate(template);
-    const margin=clamp(layout.margin,0,25),gapX=clamp(layout.gapX,0,20),gapY=clamp(layout.gapY,0,20);
-    const areaW=210-2*margin,areaH=297-2*margin;
-    const maxCols=Math.floor((areaW+gapX)/(w+gapX)),maxRows=Math.floor((areaH+gapY)/(h+gapY));
-    if(maxCols<1||maxRows<1)throw Error("A etiqueta não cabe na folha A4 com a margem escolhida.");
-    const cols=layout.columns==="auto"?maxCols:Math.floor(+layout.columns);
-    const rows=layout.rows==="auto"?maxRows:Math.floor(+layout.rows);
-    if(!(cols>=1&&cols<=maxCols&&rows>=1&&rows<=maxRows))
-      throw Error("A grade excede o espaço A4. Reduza colunas, linhas, margens ou espaçamento.");
-    const startSlot=clamp(Math.floor(+layout.startSlot||1),1,300);
-    if(startSlot>cols*rows)throw Error("A primeira posição excede os espaços desta folha. Ajuste a posição inicial.");
-    const occupiedW=cols*w+(cols-1)*gapX,occupiedH=rows*h+(rows-1)*gapY;
-    const factor=v=>v==="end"?1:v==="center"?.5:0;
-    const startX=margin+(areaW-occupiedW)*factor(layout.alignX);
-    const startY=margin+(areaH-occupiedH)*factor(layout.alignY);
-    const positions=[];
-    for(let row=0;row<rows;row++)for(let col=0;col<cols;col++)
-      positions.push({x:startX+col*(w+gapX),y:startY+row*(h+gapY),row,col});
-    return {columns:cols,rows,perPage:cols*rows,positions,maxCols,maxRows,
-      occupiedW,occupiedH,margin,gapX,gapY,startSlot};
+    const doc=M.validate(template);
+    // Somente LabelModel calcula posições A4; a produção usa o mesmo PageSpec.
+    return M.layoutA4(doc.width,doc.height,layout);
   }
   function count(batch){
     return batch.rows.reduce((sum,row)=>sum+(Number.isInteger(row.quantity)?row.quantity:0),0);
