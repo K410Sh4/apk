@@ -33,7 +33,7 @@
     <header class="topbar">
       <div class="topbar-left"><a class="mobile-brand" href="../../../index.html"><span class="brand-mark"><span></span><span></span><span></span><span></span></span><span>app<b>space</b></span></a>
       <div class="breadcrumbs"><a href="../../../index.html">Workspace</a><span class="crumb-divider">/</span><a href="../index.html">Sistema</a><span class="crumb-divider">/</span><strong>PC Monitor</strong></div></div>
-      <div class="topbar-actions"><span class="version-chip">BETA 0.6</span>
+      <div class="topbar-actions"><span class="version-chip">MONITOR</span>
         <a class="monitor-settings-link" href="../../../configuracoes.html" aria-label="Configurações">⚙</a>
       </div>
     </header>
@@ -53,23 +53,37 @@
         </form>
         <p id="monitor-pair-error" class="monitor-info" role="status" aria-live="polite">Não é necessário internet: basta o PC e o celular estarem na mesma rede Wi-Fi.</p>
       </section>
-      <section class="monitor-panel" id="monitor-dashboard" aria-labelledby="monitor-dashboard-heading" hidden>
-        <div class="monitor-dashboard-top"><div><span class="section-kicker">TELEMETRIA AO VIVO</span>
-          <h2 id="monitor-dashboard-heading">Meu computador</h2>
-          <p><span id="monitor-host">PC</span> · Atualiza a cada 1 segundo</p></div>
-          <button class="monitor-disconnect" id="monitor-disconnect" type="button">Desconectar</button></div>
-        <div class="monitor-metrics">
-          <div class="monitor-metric"><div class="monitor-metric-label"><span>CPU</span><span id="monitor-cpu-frequency">—</span></div>
-            <strong id="monitor-cpu">—</strong><div class="monitor-track"><span id="monitor-cpu-bar"></span></div><small id="monitor-cpu-model">Processador</small></div>
-          <div class="monitor-metric"><div class="monitor-metric-label"><span>Memória RAM</span><span id="monitor-ram-details">—</span></div>
-            <strong id="monitor-ram">—</strong><div class="monitor-track"><span id="monitor-ram-bar"></span></div><small id="monitor-ram-total">—</small></div>
-          <div class="monitor-metric"><div class="monitor-metric-label"><span>GPU</span><span>Sensor adicional</span></div>
-            <strong id="monitor-gpu">N/D</strong><div class="monitor-track"><span id="monitor-gpu-bar"></span></div><small>Requer coletor de sensores compatível</small></div>
-          <div class="monitor-metric"><div class="monitor-metric-label"><span>Tempo ligado</span><span>Windows</span></div>
-            <strong id="monitor-uptime">—</strong><div class="monitor-track"><span style="width:100%;opacity:.4"></span></div><small id="monitor-connection-detail">Aguardando leituras</small></div>
+      <section class="monitor-panel monitor-focus" id="monitor-dashboard" aria-label="Monitor de desempenho em tela cheia" hidden>
+        <button class="monitor-focus-exit" id="monitor-exit" type="button"
+          aria-label="Sair do modo monitor" title="Sair do monitor">&times;</button>
+        <div class="monitor-metrics" role="group" aria-label="Medições do computador">
+          <article class="monitor-metric monitor-metric-cpu" aria-label="Uso do processador">
+            <div class="monitor-metric-label">CPU</div>
+            <strong id="monitor-cpu" aria-live="off">—</strong>
+            <div class="monitor-track" aria-hidden="true"><span id="monitor-cpu-bar"></span></div>
+            <small id="monitor-cpu-frequency">—</small>
+            <span class="monitor-metric-extra" id="monitor-cpu-model" hidden></span>
+          </article>
+          <article class="monitor-metric monitor-metric-ram" aria-label="Uso da memória RAM">
+            <div class="monitor-metric-label">RAM</div>
+            <strong id="monitor-ram" aria-live="off">—</strong>
+            <div class="monitor-track" aria-hidden="true"><span id="monitor-ram-bar"></span></div>
+            <small id="monitor-ram-details">—</small>
+            <span class="monitor-metric-extra" id="monitor-ram-total" hidden></span>
+          </article>
+          <article class="monitor-metric monitor-metric-gpu" aria-label="Uso da placa de vídeo">
+            <div class="monitor-metric-label">GPU</div>
+            <strong id="monitor-gpu" aria-live="off">N/D</strong>
+            <div class="monitor-track" aria-hidden="true"><span id="monitor-gpu-bar"></span></div>
+            <small>Sensor opcional</small>
+          </article>
+          <article class="monitor-metric monitor-metric-uptime" aria-label="Tempo de atividade do Windows">
+            <div class="monitor-metric-label">LIGADO</div>
+            <strong id="monitor-uptime" aria-live="off">—</strong>
+            <div class="monitor-track monitor-track-uptime" aria-hidden="true"><span></span></div>
+            <small id="monitor-connection-detail">Aguardando leitura</small>
+          </article>
         </div>
-        <div class="monitor-spark-area"><div class="monitor-spark-head"><strong>Histórico de uso da CPU</strong><span>Últimos 40 s</span></div>
-          <svg class="monitor-spark" viewBox="0 0 400 88" preserveAspectRatio="none" aria-label="Gráfico de histórico da CPU"><path d="M0 44H400M0 22H400M0 66H400" stroke="currentColor" stroke-opacity=".1" stroke-width="1"/><polyline id="monitor-cpu-spark" points="" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       </section>
       <p class="monitor-footnote">Privacidade: apenas estatísticas de uso. O computador não recebe comandos remotos. A conexão Wi-Fi local utiliza HTTP; use somente redes privadas de confiança.</p>
       <footer class="site-footer"><span>AppSpace · PC Monitor</span><span>Windows + Android · Rede local</span></footer>
