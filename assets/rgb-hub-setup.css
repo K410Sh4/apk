@@ -1,0 +1,40 @@
+/* Configuração de conexões do hub ARGB: dados declarados, sem controle físico. */
+.rgb-hub-section{border-color:#4a6480;background:linear-gradient(150deg,#17243c,#101827 74%)}
+.rgb-hub-section strong{color:#f5f7ff}
+.rgb-hub-map{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:17px 0 12px;min-width:0}
+.rgb-hub-node{display:flex;flex:1 1 0;min-width:0;flex-direction:column;justify-content:center;gap:6px;text-align:center;border:1px solid #3b526e;background:#14253d;border-radius:16px;padding:14px 9px;min-height:96px}
+.rgb-hub-node-center{border-color:#9e7cfd;background:linear-gradient(135deg,#30244b,#17253b)}
+.rgb-hub-node strong{font-weight:800;font-size:clamp(12px,1.4vw,16px)}
+.rgb-hub-node small{color:#a6b9d6;font-size:11px}
+.rgb-hub-node-tag{color:#92b4e8;font-size:10px;font-weight:800;letter-spacing:.1em}
+.rgb-hub-arrow{font-size:23px;font-weight:700;color:#a58aff;flex:none}
+.rgb-hub-rgb-path{display:flex;gap:8px;align-items:center;flex-wrap:wrap;border:1px dashed #985bdd;border-radius:13px;background:#2b204155;padding:12px 15px}
+.rgb-hub-rgb-path strong{font-size:14px}
+.rgb-hub-rgb-path #rgb-hub-argb-status{font-size:12px;color:#b2c3df}
+.rgb-hub-section>p.rgb-hub-note{color:#b4c6e2;font-size:12px;line-height:1.6;margin:14px 0}
+.rgb-hub-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:16px}
+.rgb-hub-form label{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:700;color:#d2dff4;min-width:0}
+.rgb-hub-form select{font:inherit;font-weight:550;width:100%;border-radius:12px;border:1px solid #465c7e;padding:12px 13px;background:#111b30;color:#edf3ff;min-height:44px}
+.rgb-hub-form select:focus-visible{outline:2px solid #ae8aff;outline-offset:2px}
+.rgb-hub-status-box{border:1px solid #42557d;background:#121d34;border-radius:14px;padding:16px;margin-top:17px}
+.rgb-hub-status-box strong{font-size:14px;color:#ded6ff}
+.rgb-hub-status-box p{color:#b8c8e3;font-size:12px;line-height:1.55;margin:7px 0}
+.rgb-hub-warnings{padding-left:19px;margin:10px 0 0;color:#f0bf98;font-size:12px;line-height:1.55}
+.rgb-hub-warnings li+li{margin-top:6px}
+.rgb-hub-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.rgb-hub-actions button{padding:11px 16px}
+.rgb-hub-reset{border:1px solid #425372;border-radius:24px;color:#c6d4ea;background:#1b2b43;cursor:pointer;font-weight:700}
+#rgb-hub-saved{color:#9bb0d1;font-size:11px}
+.rgb-hub-section .rgb-hub-safety{font-size:11px;color:#f4c39e;line-height:1.65;border-top:1px solid #455171;padding-top:12px;margin-top:12px}
+@media(max-width:600px){
+ .rgb-hub-map{gap:5px}
+ .rgb-hub-arrow{font-size:14px}
+ .rgb-hub-node{padding:9px 5px;min-height:90px;border-radius:10px}
+ .rgb-hub-node-tag{font-size:8px;letter-spacing:0}
+ .rgb-hub-node strong{font-size:11px}
+ .rgb-hub-node small{font-size:9px}
+ .rgb-hub-form{grid-template-columns:1fr;gap:12px}
+ .rgb-hub-rgb-path{gap:7px}
+ .rgb-hub-actions button{flex:1 1 135px}
+}
+@media(prefers-reduced-motion:reduce){.rgb-hub-node{transition:none}}
