@@ -205,3 +205,10 @@
   .launcher-tile { transition:none; }
   .launcher-tile:hover { transform:none; }
 }
+
+
+/* Catálogo hierárquico: a Home mostra só as pastas.
+   Etiqueta Studio e PC Monitor continuam acessíveis dentro delas.
+   O HTML da biblioteca antiga é preservado para compatibilidade, mas não
+   duplica mais seus aplicativos na navegação clássica ou minimalista. */
+body.page-home .library{display:none!important}
