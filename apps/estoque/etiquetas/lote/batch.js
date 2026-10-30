@@ -146,10 +146,10 @@ function bindLayout(){
   }
 }
 function describeLayout(result){
-  const {layout,copies,pages}=result;
+  const {layout,copies,pageCount}=result;
   $("batch-layout-result").textContent=layout.columns+" colunas × "+layout.rows+" linhas • "+
-    layout.perPage+" etiquetas por folha • "+copies+" no total • "+pages+" página(s) A4.";
-  $("batch-print-summary").textContent=copies+" etiquetas distribuídas em "+pages+" folha(s) A4. "+
+    layout.perPage+" etiquetas por folha • "+copies+" no total • "+pageCount+" página(s) A4.";
+  $("batch-print-summary").textContent=copies+" etiquetas distribuídas em "+pageCount+" folha(s) A4. "+
     "Confira cada página antes de confirmar a impressão.";
 }
 function refreshPreview(){
