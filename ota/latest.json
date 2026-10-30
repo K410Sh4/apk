@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.33",
+  "version": "0.7.34",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.33/appspace-web-v0.7.33.zip",
-  "sha256": "a7188cb0611e6d3d47c0bbb9f7351bb3b08c54ebf45f91401937bb6e72715d28",
-  "notes": "Qwen Mod Hub mais simples: conectar ao PC, escolher modo e conversar. Textos claros, estado visivel e opcoes avancadas recolhidas."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.34/appspace-web-v0.7.34.zip",
+  "sha256": "220b8340f4cb1985fcb79a045980bec65f2efe5a0b85cdd7dff40423fce77f33",
+  "notes": "Correção do atualizador Windows: pacote OTA sem README.md incompatível. Qwen Mod Hub, RGB Controller e demais apps preservados. Verificação de extensões antes d"
 }
