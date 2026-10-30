@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.27",
+  "version": "0.7.28",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.27/appspace-web-v0.7.27.zip",
-  "sha256": "0dfa885c66603ac75f3fcda7845cffcec78b9fc3ba760ab551a73995f1a68813",
-  "notes": "REA: Etiqueta Studio focado no visual; dados de produtos e SKU estáveis; avisos de texto cortado; gerador A4 consistente; preparar integração Android Arquivos, "
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.28/appspace-web-v0.7.28.zip",
+  "sha256": "576d05491c1f99bbf12dfba20fc813128432f8bebe83a1f834ab78adccc11122",
+  "notes": "Redesenho Android do Etiqueta Studio: canvas amplo, dock de ferramentas e propriedades em painéis; gerador com cartões editáveis de produtos, fluxo de produção "
 }
