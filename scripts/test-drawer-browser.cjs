@@ -336,6 +336,49 @@ const server=http.createServer((req,res)=>{
   assert.ok(await rgbPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await rgbPage.screenshot({path:path.join(output,'rgb-controller-desktop.png'),fullPage:true});
   assertions+=7;await rgbCtx.close();
+  // Reproduzir captura real: GUI RGB nova + AppSpacePC antigo da OTA 0.7.30
+  // cuja allowlist rejeita /rgb/devices. Desktop deve usar API interna.
+  const rgbDesktopCtx=await browser.newContext({viewport:{width:1280,height:740}});
+  await rgbDesktopCtx.addInitScript(()=>{
+    window.__legacyCalls=0;window.__directCalls=0;
+    const legacyPC={
+      isDesktop:true,get:()=>({ip:'local',hostname:'Este computador'}),
+      request:()=>{window.__legacyCalls++;throw Error('Rota não autorizada')}
+    };
+    Object.defineProperty(window,'AppSpacePC',{
+      configurable:true,get:()=>legacyPC,set:()=>{} // Anular carregamento do adapter antigo.
+    });
+    const initialFetch=window.fetch.bind(window);
+    window.fetch=(url,options)=>{
+      if(String(url)==='/__api/rgb/devices'){
+        window.__directCalls++;
+        return Promise.resolve(new Response(JSON.stringify({
+          available:true,devices:[
+            {id:'controller',present:false,interfaceCount:0,interfaces:[]},
+            {id:'fifine',vid:'3142',pid:'A010',present:true,interfaceCount:1,
+              interfaces:[{name:'fifine Microphone',class:'MEDIA',mi:'00',bus:'USB'}]},
+            {id:'keyboard',vid:'0C45',pid:'8006',present:true,interfaceCount:1,hasVendorHID:true,
+              interfaces:[{name:'Dispositivo definido pelo fornecedor',class:'HIDClass',mi:'01',bus:'HID',vendorDefined:true}]},
+            {id:'redragon',present:false,interfaceCount:0,interfaces:[]}
+          ],
+          openRGB:{connected:false,devices:[]}
+        }),{status:200,headers:{'content-type':'application/json'}}));
+      }
+      return initialFetch(url,options);
+    };
+  });
+  const rgbNative=await rgbDesktopCtx.newPage();rgbNative.on('pageerror',e=>errors.push(e.message));
+  await rgbNative.goto(base+'/apps/meu-pc/rgb/index.html');
+  await rgbNative.waitForFunction(()=>document.querySelector('[data-device-status="fifine"]')?.textContent==='Detectado');
+  assert.equal(await rgbNative.locator('#rgb-status').innerText(),'Windows conectado');
+  assert.equal(await rgbNative.locator('[data-device-status="keyboard"]').innerText(),'Detectado');
+  assert.ok(!(await rgbNative.locator('#rgb-alert').innerText()).includes('Rota não autorizada'));
+  assert.deepEqual(await rgbNative.evaluate(()=>[window.__legacyCalls,window.__directCalls]),[0,1]);
+  const font=await rgbNative.evaluate(()=>getComputedStyle(document.body).fontFamily);
+  assert.ok(font.includes('Segoe UI')||font.includes('system-ui'),'A interface RGB não pode herdar fonte serifada');
+  assert.ok(await rgbNative.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await rgbNative.screenshot({path:path.join(output,'rgb-controller-desktop-stale-ota-fixed.png'),fullPage:true});
+  assertions+=6;await rgbDesktopCtx.close();
   // Local files keep the folder and editor available without networking.
   const offline=await browser.newContext({offline:true,viewport:{width:412,height:915}});
   const local=await offline.newPage();local.on('pageerror',e=>errors.push(e.message));
