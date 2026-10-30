@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.11",
+  "version": "0.7.12",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.11/appspace-web-v0.7.11.zip",
-  "sha256": "8d7b8e84c114429c5b99a437826643d6d80e8f2bf2a0d625735ee35ee7d0a8c9",
-  "notes": "Nova pasta Meu PC: conexão única ao Windows por Wi-Fi ou ancoragem USB, migração automática do pareamento antigo e PC Monitor movido para a pasta."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.12/appspace-web-v0.7.12.zip",
+  "sha256": "2d852127b40dc7412c2e35e9c6a25ba649b447af1a8132d13d14935e99d1b028",
+  "notes": "Tela inicial simplificada: removidas a pasta Sistema e a demonstração Primeiro app. Biblioteca mostra somente Etiqueta Studio e PC Monitor em Meu PC."
 }
