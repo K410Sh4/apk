@@ -9,6 +9,43 @@ const STORAGE="appspace.pcmonitor.v1",PORT=38473;
 let state={ip:"",token:""}, timer=null,started=false,polling=false,failures=0;
 let generation=0,resumeOnShow=false,pairing=false;
 const history=[];
+let monitorMode=false,modeGeneration=0,modeExitPromise=Promise.resolve();
+function nativePlugin(name){
+  if(!native)return null;
+  return capacitor?.Plugins?.[name]||
+    (capacitor?.isPluginAvailable?.(name)?capacitor.registerPlugin?.(name):null)||null;
+}
+async function enterMonitorMode(){
+  if(monitorMode)return;
+  monitorMode=true;
+  const session=++modeGeneration;
+  if(document.body?.dataset)document.body.dataset.monitorActive="true";
+  const orientation=nativePlugin("ScreenOrientation");
+  try{
+    if(orientation?.lock){
+      await orientation.lock({orientation:"landscape"});
+    }else if(window.screen?.orientation?.lock){
+      await window.screen.orientation.lock("landscape");
+    }
+  }catch(_){/* CSS lateral permanece utilizável quando a API não existe. */}
+  if(session!==modeGeneration||!monitorMode)return;
+  try{await nativePlugin("StatusBar")?.hide?.();}catch(_){}
+  if(session!==modeGeneration||!monitorMode){
+    try{await nativePlugin("StatusBar")?.show?.();}catch(_){}
+  }
+}
+function exitMonitorMode(){
+  if(!monitorMode)return modeExitPromise;
+  monitorMode=false;++modeGeneration;
+  if(document.body?.dataset)delete document.body.dataset.monitorActive;
+  modeExitPromise=Promise.allSettled([
+    Promise.resolve().then(()=>nativePlugin("ScreenOrientation")?.unlock?.()||
+      window.screen?.orientation?.unlock?.()),
+    Promise.resolve().then(()=>nativePlugin("StatusBar")?.show?.())
+  ]);
+  return modeExitPromise;
+}
+
 function privateIPv4(ip){
   if(!/^(?:\d{1,3}\.){3}\d{1,3}$/.test(ip))return false;
   const parts=ip.split(".").map(Number);
@@ -40,7 +77,10 @@ function render(data){
   text("monitor-ram-total",formatGb(data.memory.totalBytes)+" no total");
   text("monitor-uptime",Math.floor((data.uptimeSeconds||0)/3600)+"h "+Math.floor(((data.uptimeSeconds||0)%3600)/60)+"m");
   text("monitor-connection-detail","Leitura "+new Date(data.timestamp||Date.now()).toLocaleTimeString("pt-BR"));
-  if(data.gpu?.percent!=null) {text("monitor-gpu",data.gpu.percent+"%");setBar("monitor-gpu-bar",data.gpu.percent);}
+  if(data.gpu?.percent!=null&&Number.isFinite(Number(data.gpu.percent))){
+    const percent=Math.max(0,Math.min(100,Number(data.gpu.percent)));
+    text("monitor-gpu",percent+"%");setBar("monitor-gpu-bar",percent);
+  }else{text("monitor-gpu","N/D");setBar("monitor-gpu-bar",0);}
   setBar("monitor-cpu-bar",cpu);setBar("monitor-ram-bar",ram);
   history.push(cpu);if(history.length>40)history.shift();
   const points=history.map((value,index)=>(40===1?0:index*400/39).toFixed(1)+","+(84-value*.8).toFixed(1)).join(" ");
@@ -82,6 +122,8 @@ async function callApi(path,method="GET",data=null,authorized=true){
 function dashboard(show){
   if(byId("monitor-pair-panel"))byId("monitor-pair-panel").hidden=show;
   if(byId("monitor-dashboard"))byId("monitor-dashboard").hidden=!show;
+  if(show)void enterMonitorMode();
+  else void exitMonitorMode();
 }
 async function poll(){
   if(polling||document.hidden||!started)return;
@@ -137,12 +179,29 @@ async function init(){
     if(saved){state=saved;if(byId("monitor-ip"))byId("monitor-ip").value=saved.ip;start();}
   }
   byId("monitor-pair-form")?.addEventListener("submit",event=>void pair(event));
+  byId("monitor-exit")?.addEventListener("click",()=>{
+    stop();
+    if(byId("monitor-dashboard"))byId("monitor-dashboard").hidden=true;
+    // Fecha o modo, restaurando orientação e barra de status antes de navegar.
+    void exitMonitorMode().finally(()=>{
+      if(typeof location.assign==="function")location.assign("../index.html");
+      else location.href="../index.html";
+    });
+  });
+  document.addEventListener("keydown",event=>{
+    if(event.key==="Escape"&&monitorMode){
+      event.preventDefault();
+      byId("monitor-exit")?.click();
+    }
+  });
   byId("monitor-disconnect")?.addEventListener("click",()=>{
     stop();state={ip:"",token:""};clear();dashboard(false);
     setConnection(false,"Desconectado");
     text("monitor-pair-error","Conexão encerrada. Informe novamente o código do Windows.");
   });
-  window.addEventListener("pagehide",()=>{resumeOnShow=started;stop();});
+  window.addEventListener("pagehide",()=>{
+    resumeOnShow=started;stop();void exitMonitorMode();
+  });
   window.addEventListener("pageshow",event=>{
     if(event.persisted&&resumeOnShow){resumeOnShow=false;start();}
   });
