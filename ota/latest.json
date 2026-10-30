@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.34",
+  "version": "0.7.35",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.34/appspace-web-v0.7.34.zip",
-  "sha256": "220b8340f4cb1985fcb79a045980bec65f2efe5a0b85cdd7dff40423fce77f33",
-  "notes": "Correção do atualizador Windows: pacote OTA sem README.md incompatível. Qwen Mod Hub, RGB Controller e demais apps preservados. Verificação de extensões antes d"
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.35/appspace-web-v0.7.35.zip",
+  "sha256": "faa1f752b248c1be0507282983f00de91065e4b7206c2b20cfe7ffa415055edc",
+  "notes": "RGB Controller Windows: corrige rota não autorizada quando a OTA antiga mantém pc-connection.js; usa API interna do EXE diretamente e preserva autenticação no c"
 }
