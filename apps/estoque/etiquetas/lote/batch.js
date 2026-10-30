@@ -101,9 +101,10 @@ function renderTable(){
   head.append(row);
   batch.rows.forEach((data,index)=>{
     const tr=document.createElement("tr");
-    tr.append(byText("td",index+1));
+    const order=byText("td",index+1);order.dataset.label="Produto";tr.append(order);
     for(const field of fieldsSelected()){
       const td=document.createElement("td"),input=document.createElement("input");
+      td.className="batch-cell-field";td.dataset.label=field.name;
       input.type="text";input.value=data.values[field.id]??"";input.maxLength=250;
       input.setAttribute("aria-label",field.name+" do item "+(index+1));
       input.placeholder=field.type==="barcode"?"Ex.: EST-001":"Digite o valor";
@@ -111,6 +112,7 @@ function renderTable(){
       td.append(input);tr.append(td);
     }
     const qtyTd=document.createElement("td"),qty=document.createElement("input");
+    qtyTd.className="batch-cell-quantity";qtyTd.dataset.label="Cópias";
     qty.type="number";qty.min="1";qty.max="200";qty.step="1";qty.value=data.quantity;
     qty.setAttribute("aria-label","Quantidade do item "+(index+1));
     qty.addEventListener("change",()=>{
@@ -120,6 +122,7 @@ function renderTable(){
     });
     qtyTd.append(qty);tr.append(qtyTd);
     const actions=document.createElement("td"),remove=byText("button","✕");
+    actions.className="batch-cell-actions";actions.dataset.label="Ações";
     const duplicate=byText("button","⧉");duplicate.type="button";
     duplicate.className="batch-duplicate-row";
     duplicate.setAttribute("aria-label","Duplicar linha "+(index+1));

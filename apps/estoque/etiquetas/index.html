@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="../../../assets/personalization.css">
   <link rel="stylesheet" href="./editor.css">
   <link rel="stylesheet" href="./modern.css">
+  <link rel="stylesheet" href="./studio-android-v2.css">
   <script src="../../../assets/portal.js" defer></script>
   <script src="../../../assets/ota.js" defer></script>
   <script src="./model.js" defer></script>
@@ -27,6 +28,7 @@
         <div class="studio-brand-title"><strong>Etiqueta <span>Studio</span></strong><small>ESTOQUE / EDITOR VISUAL</small></div>
       </div>
       <div class="studio-project-name">
+        <span class="studio-app-title">Etiqueta Studio</span>
         <label class="sr-only" for="project-name">Nome do projeto</label>
         <input id="project-name" type="text" value="Minha etiqueta" maxlength="80" aria-label="Nome do projeto">
         <span id="save-state" role="status" aria-live="polite">Salvo localmente</span>
@@ -39,13 +41,13 @@
         <button type="button" class="studio-button primary studio-mobile-trigger" id="studio-open-export" aria-controls="studio-export-panel" aria-expanded="false">Exportar <span aria-hidden="true">↗</span></button>
       </div>
     </header>
-    <section class="batch-entry" aria-label="Fluxo de produção de etiquetas">
-      <span class="batch-entry-current" aria-label="Etapa 1 de 3: modelo">01 / 03 <strong>Modelo</strong></span>
-      <a class="batch-entry-button" href="./lote/index.html" aria-label="Usar este modelo na produção de etiquetas">Usar na produção <span aria-hidden="true">→</span></a>
+    <section class="batch-entry" aria-label="Continuar para a produção">
+      <div class="studio-step-context"><span>01 <span aria-hidden="true">/</span> 03</span><strong>Design do modelo</strong></div>
+      <a class="batch-entry-button" href="./lote/index.html" aria-label="Usar este modelo na produção de etiquetas"><span class="studio-production-cta-icon" aria-hidden="true">▦</span> Usar na produção <span aria-hidden="true">→</span></a>
     </section>
     <div class="studio-layout">
       <aside class="studio-left" aria-label="Ferramentas do editor">
-        <div class="studio-panel-heading"><span>FERRAMENTAS</span><small>Adicionar elementos</small></div>
+        <div class="studio-panel-heading"><span>ADICIONAR AO MODELO</span><small>Toque em uma ferramenta</small></div>
         <div class="studio-tools" role="toolbar" aria-label="Adicionar elementos">
           <button type="button" data-add="text"><b aria-hidden="true">T</b><span>Texto</span></button>
           <button type="button" data-add="rect"><b aria-hidden="true">▭</b><span>Retângulo</span></button>
@@ -76,7 +78,7 @@
       </aside>
       <main class="studio-center">
         <div class="studio-canvas-head">
-          <div class="studio-canvas-intro"><h1>Modelo <span class="studio-canvas-size-hint" id="studio-size-hint">60 × 40 mm</span></h1>
+          <div class="studio-canvas-intro"><div class="studio-workspace-eyebrow"><span class="studio-workspace-dot" aria-hidden="true"></span> EDITOR DE MODELOS</div><h1>Desenhe sua etiqueta <span class="studio-canvas-size-hint" id="studio-size-hint">60 × 40 mm</span></h1><p class="studio-workspace-caption">Ajuste o visual aqui. Os produtos e a impressão ficam na próxima etapa.</p>
             <details class="studio-help-details studio-gesture-help"><summary aria-label="Ajuda sobre gestos de edição">Como editar?</summary><p>Arraste para mover · Pinça para redimensionar · Toque duplo para alterar texto.</p></details>
           </div>
           <div class="studio-view-switch" role="group" aria-label="Visualização do projeto">
@@ -86,6 +88,7 @@
           <div class="studio-zoom"><label for="zoom">Zoom</label><input id="zoom" type="range" min="60" max="160" step="10" value="100"><output id="zoom-output">100%</output></div>
         </div>
         <div class="studio-stage" id="studio-stage" data-view="label">
+          <div class="studio-stage-label" aria-hidden="true"><span class="studio-stage-label-dot"></span> CANVAS · PRÉVIA VISUAL</div>
           <div class="studio-canvas-frame" id="studio-canvas-frame">
             <svg id="label-canvas" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prévia editável da etiqueta" viewBox="0 0 60 40"></svg>
           </div>
@@ -98,7 +101,7 @@
         <div class="studio-canvas-foot"><span id="canvas-size">60 × 40 mm</span><span id="selection-status">Toque em um item para editar</span><button type="button" class="studio-mobile-trigger studio-edit-selection" id="studio-open-properties" aria-controls="studio-properties-panel" aria-expanded="false" hidden>Editar <span aria-hidden="true">↗</span></button><button type="button" class="studio-mobile-trigger studio-delete-selection" id="studio-delete-selected" aria-label="Apagar elemento selecionado" hidden>Apagar <span aria-hidden="true">✕</span></button><button type="button" class="studio-mobile-trigger studio-edit-label" id="studio-open-label" aria-controls="studio-properties-panel" aria-expanded="false">Tamanho</button></div>
         <div class="studio-precision-bar" role="group" aria-label="Precisão do editor"><button type="button" id="studio-grid" aria-pressed="false">Grade 5 mm</button><button type="button" id="studio-snap" aria-pressed="false">Ajustar a 1 mm</button></div>
         <section class="studio-export" id="studio-export-panel" aria-labelledby="export-title" aria-modal="false">
-          <div class="studio-export-head"><div><h2 id="export-title">Exportar</h2></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-export" aria-label="Fechar opções de exportação">✕</button></div>
+          <div class="studio-export-head"><div><h2 id="export-title">Salvar modelo</h2><p>Escolha como guardar ou compartilhar o visual.</p></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-export" aria-label="Fechar opções de exportação">✕</button></div>
           <div class="studio-export-buttons">
             <button type="button" class="studio-button secondary studio-mobile-trigger" id="studio-export-project" title="Salvar projeto JSON">Salvar projeto</button>
             <button type="button" class="studio-button secondary studio-mobile-trigger" id="studio-import-project">Importar projeto</button>
@@ -114,7 +117,7 @@
         </section>
       </main>
       <aside class="studio-right" id="studio-properties-panel" aria-label="Propriedades da etiqueta e dos elementos" aria-modal="false">
-        <div class="studio-panel-heading"><div><span>PROPRIEDADES</span></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-properties" aria-label="Fechar propriedades">✕</button></div>
+        <div class="studio-panel-heading"><div><span>EDITAR SELEÇÃO</span></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-properties" aria-label="Fechar propriedades">✕</button></div>
         <div class="studio-mobile-trigger studio-sheet-tabs" role="tablist" aria-label="Seções de propriedades"><button type="button" role="tab" data-sheet-tab="element" aria-selected="true">Elemento</button><button type="button" role="tab" data-sheet-tab="label" aria-selected="false">Etiqueta</button></div>
         <div class="studio-props-group studio-props-label">
           <strong>Etiqueta</strong>
