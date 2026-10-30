@@ -96,6 +96,12 @@ byId("apply-template")?.addEventListener("click",()=>{
   app.dataset.templatesOpen="false";
   byId("studio-open-templates")?.setAttribute("aria-expanded","false");
 });
+document.addEventListener("pointerdown",event=>{
+  if(app.dataset.templatesOpen==="true"&&!event.target.closest?.("#studio-template-picker,#studio-open-templates")){
+    app.dataset.templatesOpen="false";
+    byId("studio-open-templates")?.setAttribute("aria-expanded","false");
+  }
+});
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"){
     if(app.dataset.mobilePanel!=="none"){e.preventDefault();close();}
@@ -108,7 +114,7 @@ document.addEventListener("keydown",e=>{
   if(e.key==="Tab"&&app.dataset.mobilePanel!=="none"&&mobile()){
     const panel=app.dataset.mobilePanel==="export"?exportPanel:properties;
     const tabbable=[...panel.querySelectorAll('button:not([disabled]):not([hidden]),input:not([disabled]):not([hidden]),textarea:not([disabled]):not([hidden]),select:not([disabled]):not([hidden]),a[href]')]
-      .filter(el=>!el.closest("[hidden]")&&getComputedStyle(el).display!=="none");
+      .filter(el=>!el.closest("[hidden]")&&el.getClientRects().length>0);
     if(!tabbable.length)return;
     const first=tabbable[0],last=tabbable[tabbable.length-1];
     if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
