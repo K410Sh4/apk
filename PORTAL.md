@@ -452,3 +452,15 @@ A experiência está dividida em três etapas, acessíveis pelo botão **Criar l
 - **Regressão:** `scripts/test-labels-compact.cjs` confere IDs de todos os controles, fechamento correto dos blocos de ajuda e existência de grade A4; incluído em `scripts/verify.cjs`, além dos testes anteriores de geometria e funções.
 
 **Critério de aceite no celular:** o modelo deve ser editável e exportável; "Lista e impressão" deve abrir os 3 passos sem parágrafos longos; "Ajustes de posição" deve revelar os controles completos sem perder o estado; a prévia A4 e o botão Imprimir devem permanecer acessíveis. Testes em Android real ainda necessários.
+
+## PC Monitor — painel horizontal imersivo (APK nativo 0.7.4 + OTA 0.7.10)
+
+- **Entrada:** após pareamento ou reconexão automática, o PC Monitor exibe exclusivamente quatro indicadores numa página de **paisagem**: CPU (% e GHz), memória RAM (% e espaço usado), GPU (% quando coletado, caso contrário **N/D**) e tempo ligado (horas/minutos). O gráfico antigo foi retirado do painel; as leituras seguem sendo atualizadas a cada 1 segundo.
+- **Navegação:** único botão **×** no canto superior direito, com alvo de toque de 44 px e nome acessível. Encerra a consulta local, libera bloqueio de orientação, restaura a barra de status e volta à aba Sistema. O pareamento local permanece salvo para não exigir código novo ao reabrir.
+- **Android:** `@capacitor/screen-orientation@8.0.2` bloqueia `landscape` ao entrar e executa `unlock()` ao sair; `@capacitor/status-bar@8.0.4` oculta e restaura a barra do sistema. O modo horizontal real exige atualizar o APK para 0.7.4: bibliotecas nativas não são entregues apenas por OTA. Barra de navegação/gestos do Android pode continuar visível conforme o aparelho.
+- **Fallback:** sem o plugin nativo, CSS gira a visualização 90° em viewport retrato. No navegador em paisagem ou no desktop, o painel se adapta à largura. A rotação obrigatória pode não funcionar em tablets Android 16+ por restrições do sistema.
+- **Conexão interrompida:** sem dados por seis leituras consecutivas, o painel sai do modo imersivo e mostra a tela de conexão com mensagem de erro. O indicador de GPU nunca é inventado.
+- **Privacidade:** segue operando pela rede local e HTTP, sem envio para serviços externos. Use somente rede Wi-Fi confiável.
+- **Teste:** `scripts/test-regressions.cjs` simula plugins e confirma lock, hide, X, unlock, show, preservação do token, parada da atualização e GPU indisponível. `scripts/verify.cjs` verifica quatro cartões e dependências nativas. Falta validação visual e de rotação num dispositivo Android físico.
+
+**Instalação:** o APK atual 0.7.3 pode ter assinatura debug diferente. Antes de desinstalar, exporte projetos e listas de etiquetas com confirmação de que os arquivos estão fora do AppSpace. Tente instalar a nova versão por cima; caso haja conflito, não desinstale sem backup. Depois do APK 0.7.4, aplique OTA 0.7.10.
