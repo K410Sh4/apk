@@ -45,7 +45,7 @@ function createWindowsControls(options={}){
  const script=options.scriptPath||path.join(__dirname,"pc-controls.ps1")
   .replace(/([\\/])app\.asar([\\/])/i,"$1app.asar.unpacked$2");
  const now=options.clock||Date.now;
- let cache=null,last=0,pending=null,writing=false;
+ let cache=null,last=0,pending=null,writing=false,writePending=null;
  function invoke(operation,action="",value=0){
   return new Promise((resolve,reject)=>{
    const args=["-NoLogo","-NoProfile","-NonInteractive","-ExecutionPolicy","Bypass",
@@ -59,6 +59,7 @@ function createWindowsControls(options={}){
  }
  async function read(force=false){
   if(platform!=="win32")return {available:false,reason:"Disponível apenas no EXE Windows"};
+  if(writePending)return writePending;
   if(pending)return pending;
   if(!force&&cache&&now()-last<1500)return cache;
   pending=invoke("read");
@@ -69,10 +70,14 @@ function createWindowsControls(options={}){
   if(platform!=="win32")throw Error("Controle disponível apenas no Windows");
   if(writing)throw Error("Aguarde a conclusão do controle anterior");
   writing=true;cache=null;last=0;
+  writePending=(async()=>{
+   if(pending)await pending.catch(()=>{});
+   return invoke("write",action,value);
+  })();
   try{
-   const state=await invoke("write",action,value);
+   const state=await writePending;
    cache=state;last=now();return state;
-  }finally{writing=false}
+  }finally{writing=false;writePending=null}
  }
  return Object.freeze({read,write});
 }
