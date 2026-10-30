@@ -1,4 +1,4 @@
 {
-  "version": "0.7.3",
-  "notes": "Correções PR #1: pareamento, OTA, versionamento, monitor; Etiqueta Studio: Code39 seguro, backup Android em Arquivos/Drive e A4 multipágina."
+  "version": "0.7.4",
+  "notes": "PC Monitor imersivo em paisagem com quatro medições, bloqueio nativo de rotação, status bar oculta e X para voltar ao Sistema. Mantidas as funções de etiquetas e pareamento."
 }
