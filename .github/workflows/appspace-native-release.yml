@@ -45,6 +45,7 @@ jobs:
         run: |
           VERSION="$(node -p 'require("./native/android-release-request.json").version')"
           PKG_VERSION="$(node -p 'require("./package.json").version')"
+          RELEASE_NOTES="$(node -p 'require("./native/android-release-request.json").notes')"
           if [ "$VERSION" != "$PKG_VERSION" ] || ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "::error::Versão de release não corresponde a package.json"
             exit 1
@@ -57,8 +58,8 @@ jobs:
             exit 1
           fi
           gh release create "appspace-android-v$VERSION" "$FILE" \
-            --title "AppSpace Android $VERSION — Impressão Wi-Fi" \
-            --notes "APK Android para teste com seletor nativo de impressoras Wi-Fi do Android. O serviço de impressão instalado no dispositivo é responsável pela descoberta. Build DEBUG: assinatura pode diferir das instalações anteriores, exigindo reinstalação. Salve seus projetos JSON antes de desinstalar." \
+            --title "AppSpace Android $VERSION — PC Monitor horizontal" \
+            --notes "$RELEASE_NOTES. Build DEBUG: pode haver conflito de assinatura com versões anteriores. Salve seus projetos JSON e listas fora do aplicativo antes de desinstalar." \
             --target "$GITHUB_SHA"
       - name: Exibir link
         run: echo "APK → https://github.com/${GITHUB_REPOSITORY}/releases/tag/appspace-android-v$(node -p 'require("./package.json").version')" >> "$GITHUB_STEP_SUMMARY"
