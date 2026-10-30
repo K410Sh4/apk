@@ -53,8 +53,8 @@ const cfg = JSON.parse(text("capacitor.config.json"));
 const pkg = JSON.parse(text("package.json"));
 
 assert.match(home, /<html lang="pt-BR"/, "HTML precisa da linguagem pt-BR");
-assert.equal(home.split('class="app-card"').length - 1, 1, "A tela inicial deve ter um card nesta etapa");
-assert.equal(home.split('class="folder-card ').length - 1, 4, "A Home deve ter quatro pastas");
+assert.equal(home.split('class="app-card"').length - 1, 2, "A biblioteca deve conter apenas os dois aplicativos reais");
+assert.equal(home.split('class="folder-card ').length - 1, 3, "A Home deve exibir somente Estoque, Edição de vídeo e Meu PC");
 assert.match(home, /href="\.\/apps\/estoque\/index\.html"/);
 assert.match(home, /href="\.\/apps\/edicao-de-video\/index\.html"/);
 assert.match(home, /id="pastas"/);
@@ -130,7 +130,14 @@ assert.match(js, /const appCards/);
 assert.match(js, /folder-nav-count/);
 assert.match(settings, /index\.html#pastas/);
 
-assert.match(home, /href="\.\/apps\/primeiro-app\/index\.html"/);
+assert.doesNotMatch(home, /href="\.\/apps\/primeiro-app\/index\.html"/);
+assert.doesNotMatch(home, /href="\.\/apps\/sistema\/index\.html"/);
+assert.match(home, /href="\.\/apps\/estoque\/etiquetas\/index\.html"/);
+assert.match(home, /href="\.\/apps\/meu-pc\/index\.html"/);
+assert.match(home, /<h3>PC Monitor<\/h3>/);
+assert.match(home, /<h3>Etiqueta Studio<\/h3>/);
+assert.match(home, /folder-nav-count">03<\/span>/);
+assert.match(home, /section-count folder-count">03<\/span>/);
 assert.match(detail, /href="\.\.\/\.\.\/index\.html#apps"/);
 assert.match(css, /@media \(max-width: 620px\)/);
 assert.match(home, /href="\.\/configuracoes\.html"/);
@@ -221,7 +228,7 @@ assert.match(settings, /id="ota-install"/);
 assert.match(settings, /id="ota-auto"/);
 assert.match(settings, /id="ota-reset"/);
 
-assert.match(home, /href="\.\/apps\/sistema\/index\.html"/);
+assert.doesNotMatch(home, /href="\.\/apps\/sistema\/index\.html"/);
 assert.match(home, /href="\.\/apps\/meu-pc\/index\.html"/);
 assert.match(system, /href="\.\.\/meu-pc\/index\.html"/);
 assert.match(legacyMonitor, /meu-pc\/monitor\/index\.html/);
@@ -234,6 +241,9 @@ assert.match(myPcUi, /PC\.pair/);
 assert.match(pcConnection, /appspace\.pc\.connection\.v1/);
 assert.match(pcConnection, /appspace\.pcmonitor\.v1/);
 assert.match(system, /<h1 id="folder-title">Sistema<\/h1>/);
+// Rotas antigas permanecem no pacote, mas não aparecem no catálogo do usuário.
+assert.match(detail, /Primeiro app/);
+assert.match(system, /href="\.\.\/meu-pc\/index\.html"/);
 assert.doesNotMatch(monitor, /id="monitor-pair-form"/);
 assert.match(monitor, /assets\/pc-connection\.js/);
 assert.match(monitor, /id="monitor-dashboard"/);
