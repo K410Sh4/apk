@@ -91,7 +91,7 @@ const server=http.createServer((req,res)=>{
   const racePage=await race.newPage();racePage.on('pageerror',e=>errors.push(e.message));racePage.on('dialog',dialog=>dialog.accept());
   await racePage.goto(base+'/apps/meu-pc/index.html');
   await racePage.waitForFunction(()=>typeof window.finishMetrics==='function');
-  await racePage.locator('#mypc-connection-panel summary').click();
+  await racePage.locator('#mypc-connection-panel > summary').click();
   await racePage.locator('#mypc-disconnect').click();
   assert.ok(await racePage.locator('#mypc-submit').isEnabled());
   await racePage.evaluate(()=>window.finishMetrics());
