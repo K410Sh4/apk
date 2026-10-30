@@ -128,6 +128,14 @@ jobs:
           node-version: "22"
       - name: Instalar dependências
         run: npm install --no-audit --no-fund
+      - name: Compilar e executar inventário HID nativo (somente leitura)
+        shell: pwsh
+        run: |
+          $raw = & powershell.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File desktop/rgb-direct.ps1 -Operation scan
+          if ($LASTEXITCODE -ne 0) { throw "Falha no driver HID nativo" }
+          $state = $raw | ConvertFrom-Json
+          if ($state.device -ne "Redragon M711 Cobra (04D9:FC30)") { throw "Resposta de driver inválida" }
+          if ($state.lastAction -ne "none") { throw "Scan jamais deve escrever" }
       - name: Gerar executável portátil
         run: npm run desktop:exe
       - name: Publicar EXE
