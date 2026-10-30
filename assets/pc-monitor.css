@@ -53,3 +53,140 @@
  .monitor-spark-area{padding:12px}
 }
 @media(max-width:345px){.monitor-metric strong{font-size:21px}}
+
+/* PC Monitor 0.7.10 — modo paisagem, 4 indicadores sem distrações. */
+.monitor-focus[hidden]{display:none!important}
+.monitor-focus{
+  position:fixed!important;
+  z-index:9999;
+  inset:0;
+  width:100vw;
+  width:100dvw;
+  height:100vh;
+  height:100dvh;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:clamp(10px,2.6vh,22px) calc(52px + env(safe-area-inset-right,0px)) clamp(10px,2.6vh,22px) calc(12px + env(safe-area-inset-left,0px))!important;
+  display:flex!important;
+  align-items:stretch;
+  overflow:hidden;
+  border:none!important;
+  border-radius:0!important;
+  background:#0c1019!important;
+  box-shadow:none!important;
+  box-sizing:border-box;
+  overscroll-behavior:none;
+}
+.monitor-focus .monitor-metrics{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr);
+  gap:clamp(6px,1.2vw,15px);
+  flex:1;
+  min-width:0;
+  min-height:0;
+  height:100%;
+}
+.monitor-focus .monitor-metric{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:center;
+  min-height:0;
+  min-width:0;
+  padding:clamp(11px,2.3vw,28px);
+  border:1px solid rgba(177,192,218,.14);
+  border-radius:clamp(12px,2vw,20px);
+  background:#151d2b;
+  box-shadow:none;
+}
+.monitor-focus .monitor-metric-label{
+  display:block;
+  font-size:clamp(11px,1.8vw,19px);
+  font-weight:800;
+  letter-spacing:.12em;
+  color:#95a6be;
+  line-height:1.1;
+}
+.monitor-focus .monitor-metric strong{
+  font-size:clamp(29px,5.2vw,88px);
+  font-weight:770;
+  line-height:1;
+  letter-spacing:-.06em;
+  margin:clamp(12px,2.4vh,30px) 0 clamp(12px,2.6vh,27px);
+  white-space:nowrap;
+  color:#f2f6fc;
+  font-variant-numeric:tabular-nums;
+}
+.monitor-focus .monitor-track{height:clamp(5px,1vh,9px);background:#293547;border-radius:999px}
+.monitor-focus .monitor-track>span{background:var(--accent,#568dfb);border-radius:999px}
+.monitor-focus .monitor-metric small{
+  display:block;
+  margin-top:clamp(11px,2.2vh,25px);
+  min-height:1.5em;
+  color:#9daec4;
+  font-size:clamp(10px,1.25vw,14px);
+  font-weight:500;
+  overflow-wrap:anywhere;
+  line-height:1.4;
+}
+.monitor-focus .monitor-track-uptime{opacity:.26}
+.monitor-focus .monitor-track-uptime>span{display:block;width:100%}
+.monitor-focus .monitor-metric-extra[hidden]{display:none!important}
+.monitor-focus-exit{
+  position:absolute;
+  top:calc(10px + env(safe-area-inset-top,0px));
+  right:calc(7px + env(safe-area-inset-right,0px));
+  z-index:5;
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  padding:0;
+  color:#aab9ce;
+  background:transparent;
+  border:1px solid transparent;
+  border-radius:13px;
+  font-family:inherit;
+  font-size:27px;
+  font-weight:300;
+  line-height:1;
+  cursor:pointer;
+}
+.monitor-focus-exit:hover,.monitor-focus-exit:focus-visible{
+  background:#202b3b;
+  color:#fff;
+  border-color:#39465b;
+}
+body.page-monitor[data-monitor-active="true"]{
+  overflow:hidden!important;
+  touch-action:manipulation;
+}
+body.page-monitor[data-monitor-active="true"] .app-shell{overflow:visible}
+/* Em aparelhos antigos, a tela gira visualmente mesmo sem plugin nativo. */
+@media(orientation:portrait) and (max-width:850px){
+  .monitor-focus{
+    inset:auto!important;
+    top:0!important;
+    left:100vw!important;
+    width:100dvh!important;
+    height:100dvw!important;
+    transform-origin:top left;
+    transform:rotate(90deg);
+    padding:10px 52px 10px 10px!important;
+  }
+}
+@media(orientation:landscape) and (max-width:650px){
+  .monitor-focus{padding:8px 49px 8px 8px!important}
+  .monitor-focus .monitor-metric{padding:10px}
+  .monitor-focus .monitor-metric strong{font-size:clamp(26px,5.1vw,38px)}
+  .monitor-focus .monitor-metric small{font-size:10px}
+}
+@media(max-height:260px) and (orientation:landscape){
+  .monitor-focus .monitor-metric strong{margin:6px 0}
+  .monitor-focus .monitor-metric small{margin-top:5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .monitor-focus .monitor-track>span{transition:none!important}
+}
