@@ -1,0 +1,46 @@
+"use strict";
+const assert=require("node:assert/strict");
+const fs=require("node:fs"),path=require("node:path");
+const root=path.resolve(__dirname,"..");
+const G=require("../apps/estoque/etiquetas/gestures.js");
+const template={type:"text",x:8,y:7,w:25,h:9,fontSize:4.2,strokeWidth:.4};
+const page={width:60,height:40};
+const startA={x:12,y:12},startB={x:32,y:12};
+function g(a,b,object=template){return G.pinch(object,startA,startB,a,b,page);}
+const grown=g({x:2,y:12},{x:42,y:12});
+assert.equal(grown.w,50,"Pinça abrindo deve aumentar largura");
+assert.equal(grown.h,18,"Pinça abrindo deve aumentar altura proporcionalmente");
+assert.equal(grown.fontSize,8.4,"Pinça também deve aumentar fonte");
+assert.ok(grown.x<=template.x&&grown.y<=template.y,"Centro deve se manter estável");
+const reduced=g({x:17,y:12},{x:27,y:12});
+assert.equal(reduced.w,12.5,"Fechar os dedos deve reduzir largura");
+assert.equal(reduced.h,4.5,"Fechar os dedos deve reduzir altura");
+const translated=g({x:17,y:20},{x:37,y:20});
+assert.equal(translated.w,template.w,"Transladar dedos sem pinçar não altera largura");
+assert.equal(translated.y,template.y+8,"Gesto acompanha deslocamento do centro");
+const line={type:"line",x:4,y:14,w:25,h:1,strokeWidth:.4};
+const l=g({x:2,y:12},{x:42,y:12},line);
+assert.equal(l.h,1,"Pinça não deve tornar divisória horizontal em diagonal");
+assert.equal(l.w,50);
+assert.equal(l.strokeWidth,.8,"Pinça escala espessura de linha");
+assert.equal(g({x:12,y:12},{x:12.1,y:12.1})?.w>=1,true,"Pinça muito pequena respeita mínimo");
+assert.equal(G.pinch(template,{x:1,y:1},{x:1.2,y:1.2},{x:1,y:1},{x:2,y:2},page),null,"Distância inicial pequena não pode causar salto");
+assert.ok(G.isDoubleTap({id:"a",time:1000,x:15,y:14},{id:"a",time:1190,x:15.4,y:14.2}));
+assert.equal(G.isDoubleTap({id:"a",time:1000,x:15,y:14},{id:"a",time:1450,x:15,y:14}),false);
+assert.equal(G.isDoubleTap({id:"a",time:1000,x:15,y:14},{id:"b",time:1120,x:15,y:14}),false);
+assert.equal(G.isDoubleTap({id:"a",time:1000,x:15,y:14},{id:"a",time:1120,x:22,y:14}),false);
+const html=fs.readFileSync(path.join(root,"apps/estoque/etiquetas/index.html"),"utf8");
+const editor=fs.readFileSync(path.join(root,"apps/estoque/etiquetas/editor.js"),"utf8");
+const ui=fs.readFileSync(path.join(root,"apps/estoque/etiquetas/modern.js"),"utf8");
+for(const id of ["studio-delete-selected","clear-canvas-mobile","clear-label","delete-element"]){
+  assert.ok(html.includes('id="'+id+'"'),"Botão não encontrado: "+id);
+}
+assert.match(editor,/G\.pinch\(/);
+assert.match(editor,/G\.isDoubleTap\(/);
+assert.match(editor,/etiqueta:edit-content/);
+assert.match(ui,/window\.addEventListener\("etiqueta:edit-content"/);
+assert.match(editor,/clearEntireLabel\(/);
+assert.match(editor,/undoStack\.push\(done\.before\)/);
+assert.match(editor,/\$\("delete-element"\)\.click\(\)/);
+new Function(editor);new Function(ui);
+console.log("[Etiqueta Studio] Pinça, toque duplo, movimento, divisórias, limites, excluir e desfazer: OK");
