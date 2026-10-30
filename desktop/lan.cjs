@@ -4,6 +4,7 @@ const http = require("node:http");
 const os = require("node:os");
 const {createGpuSampler}=require("./gpu.cjs");
 const {createRgbInventory}=require("./rgb.cjs");
+const {createWindowsControls}=require("./pc-controls.cjs");
 const { randomInt, randomBytes, timingSafeEqual } = require("node:crypto");
 const PORT = 38473;
 const ALLOWED_ORIGINS = new Set(["https://localhost", "http://localhost", "capacitor://localhost", "appspace://portal"]);
@@ -21,6 +22,7 @@ function startLanServer() {
   const secret = randomBytes(32).toString("hex");
   const attempts = new Map();
   const rgb=createRgbInventory();
+  const controls=createWindowsControls();
   const gpuSampler=createGpuSampler();
   gpuSampler.start();
   let previous = cpuTimes();
@@ -91,6 +93,37 @@ function startLanServer() {
         .catch(()=>respond(res,503,{error:"Inventário RGB indisponível"},origin));
       return;
     }
+    if (req.url==="/pc/controls") {
+      if(!authorized(req))return respond(res,401,{error:"Pareamento necessário"},origin);
+      if(req.method==="GET"){
+        void controls.read().then(data=>respond(res,200,data,origin))
+          .catch(()=>respond(res,503,{error:"Controles do Windows indisponíveis"},origin));
+        return;
+      }
+      if(req.method==="POST"){
+        if(!/^application\/json(?:\s*;|$)/i.test(String(req.headers["content-type"]||"")))
+          return respond(res,415,{error:"Envie JSON"},origin);
+        let body="",oversize=false;
+        req.on("data",chunk=>{
+          body+=chunk.toString("utf8");
+          if(body.length>512){oversize=true;req.destroy();}
+        });
+        req.on("end",()=>{
+          if(oversize)return;
+          let change;
+          try{change=JSON.parse(body)}catch(_){return respond(res,400,{error:"JSON inválido"},origin)}
+          if(!change||typeof change!=="object"||Array.isArray(change)||
+             Object.keys(change).some(key=>key!=="action"&&key!=="value"))
+            return respond(res,400,{error:"Solicitação inválida"},origin);
+          void controls.write(change.action,change.value)
+           .then(data=>respond(res,200,data,origin))
+           .catch(err=>respond(res,err instanceof RangeError?400:
+             /Aguarde/.test(err.message)?409:503,{error:String(err.message).slice(0,140)},origin));
+        });
+        return;
+      }
+      return respond(res,405,{error:"Método não permitido"},origin);
+    }
     if (req.url==="/metrics" && req.method==="GET") {
       if(!authorized(req))return respond(res,401,{error:"Pareamento necessário"},origin);
       return respond(res,200,sample(),origin);
@@ -101,7 +134,7 @@ function startLanServer() {
   server.on("error",e=>{error="Porta "+port+" indisponível ("+e.code+")";});
   server.listen(PORT,"0.0.0.0");
   server.unref();
-  return {status,sample,rgb,stop:()=>{gpuSampler.stop();server.close();}};
+  return {status,sample,rgb,controls,stop:()=>{gpuSampler.stop();server.close();}};
 }
 module.exports={startLanServer};
 
