@@ -1,0 +1,172 @@
+/* Monitor PRO V3 · Interface aprovada em 30/10/2026.
+   HTML/CSS/SVG reais, não imagem de fundo. Telemetria e IDs mantidos.
+   5 cards visíveis em modo paisagem; compacto no telefone, detalhado no PC. */
+.monitor-v3{
+  --mon-violet:#a367ff;
+  --mon-blue:#39baff;
+  --mon-green:#32e5b3;
+  --mon-orange:#ffb466;
+  --mon-pink:#f76ab6;
+}
+.monitor-v3 .monitor-focus{
+  gap:clamp(9px,1.75vh,20px);
+  background:radial-gradient(ellipse at 52% -18%,#253761 0,transparent 52%),#090f1d!important;
+  padding:clamp(10px,2vh,22px) calc(60px + env(safe-area-inset-right,0px))
+    clamp(12px,2.6vh,26px) calc(14px + env(safe-area-inset-left,0px))!important;
+}
+.monitor-v3 .monitor-v2-header{min-height:clamp(43px,8vh,76px);gap:14px}
+.monitor-v3 .monitor-v2-brand{gap:12px}
+.monitor-v3 .monitor-v2-logo{
+  width:clamp(38px,5vw,64px);height:clamp(38px,5vw,64px);
+  display:grid;place-items:center;border-radius:17px;
+  background:linear-gradient(145deg,#4a2b98a6,#221947);
+  border:1px solid #a367ff8f;color:#ad85ff;
+  box-shadow:0 0 0 1px #663fe327,0 0 24px #833cff39;
+}
+.monitor-v3 .monitor-v2-logo .monitor-icon-svg{width:57%;height:57%}
+.monitor-v3 .monitor-v2-brand strong{
+  font-size:clamp(18px,2.1vw,33px);letter-spacing:-.035em;
+  font-weight:850;color:#f7f8ff;
+}
+.monitor-v3 .monitor-v2-brand strong span{color:#9e79ff}
+.monitor-v3 .monitor-v2-brand small{margin-top:5px;letter-spacing:.12em;font-size:clamp(8px,1vw,13px)}
+.monitor-v3 .monitor-v2-status{
+  margin-left:auto;border-radius:999px;min-height:39px;
+  padding:8px clamp(10px,1.5vw,22px);
+  gap:10px;background:#121b31e0;border-color:#405077;
+  font-size:clamp(10px,1.08vw,15px);
+}
+.monitor-v3 .monitor-v2-status-dot{width:9px;height:9px;flex-shrink:0}
+.monitor-v3 .monitor-status-divider{width:1px;height:20px;background:#465575;margin:0 3px 0 7px}
+.monitor-v3 .monitor-v2-status small{font-size:inherit;margin:0}
+.monitor-v3 .monitor-focus .monitor-focus-exit{
+  display:grid;place-items:center;width:clamp(38px,4vw,53px);height:clamp(38px,4vw,53px);
+  right:calc(7px + env(safe-area-inset-right,0px));top:clamp(11px,2vh,23px);
+  background:#1a2540;border:1px solid #405077;border-radius:50%;
+  font-size:30px;color:#aebcdd;
+}
+.monitor-v3 .monitor-focus .monitor-metrics{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  grid-template-rows:minmax(0,1fr);gap:clamp(7px,1.1vw,16px);
+  align-items:stretch;
+}
+.monitor-v3 .monitor-focus .monitor-metric{
+  --mon-color:var(--mon-violet);
+  position:relative;display:flex;flex-direction:column;justify-content:flex-start;
+  align-items:stretch;min-height:0;min-width:0;overflow:hidden;
+  background:linear-gradient(151deg,color-mix(in srgb,var(--mon-color) 9%,#141b34) 0%,#121b30 60%,#10182b 100%);
+  border:1px solid color-mix(in srgb,var(--mon-color) 30%,#263754);
+  border-radius:clamp(15px,2vw,29px);
+  padding:clamp(12px,1.55vw,27px);
+  box-shadow:inset 0 1px 0 #ffffff14,0 11px 25px #03071527;
+}
+.monitor-v3 .monitor-metric-cpu{--mon-color:var(--mon-violet)!important}
+.monitor-v3 .monitor-metric-ram{--mon-color:var(--mon-blue)!important}
+.monitor-v3 .monitor-metric-gpu{--mon-color:var(--mon-green)!important}
+.monitor-v3 .monitor-metric-fps{--mon-color:var(--mon-orange)!important}
+.monitor-v3 .monitor-metric-uptime{--mon-color:var(--mon-pink)!important}
+.monitor-v3 .monitor-focus .monitor-metric::before{display:none}
+.monitor-metric-top{
+  display:flex;align-items:center;gap:8px;height:clamp(6px,1.25vh,12px);
+  position:absolute;inset:0 0 auto;pointer-events:none;
+}
+.monitor-metric-top>span{
+  display:block;width:100%;height:100%;
+  background:linear-gradient(90deg,var(--mon-color),color-mix(in srgb,var(--mon-color) 20%,transparent) 85%,transparent);
+  box-shadow:0 0 17px color-mix(in srgb,var(--mon-color) 55%,transparent);
+  opacity:.93;
+}
+.monitor-metric-top i{
+  position:absolute;right:clamp(13px,1.3vw,24px);top:clamp(7px,1.4vh,15px);
+  height:10px;width:10px;border-radius:50%;background:var(--mon-color);
+  box-shadow:0 0 12px color-mix(in srgb,var(--mon-color) 60%,transparent);
+}
+.monitor-v3 .monitor-metric-head{
+  display:flex;flex-direction:column;align-items:flex-start;gap:clamp(9px,2.1vh,18px);
+  padding-top:clamp(20px,4.3vh,43px);min-width:0;
+}
+.monitor-v3 .monitor-icon{
+  display:grid;place-items:center;width:clamp(47px,7vw,110px);
+  height:clamp(47px,7vw,110px);flex-shrink:0;
+  color:var(--mon-color);
+  border-radius:clamp(14px,1.8vw,24px);
+  border:1px solid color-mix(in srgb,var(--mon-color) 68%,transparent);
+  background:linear-gradient(130deg,color-mix(in srgb,var(--mon-color) 22%,#152340),#131f33 75%);
+  box-shadow:inset 0 0 24px color-mix(in srgb,var(--mon-color) 14%,transparent),
+    0 0 20px color-mix(in srgb,var(--mon-color) 11%,transparent);
+}
+.monitor-v3 .monitor-icon-svg{
+  display:block;width:63%;height:63%;color:inherit;
+  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--mon-color) 52%,transparent));
+}
+.monitor-v3 .monitor-metric-heading{min-width:0}
+.monitor-v3 .monitor-focus .monitor-metric-label{
+  display:block;color:#f4f7ff;font-weight:870;letter-spacing:.055em;
+  font-size:clamp(17px,2vw,30px);line-height:1.12;
+}
+.monitor-v3 .monitor-metric-subtitle{
+  color:#97add3;font-size:clamp(8px,1.08vw,16px);
+  letter-spacing:.13em;margin-top:5px;line-height:1.3;font-weight:600;
+  overflow-wrap:anywhere;
+}
+.monitor-v3 .monitor-focus .monitor-metric strong{
+  flex-shrink:0;font-size:clamp(30px,4.5vw,72px);
+  font-weight:860;letter-spacing:-.055em;line-height:1.05;
+  margin:clamp(10px,3.4vh,38px) 0 clamp(10px,2vh,24px);
+  color:#fcfcff;white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.monitor-v3 .monitor-focus .monitor-track{height:clamp(6px,.95vh,11px);flex-shrink:0;background:#2b3955}
+.monitor-v3 .monitor-focus .monitor-track>span{background:var(--mon-color)}
+.monitor-v3 .monitor-v2-spark{
+  width:100%;height:clamp(26px,10vh,84px);
+  margin-top:clamp(10px,3vh,30px);color:var(--mon-color);flex:0 1 auto;
+}
+.monitor-v3 .monitor-v2-spark path{stroke-width:2.7;opacity:1}
+.monitor-v3 .monitor-focus .monitor-metric small{
+  font-size:clamp(10px,1.15vw,16px);font-weight:500;color:#b6c5e5;
+  line-height:1.4;margin-top:clamp(10px,2vh,21px);min-height:1.3em;
+  overflow-wrap:anywhere;
+}
+.monitor-v3 .monitor-v3-uptime-label{
+  color:#97add3;font-size:clamp(9px,1.06vw,15px);font-weight:650;
+  letter-spacing:.1em;margin-top:clamp(20px,6vh,65px);line-height:1.4;
+}
+.monitor-v3 .monitor-focus .monitor-metric-uptime small{margin-top:clamp(10px,2.4vh,26px)}
+.monitor-v3 .monitor-focus .monitor-track-uptime{opacity:1}
+.monitor-v3 .monitor-focus .monitor-track-uptime>span{width:100%;opacity:.65}
+.monitor-v3 .monitor-metric[data-available="false"] .monitor-v2-spark{opacity:.38}
+@media(max-height:560px), (max-width:1100px){
+  .monitor-v3 .monitor-focus{gap:7px;padding:7px calc(49px + env(safe-area-inset-right,0px)) 8px calc(9px + env(safe-area-inset-left,0px))!important}
+  .monitor-v3 .monitor-v2-header{min-height:38px}
+  .monitor-v3 .monitor-v2-logo{width:34px;height:34px;border-radius:10px}
+  .monitor-v3 .monitor-v2-brand{gap:8px}
+  .monitor-v3 .monitor-v2-brand strong{font-size:clamp(13px,2vw,19px)}
+  .monitor-v3 .monitor-v2-brand small{font-size:8px;letter-spacing:.04em;margin-top:2px}
+  .monitor-v3 .monitor-v2-status{padding:5px 8px;min-height:29px;font-size:9px;gap:6px}
+  .monitor-v3 .monitor-v2-status small{font-size:9px}
+  .monitor-v3 .monitor-status-divider{height:14px;margin-left:2px}
+  .monitor-v3 .monitor-focus .monitor-focus-exit{width:34px;height:34px;right:5px;top:7px;font-size:23px}
+  .monitor-v3 .monitor-focus .monitor-metric{border-radius:15px;padding:clamp(7px,1vw,12px)}
+  .monitor-v3 .monitor-metric-head{gap:7px;padding-top:12px;flex-direction:row;align-items:center}
+  .monitor-v3 .monitor-icon{width:clamp(26px,4.3vw,47px);height:clamp(26px,4.3vw,47px);border-radius:12px}
+  .monitor-v3 .monitor-focus .monitor-metric-label{font-size:clamp(11px,1.5vw,17px)}
+  .monitor-v3 .monitor-metric-subtitle{font-size:clamp(7px,.85vw,10px);letter-spacing:.035em;margin-top:3px}
+  .monitor-v3 .monitor-focus .monitor-metric strong{font-size:clamp(20px,4.2vw,45px);margin:clamp(7px,2.1vh,14px) 0 clamp(8px,2vh,15px)}
+  .monitor-v3 .monitor-v2-spark{height:clamp(20px,8vh,48px);margin-top:clamp(7px,2vh,14px)}
+  .monitor-v3 .monitor-focus .monitor-metric small{font-size:clamp(8px,1vw,11px);margin-top:clamp(7px,2vh,13px)}
+  .monitor-v3 .monitor-v3-uptime-label{font-size:8px;letter-spacing:.035em;margin-top:clamp(11px,3vh,22px)}
+  .monitor-v3 .monitor-metric-top i{width:6px;height:6px;top:7px;right:9px}
+}
+@media(max-height:300px) and (orientation:landscape){
+ .monitor-v3 .monitor-v2-brand small,.monitor-v3 .monitor-v2-status small,.monitor-v3 .monitor-status-divider{display:none}
+ .monitor-v3 .monitor-metric-head{padding-top:9px;gap:5px}
+ .monitor-v3 .monitor-icon{width:25px;height:25px;border-radius:7px}
+ .monitor-v3 .monitor-focus .monitor-metric strong{font-size:clamp(18px,3.5vw,30px);margin:5px 0}
+ .monitor-v3 .monitor-v2-spark{height:18px;margin-top:6px}
+ .monitor-v3 .monitor-focus .monitor-metric small{font-size:8px;margin-top:6px}
+ .monitor-v3 .monitor-metric-subtitle{font-size:7px}
+ .monitor-v3 .monitor-v3-uptime-label{margin-top:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ .monitor-v3 .monitor-focus .monitor-track>span{transition:none}
+}
