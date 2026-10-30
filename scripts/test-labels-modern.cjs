@@ -56,7 +56,7 @@ const document={
 };
 const media={matches:true,events:{},addEventListener(type,fn){this.events[type]=fn}};
 const sandbox={
- document,window:{matchMedia:()=>media},MutationObserver:class{constructor(cb){this.cb=cb}observe(){}},
+ document,window:{matchMedia:()=>media,addEventListener(){}},MutationObserver:class{constructor(cb){this.cb=cb}observe(){}},
  setTimeout(){},getComputedStyle(){return {display:"block"}}
 };
 vm.runInNewContext(source,sandbox,{filename:"modern.js"});
