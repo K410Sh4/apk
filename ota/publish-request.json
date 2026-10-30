@@ -1,4 +1,4 @@
 {
-  "version": "0.7.35",
-  "notes": "RGB Controller Windows: corrige rota não autorizada quando a OTA antiga mantém pc-connection.js; usa API interna do EXE diretamente e preserva autenticação no celular. Corrige fonte e melhora legibilidade da tela."
+  "version": "0.7.36",
+  "notes": "AppSpace RGB Sync: novo motor interno de sincronização e prévia de LEDs com cor fixa, respiração, arco-íris, onda e pulso. Brilho, velocidade e cenas salvos localmente. Somente simulação: não controla fisicamente periféricos sem protocolo validado."
 }
