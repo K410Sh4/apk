@@ -480,3 +480,11 @@ A experiência está dividida em três etapas, acessíveis pelo botão **Criar l
 **Comportamento:** reconexão automática quando ainda há token salvo e computador disponível; erro de IP/rede não limpa token válido; monitor sem sessão retorna à pasta Meu PC; X volta à pasta e encerra coleta sem eliminar pareamento, restaurando paisagem/barra de status (APK nativo 0.7.4). Ao mudar Wi-Fi ↔ USB o endereço pode precisar ser atualizado, mas os aplicativos individuais nunca repetem o pareamento.
 
 **Testes:** `scripts/test-my-pc.cjs` cobre migração do token, conexão Wi-Fi, comutação USB, reutilização do segredo, recusa de IP público e rollback de troca não autorizada; `scripts/test-regressions.cjs` valida o Monitor usando a sessão central, X, orientação e cache de página. `scripts/verify.cjs` garante quarta pasta e os novos assets no pacote offline. Requer teste físico USB/Wi-Fi Android↔Windows e instalação das OTAs 0.7.11 nos dois dispositivos para a configuração mostrar vários IPs. Não precisa APK novo se a base instalada for 0.7.4.
+
+## Catálogo enxuto — OTA 0.7.12
+
+- **Início:** apenas três pastas visíveis — Estoque, Edição de vídeo e Meu PC. A antiga pasta Sistema deixa de aparecer no catálogo porque o PC Monitor já pertence à central Meu PC.
+- **Aplicativos:** o cartão de demonstração `Primeiro app` foi retirado da biblioteca. Os dois aplicativos reais exibidos são **Etiqueta Studio** (abre o editor na pasta Estoque) e **PC Monitor** (abre a pasta Meu PC para preservar a conexão única).
+- **Navegação:** contadores de pastas e aplicativos corrigidos; grade do launcher obtém os itens do HTML visível, sem duplicar o catálogo.
+- **Compatibilidade:** `apps/sistema/index.html` e `apps/primeiro-app/index.html` permanecem nos arquivos internos para não quebrar links antigos. Esta alteração não exclui nenhum dado local, projeto de etiqueta, token ou conexão.
+- **Regressão:** `scripts/verify.cjs` exige 3 pastas e 2 aplicativos reais na tela inicial, verifica os destinos das duas ferramentas e impede que Sistema e Primeiro app voltem a aparecer por engano.
