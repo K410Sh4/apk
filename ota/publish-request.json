@@ -1,4 +1,4 @@
 {
-  "version": "0.7.15",
-  "notes": "Gavetas Android nas 3 pastas, busca e ordenação de apps, navegação mais fluida e correções de conexão Meu PC."
+  "version": "0.7.26",
+  "notes": "Etiqueta Studio aprimorado: grade de 5 mm, ajuste de 1 mm, alinhamento e duplicação; geração em lote com tabela CSV, posições livres na folha A4, prévia mais leve e impressão."
 }
