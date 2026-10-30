@@ -26,45 +26,40 @@
   </header>
   <main class="batch-main">
    <header class="batch-heading">
-    <span class="batch-eyebrow">ETIQUETA STUDIO / PRODUÇÃO</span>
-    <h1>Do modelo à impressão.</h1>
-    <p>Desenhe a etiqueta uma vez, informe os dados de cada produto e organize tudo em folhas A4.</p>
+    <h1>Etiquetas em lote</h1>
+    <details class="batch-help-details"><summary>Como funciona?</summary><p>Desenhe um modelo, preencha os produtos e revise a folha A4 antes de imprimir.</p></details>
    </header>
    <nav class="batch-steps" aria-label="Etapas da produção">
     <button type="button" data-step="model" aria-current="step"><b>01</b><span>Modelo</span></button>
-    <button type="button" data-step="list"><b>02</b><span>Lista e quantidades</span></button>
-    <button type="button" data-step="preview"><b>03</b><span>Prévia e impressão</span></button>
+    <button type="button" data-step="list"><b>02</b><span>Lista</span></button>
+    <button type="button" data-step="preview"><b>03</b><span>Imprimir</span></button>
    </nav>
    <section class="batch-section" id="step-model" aria-labelledby="model-title">
-    <div class="batch-section-heading"><div><span class="batch-eyebrow">ETAPA 01</span><h2 id="model-title">Escolha o layout padrão</h2>
-      <p>O modelo define tamanho, cores, fontes e posições. Selecione quais textos serão diferentes em cada etiqueta.</p></div></div>
+    <div class="batch-section-heading"><h2 id="model-title">Modelo padrão</h2></div>
     <div class="batch-model-grid">
       <article class="batch-panel">
-       <div class="batch-panel-head"><strong>Modelo atual</strong><span id="model-dimensions">—</span></div>
+       <div class="batch-panel-head"><strong>Desenho</strong><span id="model-dimensions">—</span></div>
        <div class="batch-model-visual" id="model-visual" aria-label="Visualização do modelo padrão"></div>
        <h3 id="model-name">—</h3>
-       <p>Use o editor visual para alterar o modelo; depois retorne para preencher a lista.</p>
-       <a class="batch-button batch-outline" href="../index.html">Editar desenho e medidas</a>
+       <a class="batch-button batch-outline" href="../index.html">Editar modelo</a>
       </article>
       <article class="batch-panel">
-       <div class="batch-panel-head"><strong>Campos variáveis</strong><span>Escolha quais preencher</span></div>
-       <p>Textos marcados poderão receber valores diferentes em cada linha. Textos não marcados ficarão iguais em todas as etiquetas.</p>
+       <div class="batch-panel-head"><strong>Campos da lista</strong><span>Marque os que mudam</span></div>
        <div class="batch-field-list" id="batch-field-list"></div>
-       <p class="batch-help">Exemplo: marque <strong>Nome</strong> e <strong>Preço</strong>; deixe o nome da loja desmarcado.</p>
+       <details class="batch-help-details"><summary>Campos fixos e variáveis</summary><p>Marque Nome e Preço para preencher na lista. Deixe textos fixos desmarcados.</p></details>
       </article>
     </div>
-    <div class="batch-footer-actions"><span>1 modelo para todas as etiquetas</span><button type="button" class="batch-button batch-primary" id="next-list">Continuar para a lista <span aria-hidden="true">→</span></button></div>
+    <div class="batch-footer-actions"><button type="button" class="batch-button batch-primary" id="next-list">Próximo: lista <span aria-hidden="true">→</span></button></div>
    </section>
    <section class="batch-section" id="step-list" aria-labelledby="list-title" hidden>
-    <div class="batch-section-heading"><div><span class="batch-eyebrow">ETAPA 02</span><h2 id="list-title">Preencha os produtos e quantidades</h2>
-      <p>Cada linha gera uma etiqueta diferente. A quantidade indica quantas cópias serão impressas.</p></div></div>
+    <div class="batch-section-heading"><h2 id="list-title">Produtos e cópias</h2></div>
     <div class="batch-summary">
-      <div><span>Itens diferentes</span><strong id="batch-row-count">0</strong></div>
-      <div><span>Etiquetas no total</span><strong id="batch-copies-count">0</strong></div>
-      <div><span>Campos editáveis</span><strong id="batch-fields-count">0</strong></div>
+      <div><span>Produtos</span><strong id="batch-row-count">0</strong></div>
+      <div><span>Etiquetas</span><strong id="batch-copies-count">0</strong></div>
+      <div><span>Campos</span><strong id="batch-fields-count">0</strong></div>
     </div>
     <div class="batch-panel batch-list-panel">
-     <div class="batch-panel-head"><strong>Sua lista de etiquetas</strong><span>Salva automaticamente</span></div>
+     <div class="batch-panel-head"><strong>Lista</strong><span>Auto-salvo</span></div>
      <div class="batch-table-scroll">
       <table class="batch-table" id="batch-table">
        <thead id="batch-table-head"></thead>
@@ -72,57 +67,64 @@
       </table>
      </div>
      <div class="batch-list-controls">
-      <button type="button" class="batch-button batch-outline" id="add-row">+ Adicionar etiqueta</button>
-      <button type="button" class="batch-button batch-quiet" id="download-list">Exportar lista JSON</button>
-      <button type="button" class="batch-button batch-quiet" id="import-list">Importar lista JSON</button>
+      <button type="button" class="batch-button batch-outline" id="add-row">+ Produto</button>
+      <details class="batch-help-details batch-list-more"><summary>Importar / exportar</summary>
+        <div class="batch-list-file-actions">
+          <button type="button" class="batch-button batch-quiet" id="download-list">Exportar JSON</button>
+          <button type="button" class="batch-button batch-quiet" id="import-list">Importar JSON</button>
+        </div>
+      </details>
       <input id="list-file" type="file" accept=".json,application/json" hidden>
      </div>
      <div id="list-error" role="alert" class="batch-error" hidden></div>
     </div>
-    <div class="batch-footer-actions"><button type="button" class="batch-button batch-outline" id="back-model">← Voltar ao modelo</button><button type="button" class="batch-button batch-primary" id="next-preview">Preparar folha A4 <span aria-hidden="true">→</span></button></div>
+    <div class="batch-footer-actions"><button type="button" class="batch-button batch-outline" id="back-model">← Modelo</button><button type="button" class="batch-button batch-primary" id="next-preview">Próximo: prévia <span aria-hidden="true">→</span></button></div>
    </section>
    <section class="batch-section" id="step-preview" aria-labelledby="preview-title" hidden>
-    <div class="batch-section-heading"><div><span class="batch-eyebrow">ETAPA 03</span><h2 id="preview-title">Confira a folha antes de imprimir</h2>
-      <p>Altere a grade, as margens e o alinhamento. A prévia mostra os valores reais da lista.</p></div></div>
+    <div class="batch-section-heading"><h2 id="preview-title">Prévia A4</h2></div>
     <div class="batch-preview-layout">
      <aside class="batch-panel batch-layout-panel">
-       <div class="batch-panel-head"><strong>Organização A4</strong><span>Medidas em mm</span></div>
+       <div class="batch-panel-head"><strong>Grade</strong><span>mm</span></div>
        <div class="batch-controls-grid">
          <label>Colunas<select id="layout-cols"><option value="auto">Automático</option></select></label>
          <label>Linhas<select id="layout-rows"><option value="auto">Automático</option></select></label>
-         <label>Margens (mm)<input type="number" id="layout-margin" min="0" max="25" step=".5" value="5"></label>
-         <label>Espaço horizontal (mm)<input type="number" id="layout-gap-x" min="0" max="20" step=".5" value="2"></label>
-         <label>Espaço vertical (mm)<input type="number" id="layout-gap-y" min="0" max="20" step=".5" value="2"></label>
-         <label>Alinhamento horizontal<select id="layout-align-x"><option value="start">Esquerda</option><option value="center">Centro</option><option value="end">Direita</option></select></label>
-         <label>Alinhamento vertical<select id="layout-align-y"><option value="start">Topo</option><option value="center">Centro</option><option value="end">Base</option></select></label>
+         </div>
+       <details class="batch-help-details batch-fine-tune">
+        <summary>Ajustes de posição</summary>
+        <div class="batch-controls-grid">
+          <label>Margem (mm)<input type="number" id="layout-margin" min="0" max="25" step=".5" value="5"></label>
+          <label>Entre colunas (mm)<input type="number" id="layout-gap-x" min="0" max="20" step=".5" value="2"></label>
+          <label>Entre linhas (mm)<input type="number" id="layout-gap-y" min="0" max="20" step=".5" value="2"></label>
+          <label>Horizontal<select id="layout-align-x" aria-label="Alinhamento horizontal"><option value="start">Esquerda</option><option value="center">Centro</option><option value="end">Direita</option></select></label>
+          <label>Vertical<select id="layout-align-y" aria-label="Alinhamento vertical"><option value="start">Topo</option><option value="center">Centro</option><option value="end">Base</option></select></label>
        </div>
        <div class="batch-layout-result" id="batch-layout-result" role="status">Calculando grade...</div>
-       <button type="button" class="batch-button batch-quiet" id="reset-layout">Restaurar grade automática</button>
+       <button type="button" class="batch-button batch-quiet" id="reset-layout">Redefinir grade</button>
      </aside>
      <div class="batch-preview-main">
       <div class="batch-panel batch-paper-panel">
-        <div class="batch-panel-head"><strong>Prévia da impressão</strong><span id="preview-page-label">Página 1</span></div>
+        <div class="batch-panel-head"><strong>Folha A4</strong><span id="preview-page-label">Página 1</span></div>
         <div class="batch-preview-stage"><div class="batch-paper" id="batch-paper"></div></div>
         <div class="batch-pager">
           <button type="button" id="page-prev" aria-label="Página anterior">←</button>
           <span id="page-counter">Página 1 de 1</span>
           <button type="button" id="page-next" aria-label="Próxima página">→</button>
         </div>
-        <p class="batch-help">A4 (210 × 297 mm), em proporção exata. A tela não representa centímetros físicos; na impressão use escala 100% e margens zero.</p>
+        <details class="batch-help-details"><summary>Escala correta</summary><p>A tela mostra a proporção da folha. Ao imprimir: A4, escala 100%, sem margens extras.</p></details>
         <div id="preview-error" class="batch-error" role="alert" hidden></div>
       </div>
       <div class="batch-panel batch-print-panel">
-        <div><h3>Pronto para imprimir?</h3><p id="batch-print-summary">Confira os dados e as posições.</p></div>
+        <div><h3>Impressão</h3><p id="batch-print-summary">Confira as etiquetas.</p></div>
         <div class="batch-print-actions">
-          <button type="button" id="batch-download" class="batch-button batch-outline">Exportar folhas SVG</button>
-          <button type="button" id="batch-print" class="batch-button batch-primary">Imprimir etiquetas <span aria-hidden="true">↗</span></button>
+          <button type="button" id="batch-download" class="batch-button batch-outline">Exportar</button>
+          <button type="button" id="batch-print" class="batch-button batch-primary">Imprimir <span aria-hidden="true">↗</span></button>
         </div>
       </div>
      </div>
     </div>
-    <div class="batch-footer-actions"><button type="button" class="batch-button batch-outline" id="back-list">← Ajustar lista</button><span>Você pode voltar e alterar a lista sem perder o desenho.</span></div>
+    <div class="batch-footer-actions"><button type="button" class="batch-button batch-outline" id="back-list">← Lista</button></div>
    </section>
-   <footer class="batch-bottom-note">AppSpace · Etiqueta Studio · Dados armazenados no seu dispositivo</footer>
+   <footer class="batch-bottom-note">Etiqueta Studio · AppSpace</footer>
   </main>
  </div>
  <div id="batch-print-root" aria-hidden="true"></div>
