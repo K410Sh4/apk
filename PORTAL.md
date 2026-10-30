@@ -424,3 +424,19 @@ Escopo: alterações web apenas em `apps/estoque/etiquetas/`, compatíveis com *
 **Implementação:** módulo puro `gestures.js` para cálculo de escala e detecção de toque duplo; `editor.js` recebe eventos PointerEvents e grava o histórico uma vez por gesto; `modern.js` abre o painel textual ao receber `etiqueta:edit-content`. `modern.css` estiliza os botões. `scripts/test-labels-gestures.cjs` valida pinça, tradução do centro, escala da fonte, preservação das linhas, toque duplo e existência dos comandos. O simulador de regressões foi atualizado para carregar o novo módulo.
 
 **Validação em aparelho:** selecionar um texto na etiqueta, fazer pinça para aumentar/diminuir e conferir fonte + tamanho; arrastar com um dedo; toque duplo para editar conteúdo e salvar com teclado; usar Apagar e Desfazer; abrir Modelos → Limpar todo o conteúdo, cancelar e confirmar, depois Desfazer. A execução automatizada não substitui testes multitoque reais no Android.
+
+## Estoque / Etiqueta Studio — produção em lote guiada (OTA 0.7.8)
+
+A experiência está dividida em três etapas, acessíveis pelo botão **Criar lista e imprimir** na página do editor de modelos (`apps/estoque/etiquetas/index.html`):
+
+1. **Modelo** — o desenho da etiqueta continua no editor visual. A página `apps/estoque/etiquetas/lote/index.html` carrega o último projeto salvo e apresenta uma prévia e os campos que podem variar. Para cada texto ou código de barras, o operador decide se será preenchido na tabela ou mantido fixo.
+2. **Lista e quantidades** — uma linha por produto/etiqueta; colunas automáticas para os campos variáveis; quantidade inteira de 1 a 200 por item. É possível adicionar/remover até 100 linhas, salvar/importar a lista JSON e consultar o total de cópias. Os valores da tabela **não modificam o desenho original**.
+3. **Prévia/Impressão A4** — grade automática ou escolha manual de colunas e linhas, margens, espaços horizontal e vertical e alinhamento horizontal/vertical. A tela mostra os dados reais da lista em um SVG proporcional de 210 × 297 mm, permite navegar pelas páginas e exibe a quantidade total. O mesmo algoritmo de layout gera as folhas para impressão ou SVG/ZIP. Limite global de 500 etiquetas por lote. Grades que excedem o papel são rejeitadas, nunca reduzidas silenciosamente.
+
+**Componentes:** `batch-model.js` valida e gera as cópias com dimensões em mm; `batch-render.js` renderiza desenho próprio em SVG sem herdar estilos de ícones do portal; `batch.js` cuida da tabela, seleção de campos, prévia, exportação, impressão e persistência em `localStorage["appspace.estoque.lote.v1"]`. A lista é independente do projeto desenhado (`appspace.estoque.etiqueta.v1`), portanto a aplicação OTA não precisa alterar o formato de documentos existentes.
+
+**Backup:** lista JSON pode ser exportada e importada somente quando corresponde aos campos do modelo atual. Em Android, `EtiquetaFiles.save` solicita Compartilhar → Arquivos/Drive. O backup não está concluído até o usuário escolher um destino externo e confirmar.
+
+**Impressão:** a folha A4 usa coordenadas físicas em milímetros. Android nativo 0.7.3 ou superior abre o seletor de impressão através do plugin `Printer`; no Windows/navegador usa `window.print`. Para um lote multipágina a exportação gera ZIP com um SVG por página; para uma página gera SVG único. É necessário conferir escala 100%, margens zero e compatibilidade do driver. As cores e dimensões ainda exigem teste em impressora real.
+
+**Testes:** `scripts/test-labels-batch.cjs` cobre campos variáveis, cópias de cada valor, 3×6 para 60×40mm, grade custom 2×4, alinhamento, rejeição de grade fora da folha, distribuição multipágina, limites de quantidade e invalidação de Code39; `scripts/verify.cjs` verifica a inclusão dos cinco novos arquivos no bundle offline. Falta confirmar visualmente no Android e imprimir em hardware real.
