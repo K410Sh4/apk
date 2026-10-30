@@ -18,6 +18,7 @@ const labelsFiles = text("apps/estoque/etiquetas/files.js");
 const labelsCss = text("apps/estoque/etiquetas/editor.css");
 const labelsModernCss = text("apps/estoque/etiquetas/modern.css");
 const labelsModernJs = text("apps/estoque/etiquetas/modern.js");
+const labelsGestureJs = text("apps/estoque/etiquetas/gestures.js");
 const video = text("apps/edicao-de-video/index.html");
 const system = text("apps/sistema/index.html");
 const monitor = text("apps/sistema/pc-monitor/index.html");
@@ -78,7 +79,15 @@ assert.match(labels, /id="studio-open-export"/);
 assert.match(labelsModernCss, /studio-template-picker/);
 assert.match(labelsModernCss, /min-height:48px/);
 assert.match(labelsModernJs, /data-sheet-tab|sheetTab/);
+assert.match(labels, /\.\/gestures\.js/);
+assert.match(labels, /id="studio-delete-selected"/);
+assert.match(labels, /id="clear-canvas-mobile"/);
+assert.match(labelsGestureJs, /function pinch/);
+assert.match(labelsGestureJs, /isDoubleTap/);
+assert.match(labelsJs, /etiqueta:edit-content/);
+assert.match(labelsModernJs, /etiqueta:edit-content/);
 new Function(labelsModernJs);
+new Function(labelsGestureJs);
 assert.match(labelsModel, /barcodeBits/);
 assert.match(labels, /etiquetas\/files\.js|\.\/files\.js/);
 assert.match(labelsFiles, /Filesystems?|Filesystem/);
@@ -218,12 +227,13 @@ for(const source of [monitorJs, lan, desktopUpdater, electronMain, desktopClient
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-modern.cjs")], { stdio: "inherit" });
+execFileSync(process.execPath, [path.join(root, "scripts/test-labels-gestures.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, ["--test", path.join(root, "scripts/test-regressions.cjs")], { stdio: "inherit" });
 console.log("[AppSpace] Estrutura, links e cópia dos recursos: OK.");
 
