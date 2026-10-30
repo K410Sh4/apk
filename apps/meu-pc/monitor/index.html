@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0c1019"><title>PC Monitor — Meu PC · AppSpace</title>
+<link rel="stylesheet" href="../../../assets/portal.css">
+<link rel="stylesheet" href="../../../assets/personalization.css">
+<link rel="stylesheet" href="../../../assets/pc-monitor.css">
+<script src="../../../assets/ota.js" defer></script>
+<script src="../../../assets/pc-connection.js" defer></script>
+<script src="../../../assets/pc-monitor.js" defer></script>
+</head>
+<body class="page-monitor" data-monitor-active="true">
+<main class="monitor-focus" id="monitor-dashboard" aria-label="Monitor de desempenho em tela cheia">
+<button class="monitor-focus-exit" id="monitor-exit" type="button" aria-label="Sair do PC Monitor" title="Sair do monitor">&times;</button>
+<div class="monitor-metrics" role="group" aria-label="Medições do computador">
+  <article class="monitor-metric monitor-metric-cpu" aria-label="Uso do processador">
+    <div class="monitor-metric-label">CPU</div>
+    <strong id="monitor-cpu">—</strong>
+    <div class="monitor-track" aria-hidden="true"><span id="monitor-cpu-bar"></span></div>
+    <small id="monitor-cpu-frequency">—</small>
+  </article>
+  <article class="monitor-metric monitor-metric-ram" aria-label="Memória RAM">
+    <div class="monitor-metric-label">RAM</div>
+    <strong id="monitor-ram">—</strong>
+    <div class="monitor-track" aria-hidden="true"><span id="monitor-ram-bar"></span></div>
+    <small id="monitor-ram-details">—</small>
+  </article>
+  <article class="monitor-metric monitor-metric-gpu" aria-label="Uso da GPU">
+    <div class="monitor-metric-label">GPU</div>
+    <strong id="monitor-gpu">N/D</strong>
+    <div class="monitor-track" aria-hidden="true"><span id="monitor-gpu-bar"></span></div>
+    <small>Sensor opcional</small>
+  </article>
+  <article class="monitor-metric monitor-metric-uptime" aria-label="Tempo ligado">
+    <div class="monitor-metric-label">LIGADO</div>
+    <strong id="monitor-uptime">—</strong>
+    <div class="monitor-track monitor-track-uptime" aria-hidden="true"><span></span></div>
+    <small id="monitor-connection-detail">Conectando...</small>
+  </article>
+</div>
+</main>
+</body>
+</html>
