@@ -13,6 +13,11 @@ function nativePlugins(){
   if(!files?.writeFile||!files?.getUri||!share?.share)throw Error("Serviço de arquivos do Android indisponível");
   return {files,share};
 }
+function documents(){
+  const cap=root.Capacitor;
+  if(!cap?.isNativePlatform?.()||!cap.isPluginAvailable?.("LabelDocuments"))return null;
+  return cap.Plugins?.LabelDocuments||cap.registerPlugin?.("LabelDocuments")||null;
+}
 function base64FromBytes(bytes){
   let out="";
   for(let i=0;i<bytes.length;i+=8192)out+=String.fromCharCode(...bytes.subarray(i,i+8192));
@@ -23,6 +28,14 @@ async function save(filename,blob){
   if(blob.size>MAX_BYTES)throw Error("Arquivo maior que 24 MB; reduza imagens ou cópias.");
   const clean=String(filename).replace(/[^a-zA-Z0-9_.-]/g,"_").slice(0,100);
   if(!clean||clean==="."||clean==="..")throw Error("Nome de arquivo inválido");
+  const docs=documents();
+  if(docs?.saveDocument){
+    if(blob.size>16*1024*1024)throw Error("O seletor nativo aceita até 16 MB por arquivo.");
+    const bytes=new Uint8Array(await blob.arrayBuffer());
+    const result=await docs.saveDocument({filename:clean,mimeType:(blob.type||"application/octet-stream").split(";")[0],
+      base64:base64FromBytes(bytes)});
+    return result?.saved===true?"saved":"cancelled";
+  }
   const plugins=nativePlugins();
   if(plugins){
     const bytes=new Uint8Array(await blob.arrayBuffer());
@@ -38,12 +51,23 @@ async function save(filename,blob){
   }finally{setTimeout(()=>URL.revokeObjectURL(url),15000);}
   return "downloaded";
 }
+async function openText(mimeType="*/*"){
+  const docs=documents();
+  if(!docs?.openDocument)return undefined; // APK antigo: input[type=file]
+  const result=await docs.openDocument({mimeType});
+  if(!result?.selected)return null; // Cancelamento nunca sobrescreve o projeto.
+  if(typeof result.base64!=="string"||result.base64.length>4*1024*1024+32)
+    throw Error("Documento nativo inválido ou muito grande.");
+  const raw=atob(result.base64),bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));
+  return {name:String(result.name||"documento"),text:new TextDecoder("utf-8",{fatal:true}).decode(bytes),
+    size:bytes.length};
+}
 const encoder=new TextEncoder();
 const table=new Uint32Array(256);
 for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);table[n]=c>>>0;}
 function crc(bytes){let c=0xffffffff;for(const b of bytes)c=table[(c^b)&255]^(c>>>8);return (c^0xffffffff)>>>0;}
 function zip(files){
-  if(!Array.isArray(files)||!files.length||files.length>100)throw Error("Número de páginas inválido");
+  if(!Array.isArray(files)||!files.length||files.length>500)throw Error("Número de páginas inválido");
   const entries=[];let offset=0,bytesTotal=0;
   for(const file of files){
     const name=String(file.name||"").replace(/[^a-zA-Z0-9_.-]/g,"_");
@@ -69,5 +93,5 @@ function zip(files){
   u32(0x06054b50);u16(0);u16(0);u16(entries.length);u16(entries.length);u32(o-centralStart);u32(centralStart);u16(0);
   return new Blob([bytes],{type:"application/zip"});
 }
-root.EtiquetaFiles=Object.freeze({save,zip});
+root.EtiquetaFiles=Object.freeze({save,openText,zip});
 })(window);
