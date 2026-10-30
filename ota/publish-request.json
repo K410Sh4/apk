@@ -1,4 +1,4 @@
 {
-  "version": "0.7.33",
-  "notes": "Qwen Mod Hub mais simples: conectar ao PC, escolher modo e conversar. Textos claros, estado visivel e opcoes avancadas recolhidas."
+  "version": "0.7.34",
+  "notes": "Correção do atualizador Windows: pacote OTA sem README.md incompatível. Qwen Mod Hub, RGB Controller e demais apps preservados. Verificação de extensões antes da publicação."
 }
