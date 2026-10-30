@@ -228,3 +228,64 @@ test('LAN still accepts the correct code after invalid requests',()=>{
   const response=request(JSON.stringify({code:api.status().pin})).res;
   assert.equal(response.status,200);assert.match(JSON.parse(response.body).token,/^[a-f0-9]{64}$/);
 });
+
+test('batch page offset leaves previously used positions blank and previews on demand',()=>{
+  const M=require('../apps/estoque/etiquetas/model.js');
+  const B=require('../apps/estoque/etiquetas/lote/batch-model.js');
+  const doc=M.project('preco'),batch=B.fresh(doc);
+  batch.layout.startSlot=3;
+  batch.rows[0].quantity=25;
+  const verified=B.validateForPrint(doc,batch);
+  assert.equal(verified.pageCount,Math.ceil((25+2)/verified.layout.perPage));
+  const all=B.pages(doc,batch);
+  assert.equal(all.pages[0].length,verified.layout.perPage-2);
+  assert.deepEqual(all.pages[0][0].position,verified.layout.positions[2]);
+  for(let i=0;i<verified.pageCount;i++){
+    const preview=B.previewPage(doc,batch,i);
+    assert.equal(preview.pageIndex,i);
+    assert.deepEqual(preview.items,all.pages[i]);
+  }
+  assert.equal(all.pages.flat().length,25);
+  batch.layout.startSlot=verified.layout.perPage+1;
+  assert.throws(()=>B.validateForPrint(doc,batch),/primeira posição/);
+});
+test('batch CSV round trip preserves products, quotes, quantities and neutralizes formulas',()=>{
+  const M=require('../apps/estoque/etiquetas/model.js');
+  const B=require('../apps/estoque/etiquetas/lote/batch-model.js');
+  const doc=M.project('preco'),batch=B.fresh(doc);
+  const ids=batch.fields;
+  batch.rows[0].quantity=3;
+  batch.rows[0].values[ids[0]]='Produto; "premium"';
+  batch.rows[0].values[ids[1]]='=SUM(A1:A2)';
+  batch.rows.push({id:'row-test',quantity:2,values:{...batch.rows[0].values,[ids[0]]:'Biscoito'}});
+  const csv=B.toCsv(doc,batch);
+  assert.match(csv,/Quantidade/);
+  assert.ok(csv.includes("'=SUM(A1:A2)"),'Formula must be neutralized in exported CSV');
+  const imported=B.fromCsv(csv,doc,batch);
+  assert.equal(B.count(imported),5);
+  assert.equal(imported.rows[0].values[ids[0]],'Produto; "premium"');
+  assert.equal(imported.rows[0].values[ids[1]],'=SUM(A1:A2)');
+  assert.equal(imported.rows[1].values[ids[0]],'Biscoito');
+  assert.throws(()=>B.fromCsv('Quantidade;Outro campo\n1;A',doc,batch),/não reconhecida/);
+  assert.throws(()=>B.fromCsv(csv.replace('"3"','"501"'),doc,batch),/1 a 200/);
+});
+test('editor precision toggles never leak grid to exported document and alignment is undoable',()=>{
+  const b=browser('apps/estoque/etiquetas/editor.js'),svg=b.get('label-canvas');
+  const group=svg.children.find(n=>n.getAttribute('data-item-id'));
+  svg.emit('pointerdown',{target:group,pointerId:1,clientX:4,clientY:4});
+  svg.emit('pointerup',{pointerId:1});
+  b.get('studio-grid').emit('click');
+  b.get('studio-snap').emit('click');
+  assert.equal(b.get('studio-grid').getAttribute('aria-pressed'),'true');
+  assert.equal(b.get('studio-snap').getAttribute('aria-pressed'),'true');
+  assert.ok(svg.children.some(n=>n.attributes?.id==='studio-grid-pattern'||n.children?.some(x=>x.attributes?.id==='studio-grid-pattern')));
+  b.get('studio-center-x').emit('click');
+  const getSaved=()=>{b.window.emit('pagehide');return JSON.parse(b.storage.get('appspace.estoque.etiqueta.v1'));};
+  const centered=getSaved().objects[0].x;
+  assert.equal(centered,Math.round((60-52)/2));
+  b.get('studio-center-y').emit('click');
+  assert.equal(getSaved().objects[0].y,Math.round((40-9)/2));
+  b.get('undo-btn').emit('click');
+  assert.equal(getSaved().objects[0].y,4);
+  assert.deepEqual(JSON.parse(b.storage.get('appspace.estoque.precision.v1')),{grid:true,snap:true});
+});

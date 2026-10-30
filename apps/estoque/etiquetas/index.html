@@ -96,6 +96,7 @@
           </div>
         </div>
         <div class="studio-canvas-foot"><span id="canvas-size">60 × 40 mm</span><span id="selection-status">Toque em um item para editar</span><button type="button" class="studio-mobile-trigger studio-edit-selection" id="studio-open-properties" aria-controls="studio-properties-panel" aria-expanded="false" hidden>Editar <span aria-hidden="true">↗</span></button><button type="button" class="studio-mobile-trigger studio-delete-selection" id="studio-delete-selected" aria-label="Apagar elemento selecionado" hidden>Apagar <span aria-hidden="true">✕</span></button><button type="button" class="studio-mobile-trigger studio-edit-label" id="studio-open-label" aria-controls="studio-properties-panel" aria-expanded="false">Tamanho</button></div>
+        <div class="studio-precision-bar" role="group" aria-label="Precisão do editor"><button type="button" id="studio-grid" aria-pressed="false">Grade 5 mm</button><button type="button" id="studio-snap" aria-pressed="false">Ajustar a 1 mm</button></div>
         <section class="studio-export" id="studio-export-panel" aria-labelledby="export-title" aria-modal="false">
           <div class="studio-export-head"><div><h2 id="export-title">Exportar</h2></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-export" aria-label="Fechar opções de exportação">✕</button></div>
           <div class="studio-export-buttons">
@@ -146,6 +147,7 @@
             <label id="item-stroke-row">Borda<input type="color" id="item-stroke" value="#111827"></label>
           </div>
           <label id="item-stroke-width-row">Espessura da borda (mm)<input id="item-stroke-width" type="number" min="0" max="4" step=".25"></label>
+          <div class="studio-align-actions" role="group" aria-label="Alinhar objeto na etiqueta"><button type="button" id="studio-center-x" class="studio-button secondary">Centralizar horizontal</button><button type="button" id="studio-center-y" class="studio-button secondary">Centralizar vertical</button></div>
           <div class="studio-element-actions">
             <button type="button" id="duplicate-element" class="studio-button secondary">Duplicar</button>
             <button type="button" id="bring-front" class="studio-button secondary">Trazer à frente</button>
