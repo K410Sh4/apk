@@ -14,6 +14,7 @@ const stock = text("apps/estoque/index.html");
 const labels = text("apps/estoque/etiquetas/index.html");
 const labelsJs = text("apps/estoque/etiquetas/editor.js");
 const labelsModel = text("apps/estoque/etiquetas/model.js");
+const labelsFiles = text("apps/estoque/etiquetas/files.js");
 const labelsCss = text("apps/estoque/etiquetas/editor.css");
 const video = text("apps/edicao-de-video/index.html");
 const system = text("apps/sistema/index.html");
@@ -69,6 +70,13 @@ assert.match(labelsCss, /FIX REA-VIS-001/);
 assert.match(labelsCss, /#a4-preview/);
 assert.match(labelsCss, /studio-view-switch/);
 assert.match(labelsModel, /barcodeBits/);
+assert.match(labels, /etiquetas\/files\.js|\.\/files\.js/);
+assert.match(labelsFiles, /Filesystems?|Filesystem/);
+assert.match(labelsFiles, /Share/);
+assert.match(labelsFiles, /function zip\(files\)/);
+assert.match(labelsJs, /EtiquetaFiles\.save/);
+assert.match(labelsJs, /EtiquetaFiles\.zip/);
+new Function(labelsFiles);
 new Function(labelsJs);new Function(labelsModel);
 for (const folder of [video]) {
   assert.match(folder, /href="\.\.\/\.\.\/index\.html#pastas"/);
@@ -144,7 +152,9 @@ new Function(js);
 assert.equal(cfg.webDir, "web");
 assert.equal(cfg.android.path, "mobile/android");
 assert.equal(pkg.main, "desktop/main.cjs");
-assert.equal(pkg.version, "0.7.0");
+assert.equal(pkg.version, "0.7.3");
+assert.equal(pkg.dependencies["@capacitor/filesystem"], "8.1.4");
+assert.equal(pkg.dependencies["@capacitor/share"], "8.0.1");
 assert.equal(pkg.dependencies["@capgo/capacitor-printer"], "8.1.8");
 assert.equal(pkg.dependencies["@capgo/capacitor-updater"], "8.51.15");
 assert.equal(cfg.plugins.CapacitorUpdater.autoUpdate, false);
@@ -198,7 +208,7 @@ for(const source of [monitorJs, lan, desktopUpdater, electronMain, desktopClient
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
