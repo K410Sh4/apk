@@ -51,6 +51,23 @@ async function save(filename,blob){
   }finally{setTimeout(()=>URL.revokeObjectURL(url),15000);}
   return "downloaded";
 }
+async function share(filename,blob){
+  if(!(blob instanceof Blob)||blob.size>MAX_BYTES)throw Error("Arquivo indisponível para compartilhar.");
+  const plugins=nativePlugins();
+  if(plugins){
+    const clean=String(filename).replace(/[^a-zA-Z0-9_.-]/g,"_").slice(0,100);
+    const bytes=new Uint8Array(await blob.arrayBuffer());
+    await plugins.files.writeFile({path:clean,directory:"CACHE",data:base64FromBytes(bytes)});
+    const uri=await plugins.files.getUri({path:clean,directory:"CACHE"});
+    await plugins.share.share({title:"Etiquetas — "+clean,dialogTitle:"Compartilhar etiquetas",files:[uri.uri]});
+    return "shared";
+  }
+  if(navigator?.share && typeof File==="function"){
+    const f=new File([blob],filename,{type:blob.type||"application/octet-stream"});
+    if(navigator.canShare?.({files:[f]})){await navigator.share({files:[f]});return "shared";}
+  }
+  return save(filename,blob);
+}
 async function openText(mimeType="*/*"){
   const docs=documents();
   if(!docs?.openDocument)return undefined; // APK antigo: input[type=file]
@@ -93,5 +110,5 @@ function zip(files){
   u32(0x06054b50);u16(0);u16(0);u16(entries.length);u16(entries.length);u32(o-centralStart);u32(centralStart);u16(0);
   return new Blob([bytes],{type:"application/zip"});
 }
-root.EtiquetaFiles=Object.freeze({save,openText,zip});
+root.EtiquetaFiles=Object.freeze({save,share,openText,zip});
 })(window);
