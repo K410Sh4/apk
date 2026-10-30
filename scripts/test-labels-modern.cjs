@@ -21,6 +21,22 @@ assert.match(css,/min-height:48px/);
 assert.match(css,/\[data-mobile-panel="export"\]/);
 assert.match(css,/\[data-mobile-panel="properties"\]/);
 assert.match(css,/@media print/);
+// Regra REA: a OTA visual precisa carregar o redesign, não só o CSS legado.
+assert.match(html,/studio-android-v2\.css/);
+assert.match(html,/studio-workspace-eyebrow/);
+assert.match(html,/studio-stage-label/);
+const studioV2=fs.readFileSync(path.join(root,p+"studio-android-v2.css"),"utf8");
+const productionHTML=fs.readFileSync(path.join(root,p+"lote/index.html"),"utf8");
+const productionV2=fs.readFileSync(path.join(root,p+"lote/production-android-v2.css"),"utf8");
+const batchJs=fs.readFileSync(path.join(root,p+"lote/batch.js"),"utf8");
+assert.match(productionHTML,/production-android-v2\.css/);
+assert.match(productionHTML,/batch-heading-eyebrow/);
+assert.match(studioV2,/\.studio-stage\{/);
+assert.match(studioV2,/studio-workspace-caption/);
+assert.match(productionV2,/\.batch-table tbody tr/);
+assert.match(productionV2,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+assert.match(batchJs,/td\.dataset\.label=field\.name/);
+assert.match(batchJs,/qtyTd\.dataset\.label="Cópias"/);
 let activeElement=null;
 class MockElement{
   constructor(id,dataset={}){
