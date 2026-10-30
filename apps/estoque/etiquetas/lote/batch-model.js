@@ -138,7 +138,7 @@
   // Células iniciadas por fórmulas são prefixadas com apóstrofo ao exportar.
   const csvCell=value=>{
     let text=String(value??"");
-    if(/^[=+@-]|^[\\t\\r]/.test(text))text="'"+text;
+    if(/^[=+@-]|^[\t\r]/.test(text))text="'"+text;
     return '"'+text.replace(/"/g,'""')+'"';
   };
   function toCsv(template,batch){
@@ -146,12 +146,12 @@
     if(!defs.length)throw Error("Selecione campos variáveis antes de exportar CSV.");
     const header=["Quantidade",...defs.map(f=>f.name+" ["+f.id+"]")];
     const rows=batch.rows.map(row=>[row.quantity,...defs.map(f=>row.values[f.id]??"")]);
-    return "\\ufeff"+[header,...rows].map(cells=>cells.map(csvCell).join(";")).join("\\r\\n")+"\\r\\n";
+    return "\ufeff"+[header,...rows].map(cells=>cells.map(csvCell).join(";")).join("\r\n")+"\r\n";
   }
   function parseCsv(text){
     if(typeof text!=="string"||text.length>200000)throw Error("CSV inválido ou maior que 200 KB.");
     const result=[],row=[];let cell="",quoted=false;
-    const source=text.replace(/^\\uFEFF/,"");
+    const source=text.replace(/^\uFEFF/,"");
     for(let i=0;i<source.length;i++){
       const ch=source[i];
       if(quoted){
@@ -162,8 +162,8 @@
         if(cell.length)throw Error("CSV com aspas em posição inválida.");
         quoted=true;
       }else if(ch===';'){row.push(cell);cell="";}
-      else if(ch==='\\n'||ch==='\\r'){
-        if(ch==='\\r'&&source[i+1]==='\\n')i++;
+      else if(ch==='\n'||ch==='\r'){
+        if(ch==='\r'&&source[i+1]==='\n')i++;
         row.push(cell);result.push(row.splice(0));cell="";
       }else cell+=ch;
     }
