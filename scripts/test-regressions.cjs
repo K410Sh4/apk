@@ -172,12 +172,22 @@ test('monitor resumes after browser back/forward cache restores the page',async(
  assert.equal(b.intervals.size,0);b.window.emit('pageshow',{persisted:true});await tick();
  assert.equal(b.intervals.size,1);
 });
+test('web OTA policy excludes docs but retains Qwen UI assets',()=>{
+ const {isWebAsset,isDocumentation}=require('../desktop/web-asset-policy.cjs');
+ assert.equal(isWebAsset('index.html'),true);
+ assert.equal(isWebAsset('mod-hub.js'),true);
+ assert.equal(isWebAsset('mod-hub.css'),true);
+ assert.equal(isWebAsset('README.md'),false);
+ assert.equal(isDocumentation('README.md'),true);
+ assert.equal(isWebAsset('install.exe'),false);
+ assert.equal(isWebAsset('payload.ps1'),false);
+});
 test('new desktop binary ignores an older cached OTA bundle',()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'appspace-test-'));
   try{
     const folder=path.join(dir,'web-updates','v0.6.3');fs.mkdirSync(folder,{recursive:true});fs.writeFileSync(path.join(folder,'index.html'),'old');
     fs.writeFileSync(path.join(dir,'web-updates','active.json'),JSON.stringify({version:'0.6.3'}));
-    const {createDesktopUpdater}=loadModule('desktop/updates.cjs',{'extract-zip':async()=>{}});
+    const {createDesktopUpdater}=loadModule('desktop/updates.cjs',{'extract-zip':async()=>{},'./web-asset-policy.cjs':require('../desktop/web-asset-policy.cjs')});
     assert.equal(createDesktopUpdater(dir,'0.7.0').status().currentVersion,'0.7.0');
   }finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
@@ -185,7 +195,7 @@ test('desktop reset cannot race an active installation',async()=>{
   let resolve;const pending=new Promise(r=>resolve=r);
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'appspace-test-'));
   try{
-    const {createDesktopUpdater}=loadModule('desktop/updates.cjs',{'extract-zip':async()=>{}},{fetch:()=>pending});
+    const {createDesktopUpdater}=loadModule('desktop/updates.cjs',{'extract-zip':async()=>{},'./web-asset-policy.cjs':require('../desktop/web-asset-policy.cjs')},{fetch:()=>pending});
     const updater=createDesktopUpdater(dir,'0.7.0');const install=updater.install();
     const resetting=assert.rejects(updater.reset(),/andamento/);
     resolve(new Response(JSON.stringify({schema:1,version:'0.7.0',minNative:'0.7.0',url:'https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.0/appspace-web-v0.7.0.zip',sha256:'a'.repeat(64)})));

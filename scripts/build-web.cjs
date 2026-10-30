@@ -4,6 +4,7 @@
 // Não altera o site-fonte nem o projeto Android preexistente em app/.
 const fs = require("node:fs");
 const path = require("node:path");
+const {isWebAsset,isDocumentation}=require("../desktop/web-asset-policy.cjs");
 
 const root = path.resolve(__dirname, "..");
 const output = path.join(root, "web");
@@ -24,6 +25,17 @@ fs.mkdirSync(output, { recursive: true });
 
 for (const file of files) fs.copyFileSync(path.join(root, file), path.join(output, file));
 for (const name of directories) {
-  fs.cpSync(path.join(root, name), path.join(output, name), { recursive: true });
+  fs.cpSync(path.join(root, name), path.join(output, name), {
+    recursive: true,
+    filter(source) {
+      const stat=fs.lstatSync(source);
+      if(stat.isSymbolicLink())throw Error("Link simbólico não permitido no pacote: "+path.relative(root,source));
+      if(stat.isDirectory())return true;
+      if(!stat.isFile())throw Error("Arquivo irregular no pacote: "+path.relative(root,source));
+      if(isDocumentation(source))return false; // README.md é documentação, não recurso de execução.
+      if(!isWebAsset(source))throw Error("Extensão não autorizada para OTA: "+path.relative(root,source));
+      return true;
+    }
+  });
 }
 console.log("[AppSpace] Site offline copiado para web/ com sucesso.");

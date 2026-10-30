@@ -5,6 +5,7 @@ const fsp=require("node:fs/promises");
 const path=require("node:path");
 const crypto=require("node:crypto");
 const extract=require("extract-zip");
+const {isWebAsset}=require("./web-asset-policy.cjs");
 const MANIFEST="https://raw.githubusercontent.com/K410Sh4/apk/main/ota/latest.json";
 const zipPattern=/^https:\/\/github\.com\/K410Sh4\/apk\/releases\/download\/appspace-web-v(\d+\.\d+\.\d+)\/appspace-web-v\1\.zip$/;
 const semver=/^\d+\.\d+\.\d+$/;
@@ -24,12 +25,12 @@ function validateManifest(m){
   return m;
 }
 async function validateDirectory(root){
-  let files=0,bytes=0;const allowed=/\.(?:html|css|js|json|svg|png|jpg|jpeg|webp|ico|woff2?|ttf|txt|wasm)$/i;
+  let files=0,bytes=0;
   async function walk(dir){
     for(const e of await fsp.readdir(dir,{withFileTypes:true})){
       const f=path.join(dir,e.name);if(e.isSymbolicLink())throw Error("Link simbólico não permitido");
       if(e.isDirectory()){if(!contains(root,f))throw Error("Pasta fora do pacote");await walk(f);continue;}
-      if(!e.isFile()||!allowed.test(e.name))throw Error("Tipo de arquivo não permitido");
+      if(!e.isFile()||!isWebAsset(e.name))throw Error("Tipo de arquivo não permitido: "+e.name);
       const stat=await fsp.stat(f);files++;bytes+=stat.size;
       if(files>1000||bytes>35*1024*1024||stat.size>8*1024*1024)throw Error("Pacote excessivamente grande");
     }

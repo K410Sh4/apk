@@ -358,9 +358,31 @@ for(const source of [monitorJs, pcConnection, myPcUi, lan, desktopUpdater, elect
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/pc-monitor-v3.css", "assets/rgb-controller.css", "assets/rgb-controller.js", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "apps/meu-pc/rgb/index.html", "apps/ia/index.html", "apps/ia/qwen-mod-hub/index.html", "apps/ia/qwen-mod-hub/mod-hub.js", "apps/ia/qwen-mod-hub/mod-hub.css", "apps/ia/qwen-mod-hub/README.md", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/pc-monitor-v3.css", "assets/rgb-controller.css", "assets/rgb-controller.js", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "apps/meu-pc/rgb/index.html", "apps/ia/index.html", "apps/ia/qwen-mod-hub/index.html", "apps/ia/qwen-mod-hub/mod-hub.js", "apps/ia/qwen-mod-hub/mod-hub.css", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
+// O EXE Windows rejeita arquivos fora desta lista. Testar o pacote REAL antes da OTA.
+const {isWebAsset,isDocumentation}=require("../desktop/web-asset-policy.cjs");
+const sourceReadme=path.join(root,"apps/ia/qwen-mod-hub/README.md");
+assert.ok(fs.existsSync(sourceReadme),"Documentação permanece no código-fonte");
+assert.ok(isDocumentation(sourceReadme));
+assert.ok(!fs.existsSync(path.join(root,"web/apps/ia/qwen-mod-hub/README.md")),
+  "README.md não pode entrar no ZIP: EXE Windows rejeita .md");
+let otaFiles=0;
+function checkOtaFiles(dir){
+ for(const entry of fs.readdirSync(dir,{withFileTypes:true})){
+  const pathname=path.join(dir,entry.name);
+  assert.equal(entry.isSymbolicLink(),false,"Symlink proibido em OTA: "+pathname);
+  if(entry.isDirectory())checkOtaFiles(pathname);
+  else{
+   assert.equal(entry.isFile(),true,"Tipo de entrada não suportado: "+pathname);
+   assert.ok(isWebAsset(entry.name),"Extensão rejeitada no EXE Windows: "+pathname);
+   otaFiles++;
+  }
+ }
+}
+checkOtaFiles(path.join(root,"web"));
+assert.ok(otaFiles>30,"Pacote web incompleto");
 execFileSync(process.execPath, ["--test", path.join(root, "scripts/test-ai-agent.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-my-pc.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
