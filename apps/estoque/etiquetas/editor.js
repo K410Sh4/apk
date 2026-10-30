@@ -250,25 +250,63 @@ function svgPoint(e){
   const local=point.matrixTransform(ctm.inverse());
   return {x:local.x,y:local.y};
 }
+const G=window.EtiquetaGestures;
+if(!G)throw Error("EtiquetaGestures não carregado");
+let lastTouchTap=null;
+function editContentFromCanvas(id){
+  const obj=doc.objects.find(o=>o.id===id);
+  if(!obj||!["text","barcode"].includes(obj.type))return;
+  selected=obj.id;
+  render();
+  window.dispatchEvent(new CustomEvent("etiqueta:edit-content",{detail:{id:obj.id}}));
+}
 svg.addEventListener("pointerdown",e=>{
-  if(drag)return;
   if(e.button!==0&&e.pointerType==="mouse")return;
+  const point=svgPoint(e);
+  if(drag){
+    // O segundo toque é reservado para pinça no elemento já selecionado.
+    if(e.pointerType!=="touch"||drag.points.size!==1||drag.mode==="pinch")return;
+    const item=doc.objects.find(o=>o.id===drag.id);
+    if(!item)return;
+    drag.points.set(e.pointerId,point);
+    const first=[...drag.points.entries()][0];
+    drag.mode="pinch";
+    drag.pinch={first:first[1],second:point,start:{...item}};
+    lastTouchTap=null;
+    svg.setPointerCapture(e.pointerId);
+    e.preventDefault();return;
+  }
   const handle=e.target.closest?.("[data-resize-id]");
   const group=e.target.closest?.("[data-item-id]");
-  if(!handle&&!group){selected=null;render();return;}
-  selected=handle?handle.getAttribute("data-resize-id"):group.getAttribute("data-item-id");
+  if(!handle&&!group){selected=null;lastTouchTap=null;render();return;}
+  const id=handle?handle.getAttribute("data-resize-id"):group.getAttribute("data-item-id");
+  if(selected!==id)lastTouchTap=null;
+  selected=id;
   const o=current();if(!o)return;
-  const point=svgPoint(e);
-  drag={pointerId:e.pointerId,id:o.id,startX:point.x,startY:point.y,x:o.x,y:o.y,
-    before:JSON.stringify(doc),mode:handle?"resize":"move",w:o.w,h:o.h,moved:false};
+  drag={pointerId:e.pointerId,id:o.id,startX:point.x,startY:point.y,
+    x:o.x,y:o.y,w:o.w,h:o.h,points:new Map([[e.pointerId,point]]),
+    before:JSON.stringify(doc),mode:handle?"resize":"move",moved:false};
   svg.setPointerCapture(e.pointerId);
   updateInspector();draw(svg,doc,true);
   e.preventDefault();
 });
 svg.addEventListener("pointermove",e=>{
-  if(!drag||drag.pointerId!==e.pointerId)return;
+  if(!drag||!drag.points.has(e.pointerId))return;
   const obj=doc.objects.find(o=>o.id===drag.id);if(!obj)return;
   const pt=svgPoint(e);
+  drag.points.set(e.pointerId,pt);
+  if(drag.mode==="pinch"){
+    if(drag.points.size!==2)return;
+    const points=[...drag.points.values()];
+    const geometry=G.pinch(drag.pinch.start,drag.pinch.first,drag.pinch.second,
+      points[0],points[1],doc);
+    if(!geometry)return;
+    Object.assign(obj,geometry);
+    drag.moved=JSON.stringify(doc)!==drag.before;
+    draw(svg,doc,true);
+    $("selection-status").textContent="Pinça: "+obj.w.toFixed(1)+" × "+obj.h.toFixed(1)+" mm";
+    e.preventDefault();return;
+  }
   const newX=Math.round((drag.x+pt.x-drag.startX)*4)/4;
   const newY=Math.round((drag.y+pt.y-drag.startY)*4)/4;
   if(drag.mode==="resize"){
@@ -281,24 +319,46 @@ svg.addEventListener("pointermove",e=>{
     obj.x=M.clamp(newX,-5,doc.width-1);
     obj.y=M.clamp(newY,-5,doc.height-1);
   }
-  drag.moved=true;draw(svg,doc,true);
+  drag.moved=JSON.stringify(doc)!==drag.before;
+  draw(svg,doc,true);
   $("selection-status").textContent=`X ${obj.x} mm · Y ${obj.y} mm`;
   e.preventDefault();
 });
 function endDrag(e){
-  if(!drag||e.pointerId!==drag.pointerId)return;
-  const before=drag.before,changed=drag.moved&&before!==JSON.stringify(doc);drag=null;
-  if(changed){
-    undoStack.push(before);if(undoStack.length>50)undoStack.shift();
+  if(!drag||!drag.points.has(e.pointerId))return;
+  const done=drag;
+  drag=null; // limpar antes de soltar captura para evitar lostpointercapture duplicado
+  if(done.moved&&done.before!==JSON.stringify(doc)){
+    undoStack.push(done.before);if(undoStack.length>50)undoStack.shift();
     redoStack=[];saveSoon();
   }
-  render();
+  const tapCandidate=!done.moved&&done.mode!=="pinch"&&
+    e.type==="pointerup"&&e.pointerType==="touch";
+  if(tapCandidate){
+    const item=doc.objects.find(o=>o.id===done.id);
+    const pt=svgPoint(e);
+    const tap={id:done.id,x:pt.x,y:pt.y,time:e.timeStamp};
+    if(item&&["text","barcode"].includes(item.type)&&G.isDoubleTap(lastTouchTap,tap)){
+      lastTouchTap=null;
+      render();
+      editContentFromCanvas(done.id);
+    }else{
+      lastTouchTap=tap;
+      render();
+    }
+  }else{lastTouchTap=null;render();}
+  for(const pointerId of done.points.keys()){
+    if(svg.hasPointerCapture?.(pointerId)){
+      try{svg.releasePointerCapture(pointerId);}catch(_){}
+    }
+  }
 }
 svg.addEventListener("pointerup",endDrag);
 svg.addEventListener("pointercancel",endDrag);
 svg.addEventListener("lostpointercapture",endDrag);
 svg.addEventListener("dblclick",e=>{
-  if(e.target.closest?.("[data-item-id]")&&current()?.type==="text")$("item-text").focus();
+  const group=e.target.closest?.("[data-item-id]");
+  if(group)editContentFromCanvas(group.getAttribute("data-item-id"));
 });
 for(const button of document.querySelectorAll("[data-add]")){
   button.addEventListener("click",()=>{
@@ -354,6 +414,19 @@ for(const [id,key,min,max] of [["label-width","width",20,210],["label-height","h
 $("label-background").addEventListener("change",()=>trans(()=>{doc.background=$("label-background").value;}));
 $("project-name").addEventListener("change",()=>trans(()=>{doc.name=$("project-name").value||"Minha etiqueta";}));
 $("delete-element").addEventListener("click",()=>trans(()=>{doc.objects=doc.objects.filter(o=>o.id!==selected);selected=null;}));
+$("studio-delete-selected")?.addEventListener("click",()=>{
+  if(!selected)return;
+  $("delete-element").click(); // mesmo caminho, histórico e salvamento existentes
+});
+function clearEntireLabel(){
+  if(!doc.objects.length){toast("A etiqueta já está vazia.");return;}
+  if(!confirm("Apagar todos os elementos da etiqueta? Você poderá desfazer."))return;
+  trans(()=>{doc.objects=[];selected=null;lastTouchTap=null;});
+  toast("Conteúdo apagado. Use Desfazer para recuperar.");
+}
+$("clear-label")?.addEventListener("click",clearEntireLabel);
+$("clear-canvas-mobile")?.addEventListener("click",clearEntireLabel);
+
 $("duplicate-element").addEventListener("click",()=>trans(()=>{
   const o=current();if(!o)return;const cp=M.element(o.type,{...o,id:"",x:o.x+2,y:o.y+2});
   doc.objects.push(cp);selected=cp.id;
