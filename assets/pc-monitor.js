@@ -67,7 +67,7 @@ function appendHistory(metric,value,limit=100){
  if(value!=null&&Number.isFinite(value))points.push(Math.max(0,Math.min(limit,value)));
  else points.push(null);
  if(points.length>28)points.shift();
- const svg=$("monitor-"+metric+"-spark");const path=svg?.querySelector("path");
+ const svg=$("monitor-"+metric+"-spark");const path=svg?.querySelector?.("path");
  if(!path)return;
  // Uma curva SVG pequena; nunca armazenar histórico de longo prazo no celular.
  let d="";
