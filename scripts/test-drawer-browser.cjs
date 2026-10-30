@@ -344,6 +344,25 @@ const server=http.createServer((req,res)=>{
   await rgbPage.locator('#rgb-sync-start').click();
   assert.equal(await rgbPage.locator('#rgb-sync-start').innerText(),'Iniciar prévia');
   assert.ok((await rgbPage.locator('.rgb-sync-footnote').innerText()).includes('virtuais'));
+  // Conexões reais: SATA alimenta, CFAN controla ventoinhas, ARGB precisa de fonte própria.
+  await rgbPage.waitForSelector('#rgb-hub-form');
+  assert.equal(await rgbPage.locator('#rgb-hub-power').inputValue(),'sata');
+  assert.equal(await rgbPage.locator('#rgb-hub-fan').inputValue(),'cfan');
+  assert.equal(await rgbPage.locator('#rgb-hub-argb').inputValue(),'unknown');
+  assert.equal(await rgbPage.locator('#rgb-hub-form').getAttribute('data-hardware-control'),'false');
+  assert.ok((await rgbPage.locator('#rgb-hub-warnings').innerText()).includes('cooler da CPU'));
+  await rgbPage.locator('#rgb-hub-argb').selectOption('usb-bridge');
+  assert.ok((await rgbPage.locator('#rgb-hub-physical-status').innerText()).includes('protocolo ainda não validado'));
+  assert.equal(await rgbPage.locator('#rgb-hub-form').getAttribute('data-hardware-control'),'false');
+  await rgbPage.locator('#rgb-hub-save').click();
+  await rgbPage.reload();
+  await rgbPage.waitForSelector('#rgb-hub-form');
+  assert.equal(await rgbPage.locator('#rgb-hub-argb').inputValue(),'usb-bridge');
+  await rgbPage.locator('#rgb-hub-argb').selectOption('motherboard');
+  assert.ok((await rgbPage.locator('#rgb-hub-warnings').innerText()).includes('não possui header ARGB'));
+  await rgbPage.locator('#rgb-hub-reset').click();
+  assert.equal(await rgbPage.locator('#rgb-hub-argb').inputValue(),'unknown');
+  assert.equal(await rgbPage.locator('#rgb-hub-form').getAttribute('data-hardware-control'),'false');
   await rgbPage.locator('#rgb-search').fill('MI_01');
   assert.ok((await rgbPage.locator('#rgb-count').innerText()).includes('1 interface'));
   assert.ok(await rgbPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
@@ -351,7 +370,7 @@ const server=http.createServer((req,res)=>{
   await rgbPage.setViewportSize({width:1280,height:800});
   assert.ok(await rgbPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await rgbPage.screenshot({path:path.join(output,'rgb-controller-desktop.png'),fullPage:true});
-  assertions+=15;await rgbCtx.close();
+  assertions+=27;await rgbCtx.close();
   // Reproduzir captura real: GUI RGB nova + AppSpacePC antigo da OTA 0.7.30
   // cuja allowlist rejeita /rgb/devices. Desktop deve usar API interna.
   const rgbDesktopCtx=await browser.newContext({viewport:{width:1280,height:740}});
