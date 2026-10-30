@@ -32,7 +32,7 @@ const fields=B.variableFields(template);
 let page=0,computed=null,saveTimer=null;
 function save(){
   clearTimeout(saveTimer);
-  try{localStorage.setItem(BATCH_KEY,JSON.stringify(batch));$("batch-saved").textContent="Salvo localmente";}
+  try{localStorage.setItem(BATCH_KEY,JSON.stringify(batch));$("batch-saved").textContent="Salvo";}
   catch(_){$("batch-saved").textContent="Erro ao salvar";toast("Armazenamento cheio. Exporte a lista antes de sair.");}
 }
 function changed(){ $("batch-saved").textContent="Salvando...";clearTimeout(saveTimer);saveTimer=setTimeout(save,260);}
@@ -148,10 +148,8 @@ function bindLayout(){
 }
 function describeLayout(result){
   const {layout,copies,pageCount}=result;
-  $("batch-layout-result").textContent=layout.columns+" colunas × "+layout.rows+" linhas • "+
-    layout.perPage+" etiquetas por folha • "+copies+" no total • "+pageCount+" página(s) A4.";
-  $("batch-print-summary").textContent=copies+" etiquetas distribuídas em "+pageCount+" folha(s) A4. "+
-    "Confira cada página antes de confirmar a impressão.";
+  $("batch-layout-result").textContent=layout.columns+" × "+layout.rows+" · "+layout.perPage+" por folha";
+  $("batch-print-summary").textContent=copies+" etiquetas · "+pageCount+" folha(s) A4";
 }
 function refreshPreview(){
   $("preview-error").hidden=true;
@@ -162,8 +160,8 @@ function refreshPreview(){
     describeLayout(computed);
     const svg=R.a4Page(computed.pages[page],true);
     const paper=$("batch-paper");paper.replaceChildren(svg);
-    $("page-counter").textContent="Página "+(page+1)+" de "+computed.pages.length;
-    $("preview-page-label").textContent="A4 • "+(page+1)+"/"+computed.pages.length;
+    $("page-counter").textContent=(page+1)+" / "+computed.pages.length;
+    $("preview-page-label").textContent="A4 · "+(page+1)+"/"+computed.pages.length;
     $("page-prev").disabled=page===0;
     $("page-next").disabled=page>=computed.pages.length-1;
     $("batch-print").disabled=false;$("batch-download").disabled=false;
