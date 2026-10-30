@@ -1,0 +1,59 @@
+/* Meu PC · ponto único de pareamento do AppSpace */
+.mypc-main{max-width:1110px;padding-top:26px}
+.mypc-title{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:23px}
+.mypc-title h1{font-size:clamp(30px,4vw,43px);letter-spacing:-1px;margin:4px 0}
+.mypc-title p{font-size:12px;color:var(--muted);margin:0;line-height:1.55}
+.mypc-status{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--stroke);border-radius:999px;padding:8px 12px;background:var(--surface);color:var(--muted);white-space:nowrap;font-size:11px;font-weight:750}
+.mypc-status::before{content:"";width:7px;height:7px;background:#e7ab76;border-radius:50%}
+.mypc-status[data-online="true"]{color:#4edaa5}
+.mypc-status[data-online="true"]::before{background:#4edaa5}
+.mypc-connect{border:1px solid var(--stroke);border-radius:19px;background:var(--surface);padding:clamp(17px,3vw,27px)}
+.mypc-transport{display:flex;gap:5px;padding:4px;border:1px solid var(--stroke);border-radius:13px;background:var(--surface-2);max-width:340px;margin-bottom:18px}
+.mypc-transport button{flex:1;min-height:44px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:12px;font-weight:780}
+.mypc-transport button[aria-pressed="true"]{background:rgba(var(--accent-rgb),.15);color:var(--accent)}
+.mypc-instructions{margin-bottom:15px;color:var(--muted);font-size:12px;line-height:1.7}
+.mypc-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr) auto;align-items:end;gap:11px}
+.mypc-form label{display:grid;gap:7px;min-width:0;color:var(--muted);font-size:11px;font-weight:700}
+.mypc-form input{width:100%;min-width:0;min-height:46px;border-radius:11px;border:1px solid var(--stroke);background:var(--surface-2);color:var(--text);padding:10px 11px;font-size:14px}
+.mypc-form input:focus{outline:2px solid var(--accent);outline-offset:2px}
+.mypc-btn{display:inline-flex;align-items:center;justify-content:center;min-height:45px;border-radius:11px;border:1px solid var(--stroke);padding:10px 14px;font-size:11px;font-weight:780;cursor:pointer}
+.mypc-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.mypc-btn.secondary{background:var(--surface-2);color:var(--text)}
+.mypc-btn.subtle{background:transparent;color:var(--muted)}
+.mypc-btn:disabled{opacity:.48;cursor:wait}
+.mypc-help{font-size:11px;color:var(--muted);margin-top:16px}
+.mypc-help summary{min-height:39px;display:flex;align-items:center;cursor:pointer;font-weight:740}
+.mypc-help div{padding:8px 12px;border-left:2px solid var(--accent);line-height:1.75}
+.mypc-connected{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.mypc-connected>div:first-child{display:flex;flex-direction:column;gap:5px}
+.mypc-connected strong{font-size:20px;letter-spacing:-.5px}
+.mypc-connected small{color:var(--muted);font-size:11px}
+.mypc-connect-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.mypc-feedback{font-size:11px;color:var(--muted);line-height:1.65}
+.mypc-feedback:not(:empty){margin-top:15px}
+.mypc-feedback[data-error="true"]{color:#f4a1a1}
+.mypc-apps{margin-top:31px}
+.mypc-apps-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.mypc-apps-heading h2{margin:0;font-size:19px;letter-spacing:-.5px}
+.mypc-apps-heading span{color:var(--muted);font-size:11px}
+.mypc-app{display:flex;align-items:center;gap:13px;max-width:480px;min-height:92px;border-radius:15px;border:1px solid var(--stroke);background:var(--surface);padding:16px;text-decoration:none;color:var(--text)}
+.mypc-app:hover{border-color:var(--accent)}
+.mypc-app-icon{display:grid;place-items:center;width:49px;height:49px;flex:0 0 49px;border-radius:13px;background:rgba(var(--accent-rgb),.14);color:var(--accent);font-size:25px}
+.mypc-app-copy{display:grid;gap:5px;flex:1;min-width:0}
+.mypc-app-copy strong{font-size:14px}
+.mypc-app-copy small{font-size:11px;color:var(--muted)}
+.mypc-arrow{font-size:22px;color:var(--accent)}
+.mypc-security{margin:22px 0;color:var(--subtle);font-size:10px;line-height:1.65}
+.mypc-main [hidden]{display:none!important}
+@media(max-width:720px){
+ .mypc-main{padding:15px 13px 110px}
+ .mypc-title{align-items:flex-start;gap:9px}
+ .mypc-title h1{font-size:30px}
+ .mypc-title p{font-size:11px}
+ .mypc-status{font-size:10px;padding:8px 10px}
+ .mypc-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .mypc-form .mypc-btn{grid-column:1/-1;min-height:48px}
+ .mypc-connect-actions{width:100%}
+ .mypc-connect-actions .mypc-btn{flex:1}
+}
+@media(max-width:360px){.mypc-title{flex-wrap:wrap}.mypc-form{grid-template-columns:1fr}}
