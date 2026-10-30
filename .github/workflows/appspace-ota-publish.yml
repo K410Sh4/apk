@@ -50,8 +50,8 @@ jobs:
             echo "::error::Versão deve ser 0.7.X (X inteiro)."
             exit 1
           fi
-          if [ "${VERSION##*.}" -le 0 ]; then
-            echo "::error::Versão OTA precisa ser superior à versão nativa 0.7.0."
+          if [ "${VERSION##*.}" -le 3 ]; then
+            echo "::error::Versão OTA deve ser posterior à versão nativa 0.7.3."
             exit 1
           fi
           echo "OTA_VERSION=$VERSION" >> "$GITHUB_ENV"
@@ -91,7 +91,7 @@ jobs:
           const file = "appspace-web-v" + ver + ".zip";
           const sha256 = crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
           const data = {
-            schema: 1, version: ver, minNative: "0.7.0",
+            schema: 1, version: ver, minNative: "0.7.3",
             url: "https://github.com/K410Sh4/apk/releases/download/appspace-web-v" + ver + "/" + file,
             sha256, notes: process.env.OTA_NOTES.slice(0,160)
           };
