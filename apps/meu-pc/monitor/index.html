@@ -2,59 +2,87 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0c1019"><title>Monitor de desempenho — Meu PC · AppSpace</title>
+<meta name="theme-color" content="#0a1020"><title>Monitor PRO — Meu PC · AppSpace</title>
 <link rel="stylesheet" href="../../../assets/portal.css">
 <link rel="stylesheet" href="../../../assets/personalization.css">
 <link rel="stylesheet" href="../../../assets/pc-monitor.css">
 <link rel="stylesheet" href="../../../assets/pc-monitor-v2.css">
+<link rel="stylesheet" href="../../../assets/pc-monitor-v3.css">
 <script src="../../../assets/ota.js" defer></script>
 <script src="../../../assets/pc-connection.js" defer></script>
 <script src="../../../assets/pc-monitor.js" defer></script>
 </head>
-<body class="page-monitor" data-monitor-active="true">
-<main class="monitor-focus" id="monitor-dashboard" aria-label="Monitor de desempenho em tela cheia">
-<header class="monitor-v2-header">
- <div class="monitor-v2-brand"><span class="monitor-v2-logo" aria-hidden="true">▦</span><div><strong>MONITOR <span>PRO</span></strong><small>MEU PC · DESEMPENHO EM TEMPO REAL</small></div></div>
- <div class="monitor-v2-status" id="monitor-status" data-online="false"><span class="monitor-v2-status-dot" aria-hidden="true"></span><span id="monitor-status-text">Conectando</span><small id="monitor-last-update">—</small></div>
-</header>
-<button class="monitor-focus-exit" id="monitor-exit" type="button" aria-label="Sair do PC Monitor" title="Sair do monitor">&times;</button>
-<div class="monitor-metrics" role="group" aria-label="Medições do computador e da tela">
- <article class="monitor-metric monitor-metric-cpu" aria-label="Uso do processador">
-   <div class="monitor-metric-label"><span class="monitor-v2-dot" aria-hidden="true"></span>CPU</div>
-   <strong id="monitor-cpu">—</strong>
-   <div class="monitor-track" aria-hidden="true"><span id="monitor-cpu-bar"></span></div>
-   <svg class="monitor-v2-spark" id="monitor-cpu-spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 31 L100 31"/></svg>
-   <small id="monitor-cpu-frequency">Aguardando leitura</small>
+<body class="page-monitor monitor-v3" data-monitor-active="true">
+<main class="monitor-focus" id="monitor-dashboard" aria-label="Monitor de desempenho em tempo real">
+  <header class="monitor-v2-header">
+    <div class="monitor-v2-brand"><span class="monitor-v2-logo" aria-hidden="true"><svg class="monitor-icon-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="9" y="26" width="7" height="14" rx="2" fill="currentColor" stroke="none"/><rect x="21" y="17" width="7" height="23" rx="2" fill="currentColor" stroke="none"/><rect x="33" y="7" width="7" height="33" rx="2" fill="currentColor" stroke="none"/></svg></span>
+      <div><strong>MONITOR <span>PRO</span></strong><small>MEU PC · DESEMPENHO EM TEMPO REAL</small></div>
+    </div>
+    <div class="monitor-v2-status" id="monitor-status" data-online="false" role="status" aria-live="polite">
+      <span class="monitor-v2-status-dot" aria-hidden="true"></span>
+      <span id="monitor-status-text">Conectando</span>
+      <span class="monitor-status-divider" aria-hidden="true"></span>
+      <small id="monitor-last-update">—</small>
+    </div>
+  </header>
+  <button class="monitor-focus-exit" id="monitor-exit" type="button" aria-label="Sair do PC Monitor" title="Sair do monitor">&times;</button>
+  <div class="monitor-metrics" role="group" aria-label="CPU, RAM, GPU, FPS desta tela e tempo ligado">
+ <article class="monitor-metric monitor-metric-cpu" aria-label="CPU — PROCESSADOR">
+  <div class="monitor-metric-top" aria-hidden="true"><span></span><i></i></div>
+  <div class="monitor-metric-head">
+    <span class="monitor-icon" aria-hidden="true"><svg class="monitor-icon-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="12" y="12" width="24" height="24" rx="4"/><rect x="20" y="20" width="8" height="8" rx="1.5"/><path d="M18 4v8M30 4v8M18 36v8M30 36v8M4 18h8M4 30h8M36 18h8M36 30h8"/></svg></span>
+    <div class="monitor-metric-heading"><div class="monitor-metric-label">CPU</div><div class="monitor-metric-subtitle">PROCESSADOR</div></div>
+  </div>
+  <strong id="monitor-cpu">—</strong>
+  <div class="monitor-track" aria-hidden="true"><span id="monitor-cpu-bar"></span></div>
+  <svg class="monitor-v2-spark" id="monitor-cpu-spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 31 L100 31"/></svg>
+  <small id="monitor-cpu-frequency">Aguardando leitura</small>
  </article>
- <article class="monitor-metric monitor-metric-ram" aria-label="Uso de memória RAM">
-   <div class="monitor-metric-label"><span class="monitor-v2-dot" aria-hidden="true"></span>RAM</div>
-   <strong id="monitor-ram">—</strong>
-   <div class="monitor-track" aria-hidden="true"><span id="monitor-ram-bar"></span></div>
-   <svg class="monitor-v2-spark" id="monitor-ram-spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 31 L100 31"/></svg>
-   <small id="monitor-ram-details">Aguardando leitura</small>
+ <article class="monitor-metric monitor-metric-ram" aria-label="RAM — MEMÓRIA">
+  <div class="monitor-metric-top" aria-hidden="true"><span></span><i></i></div>
+  <div class="monitor-metric-head">
+    <span class="monitor-icon" aria-hidden="true"><svg class="monitor-icon-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="5" y="13" width="38" height="22" rx="3"/><path d="M12 35v5M20 35v5M28 35v5M36 35v5M13 20v8M20 20v8M27 20v8M34 20v8"/></svg></span>
+    <div class="monitor-metric-heading"><div class="monitor-metric-label">RAM</div><div class="monitor-metric-subtitle">MEMÓRIA</div></div>
+  </div>
+  <strong id="monitor-ram">—</strong>
+  <div class="monitor-track" aria-hidden="true"><span id="monitor-ram-bar"></span></div>
+  <svg class="monitor-v2-spark" id="monitor-ram-spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 31 L100 31"/></svg>
+  <small id="monitor-ram-details">Aguardando leitura</small>
  </article>
- <article class="monitor-metric monitor-metric-gpu" aria-label="Uso real da GPU do computador">
-   <div class="monitor-metric-label"><span class="monitor-v2-dot" aria-hidden="true"></span>GPU</div>
-   <strong id="monitor-gpu">N/D</strong>
-   <div class="monitor-track" aria-hidden="true"><span id="monitor-gpu-bar"></span></div>
-   <svg class="monitor-v2-spark" id="monitor-gpu-spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 31 L100 31"/></svg>
-   <small id="monitor-gpu-details">Lendo sensores do Windows</small>
+ <article class="monitor-metric monitor-metric-gpu" aria-label="GPU — PLACA DE VÍDEO">
+  <div class="monitor-metric-top" aria-hidden="true"><span></span><i></i></div>
+  <div class="monitor-metric-head">
+    <span class="monitor-icon" aria-hidden="true"><svg class="monitor-icon-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><rect x="7" y="11" width="34" height="26" rx="3"/><circle cx="19" cy="24" r="8"/><circle cx="19" cy="24" r="2"/><path d="M19 16v6M19 26v6M11 24h6M21 24h6M13.4 18.4l4.1 4.1M20.5 25.5l4.1 4.1M24.6 18.4l-4.1 4.1M17.5 25.5l-4.1 4.1M32 18h4M32 24h4M32 30h4M3 18h4M3 30h4"/></svg></span>
+    <div class="monitor-metric-heading"><div class="monitor-metric-label">GPU</div><div class="monitor-metric-subtitle">PLACA DE VÍDEO</div></div>
+  </div>
+  <strong id="monitor-gpu">N/D</strong>
+  <div class="monitor-track" aria-hidden="true"><span id="monitor-gpu-bar"></span></div>
+  <svg class="monitor-v2-spark" id="monitor-gpu-spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 31 L100 31"/></svg>
+  <small id="monitor-gpu-details">Lendo sensores do Windows</small>
  </article>
- <article class="monitor-metric monitor-metric-fps" aria-label="FPS do painel no dispositivo que está exibindo o monitor">
-   <div class="monitor-metric-label"><span class="monitor-v2-dot" aria-hidden="true"></span>FPS <span class="monitor-v2-local">TELA</span></div>
-   <strong id="monitor-fps">—</strong>
-   <div class="monitor-track" aria-hidden="true"><span id="monitor-fps-bar"></span></div>
-   <svg class="monitor-v2-spark" id="monitor-fps-spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 31 L100 31"/></svg>
-   <small id="monitor-fps-details">FPS desta tela, não dos jogos</small>
+ <article class="monitor-metric monitor-metric-fps" aria-label="FPS — TAXA DE QUADROS">
+  <div class="monitor-metric-top" aria-hidden="true"><span></span><i></i></div>
+  <div class="monitor-metric-head">
+    <span class="monitor-icon" aria-hidden="true"><svg class="monitor-icon-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M8 35a19 19 0 0 1 32 0"/><path d="M10 35h28M14 26l-3-2M34 26l3-2M24 17v-3"/><circle cx="24" cy="32" r="3"/><path d="M24 32l10-12"/></svg></span>
+    <div class="monitor-metric-heading"><div class="monitor-metric-label">FPS</div><div class="monitor-metric-subtitle">TAXA DE QUADROS</div></div>
+  </div>
+  <strong id="monitor-fps">—</strong>
+  <div class="monitor-track" aria-hidden="true"><span id="monitor-fps-bar"></span></div>
+  <svg class="monitor-v2-spark" id="monitor-fps-spark" viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true"><path d="M0 31 L100 31"/></svg>
+  <small id="monitor-fps-details">FPS desta tela, não dos jogos</small>
  </article>
- <article class="monitor-metric monitor-metric-uptime" aria-label="Tempo ligado do computador">
-   <div class="monitor-metric-label"><span class="monitor-v2-dot" aria-hidden="true"></span>LIGADO</div>
-   <strong id="monitor-uptime">—</strong>
-   <div class="monitor-track monitor-track-uptime" aria-hidden="true"><span></span></div>
-   <div class="monitor-v2-uptime-label">TEMPO DE ATIVIDADE</div>
-   <small id="monitor-connection-detail">Conectando...</small>
+ <article class="monitor-metric monitor-metric-uptime" aria-label="LIGADO — TEMPO DE ATIVIDADE">
+  <div class="monitor-metric-top" aria-hidden="true"><span></span><i></i></div>
+  <div class="monitor-metric-head">
+    <span class="monitor-icon" aria-hidden="true"><svg class="monitor-icon-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><circle cx="24" cy="24" r="17"/><path d="M24 13v12l9 5"/></svg></span>
+    <div class="monitor-metric-heading"><div class="monitor-metric-label">LIGADO</div><div class="monitor-metric-subtitle">TEMPO DE ATIVIDADE</div></div>
+  </div>
+  <strong id="monitor-uptime">—</strong>
+  <div class="monitor-track monitor-track-uptime" aria-hidden="true"><span ></span></div>
+  <div class="monitor-v3-uptime-label">TEMPO DE ATIVIDADE</div>
+  <small id="monitor-connection-detail">Conectando...</small>
  </article>
-</div>
+  </div>
 </main>
 </body>
 </html>
