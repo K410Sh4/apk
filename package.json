@@ -60,6 +60,9 @@
         }
       ]
     },
-    "artifactName": "AppSpace-${version}-${arch}.${ext}"
+    "artifactName": "AppSpace-${version}-${arch}.${ext}",
+    "asarUnpack": [
+      "desktop/pc-controls.ps1"
+    ]
   }
 }
