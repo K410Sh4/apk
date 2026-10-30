@@ -48,8 +48,14 @@ function browser(name, {stored={},capacitor,fetch,query={}}={}) {
     localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},
     fetch, setTimeout:()=>++timer,clearTimeout(){},setInterval:fn=>{intervals.set(++timer,fn);return timer;},clearInterval:id=>intervals.delete(id)};
   for(const [id,value] of Object.entries({'zoom':'100','sheet-gap':'2','sheet-margin':'5','sheet-copies':'12'}))document.getElementById(id).value=value;
+  context.Capacitor=capacitor;
+  context.screen={orientation:{lock:async()=>{},unlock:async()=>{}}};
+  vm.runInNewContext(source('assets/pc-connection.js'),context,{filename:'assets/pc-connection.js'});
+  window.AppSpacePC=context.AppSpacePC;
+  window.screen=context.screen;
   vm.runInNewContext(source(name), context, {filename:name});
-  return {window,document,nodes,storage,intervals,get:id=>document.getElementById(id)};
+  return {window,document,nodes,storage,intervals,location:context.location,
+    get:id=>document.getElementById(id)};
 }
 function lanHarness() {
   let handler;
@@ -115,50 +121,56 @@ test('A4 preview clears old artwork when label no longer fits',()=>{
   b.get('label-width').value='210';b.get('label-width').emit('change');
   assert.equal(b.get('a4-preview').children.length,0);
 });
-test('monitor ignores a metrics response received after disconnect',async()=>{
-  let resolve;const pending=new Promise(r=>resolve=r);
-  const b=browser('assets/pc-monitor.js',{stored:{'appspace.pcmonitor.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64)})},fetch:()=>pending});
-  b.document.emit('DOMContentLoaded');b.get('monitor-disconnect').emit('click');
-  resolve({ok:true,json:async()=>({cpu:{percent:20},memory:{percent:30}})});await tick();
-  assert.equal(b.get('monitor-connection-text').textContent,'Desconectado');
+test('monitor ignores metrics returned after exiting to Meu PC',async()=>{
+ let resolve;const pending=new Promise(r=>resolve=r);
+ const b=browser('assets/pc-monitor.js',{stored:{'appspace.pcmonitor.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64)})},fetch:()=>pending});
+ b.document.emit('DOMContentLoaded');
+ b.get('monitor-exit').emit('click');
+ resolve({ok:true,json:async()=>({cpu:{percent:20},memory:{percent:30}})});
+ await tick();await tick();
+ assert.notEqual(b.get('monitor-cpu').textContent,'20%');
+ assert.equal(b.intervals.size,0);
+ assert.ok(b.storage.has('appspace.pc.connection.v1'),'Legacy pairing migrated');
 });
-test('monitor enters native landscape full-screen and X restores orientation without clearing pairing',async()=>{
-  const events=[];
-  const capacitor={
-    isNativePlatform:()=>true,
-    Plugins:{
-      ScreenOrientation:{lock:async ({orientation})=>{events.push('lock:'+orientation)},unlock:async()=>{events.push('unlock')}},
-      StatusBar:{hide:async()=>{events.push('hide')},show:async()=>{events.push('show')}},
-      CapacitorHttp:{request:async()=>({status:200,data:{
-        hostname:'PC',cpu:{percent:42,frequencyMHz:3600},
-        memory:{percent:50,totalBytes:17179869184,usedBytes:8589934592},
-        uptimeSeconds:3600,gpu:{percent:null}
-      }})}
-    }
-  };
-  const stored={'appspace.pcmonitor.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64)})};
-  const b=browser('assets/pc-monitor.js',{stored,capacitor});
-  b.document.emit('DOMContentLoaded');
-  await tick();await tick();await tick();
-  assert.equal(b.get('monitor-dashboard').hidden,false);
-  assert.equal(b.document.body.dataset.monitorActive,'true');
-  assert.ok(events.includes('lock:landscape'),'Android deve travar paisagem');
-  assert.ok(events.includes('hide'),'Barra de status deve ser ocultada');
-  assert.equal(b.get('monitor-gpu').textContent,'N/D','GPU sem sensor não deve exibir uso fictício');
-  b.get('monitor-exit').emit('click');
-  await tick();await tick();await tick();
-  assert.ok(events.includes('unlock'),'X deve liberar orientação');
-  assert.ok(events.includes('show'),'X deve restaurar barra de status');
-  assert.equal(b.document.body.dataset.monitorActive,undefined);
-  assert.equal(b.get('monitor-dashboard').hidden,true);
-  assert.ok(b.storage.has('appspace.pcmonitor.v1'),'Sair do monitor não deve apagar pareamento');
-  assert.equal(b.intervals.size,0,'Monitoramento precisa parar ao sair');
+test('monitor uses shared PC session, locks landscape, and X restores screen without removing session',async()=>{
+ const events=[];
+ const capacitor={isNativePlatform:()=>true,Plugins:{
+   ScreenOrientation:{lock:async({orientation})=>{events.push('lock:'+orientation)},unlock:async()=>{events.push('unlock')}},
+   StatusBar:{hide:async()=>{events.push('hide')},show:async()=>{events.push('show')}},
+   CapacitorHttp:{request:async()=>({status:200,data:{hostname:'PC',
+     cpu:{percent:42,frequencyMHz:3600},
+     memory:{percent:50,totalBytes:17179869184,usedBytes:8589934592},
+     uptimeSeconds:3600,gpu:{percent:null}}})}
+ }};
+ const saved={'appspace.pc.connection.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64),transport:'usb',hostname:'PC'})};
+ const b=browser('assets/pc-monitor.js',{stored:saved,capacitor});
+ b.document.emit('DOMContentLoaded');
+ await tick();await tick();await tick();
+ assert.equal(b.document.body.dataset.monitorActive,'true');
+ assert.ok(events.includes('lock:landscape'));
+ assert.ok(events.includes('hide'));
+ assert.equal(b.get('monitor-cpu').textContent,'42%');
+ assert.equal(b.get('monitor-gpu').textContent,'N/D');
+ b.get('monitor-exit').emit('click');
+ await tick();await tick();await tick();
+ assert.ok(events.includes('unlock'));
+ assert.ok(events.includes('show'));
+ assert.equal(b.document.body.dataset.monitorActive,undefined);
+ assert.ok(b.storage.has('appspace.pc.connection.v1'),'Shared token must remain');
+ assert.equal(b.intervals.size,0);
+ assert.match(b.location.href,/\.\.\/index\.html$/);
+});
+test('monitor returns to shared connection folder without any saved PC',()=>{
+ const b=browser('assets/pc-monitor.js');
+ b.document.emit('DOMContentLoaded');
+ assert.match(b.location.href,/connection=required/);
+ assert.equal(b.intervals.size,0);
 });
 test('monitor resumes after browser back/forward cache restores the page',async()=>{
-  const b=browser('assets/pc-monitor.js',{stored:{'appspace.pcmonitor.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64)})},fetch:async()=>({ok:true,json:async()=>({cpu:{},memory:{}})})});
-  b.document.emit('DOMContentLoaded');await tick();b.window.emit('pagehide',{persisted:true});
-  assert.equal(b.intervals.size,0);b.window.emit('pageshow',{persisted:true});await tick();
-  assert.equal(b.intervals.size,1);
+ const b=browser('assets/pc-monitor.js',{stored:{'appspace.pc.connection.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64)})},fetch:async()=>({ok:true,json:async()=>({cpu:{},memory:{}})})});
+ b.document.emit('DOMContentLoaded');await tick();b.window.emit('pagehide',{persisted:true});
+ assert.equal(b.intervals.size,0);b.window.emit('pageshow',{persisted:true});await tick();
+ assert.equal(b.intervals.size,1);
 });
 test('new desktop binary ignores an older cached OTA bundle',()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'appspace-test-'));
