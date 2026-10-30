@@ -26,7 +26,12 @@ const labelsBatchRender = text("apps/estoque/etiquetas/lote/batch-render.js");
 const labelsBatchCss = text("apps/estoque/etiquetas/lote/batch.css");
 const video = text("apps/edicao-de-video/index.html");
 const system = text("apps/sistema/index.html");
-const monitor = text("apps/sistema/pc-monitor/index.html");
+const legacyMonitor = text("apps/sistema/pc-monitor/index.html");
+const myPc = text("apps/meu-pc/index.html");
+const monitor = text("apps/meu-pc/monitor/index.html");
+const pcConnection = text("assets/pc-connection.js");
+const myPcUi = text("assets/my-pc.js");
+const myPcCss = text("assets/my-pc.css");
 const monitorJs = text("assets/pc-monitor.js");
 const monitorCss = text("assets/pc-monitor.css");
 const lan = text("desktop/lan.cjs");
@@ -49,7 +54,7 @@ const pkg = JSON.parse(text("package.json"));
 
 assert.match(home, /<html lang="pt-BR"/, "HTML precisa da linguagem pt-BR");
 assert.equal(home.split('class="app-card"').length - 1, 1, "A tela inicial deve ter um card nesta etapa");
-assert.equal(home.split('class="folder-card ').length - 1, 3, "A Home deve ter três pastas");
+assert.equal(home.split('class="folder-card ').length - 1, 4, "A Home deve ter quatro pastas");
 assert.match(home, /href="\.\/apps\/estoque\/index\.html"/);
 assert.match(home, /href="\.\/apps\/edicao-de-video\/index\.html"/);
 assert.match(home, /id="pastas"/);
@@ -179,7 +184,7 @@ assert.match(mobileNavCss, /minimal-bottom-nav/);
 assert.match(mobileNavCss, /body\.page-folder/);
 assert.match(mobileNavCss, /body\.page-settings/);
 assert.match(mobileNavCss, /body\.page-home/);
-for (const page of [home, settings, stock, video, system, detail, monitor]) {
+for (const page of [home, settings, stock, video, system, detail]) {
   assert.match(page, /assets\/mobile-navigation\.css/, "Estilo mobile ausente na página");
 }
 new Function(js);
@@ -217,9 +222,20 @@ assert.match(settings, /id="ota-auto"/);
 assert.match(settings, /id="ota-reset"/);
 
 assert.match(home, /href="\.\/apps\/sistema\/index\.html"/);
-assert.match(system, /href="\.\/pc-monitor\/index\.html"/);
+assert.match(home, /href="\.\/apps\/meu-pc\/index\.html"/);
+assert.match(system, /href="\.\.\/meu-pc\/index\.html"/);
+assert.match(legacyMonitor, /meu-pc\/monitor\/index\.html/);
+assert.match(myPc, /id="mypc-form"/);
+assert.match(myPc, /data-transport="usb"/);
+assert.match(myPc, /id="mypc-monitor-link"/);
+assert.match(myPc, /assets\/pc-connection\.js/);
+assert.match(myPcCss, /mypc-connect/);
+assert.match(myPcUi, /PC\.pair/);
+assert.match(pcConnection, /appspace\.pc\.connection\.v1/);
+assert.match(pcConnection, /appspace\.pcmonitor\.v1/);
 assert.match(system, /<h1 id="folder-title">Sistema<\/h1>/);
-assert.match(monitor, /id="monitor-pair-form"/);
+assert.doesNotMatch(monitor, /id="monitor-pair-form"/);
+assert.match(monitor, /assets\/pc-connection\.js/);
 assert.match(monitor, /id="monitor-dashboard"/);
 assert.match(monitor, /id="monitor-exit"/);
 assert.match(monitor, /id="monitor-cpu"/);
@@ -234,8 +250,9 @@ assert.match(monitorCss, /rotate\(90deg\)/);
 assert.match(monitorJs, /ScreenOrientation/);
 assert.match(monitorJs, /StatusBar/);
 assert.match(monitorJs, /exitMonitorMode/);
-assert.match(monitorJs, /CapacitorHttp/);
-assert.match(monitorJs, /\/__api\/metrics/);
+assert.match(pcConnection, /CapacitorHttp/);
+assert.match(pcConnection, /\/__api\/metrics/);
+assert.match(monitorJs, /PC\.check\(/);
 assert.match(lan, /timingSafeEqual/);
 assert.match(lan, /\/metrics/);
 assert.match(lan, /\/pair/);
@@ -248,16 +265,17 @@ assert.match(settings, /id="desktop-ota-check"/);
 assert.match(settings, /id="desktop-lan-code"/);
 assert.match(desktopClient, /\/__api\//);
 assert.match(mobileLAN, /appspace_lan_security/);
-for(const source of [monitorJs, lan, desktopUpdater, electronMain, desktopClient, mobileLAN]) {
+for(const source of [monitorJs, pcConnection, myPcUi, lan, desktopUpdater, electronMain, desktopClient, mobileLAN]) {
   new Function(source);
 }
 
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
+execFileSync(process.execPath, [path.join(root, "scripts/test-my-pc.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-modern.cjs")], { stdio: "inherit" });
