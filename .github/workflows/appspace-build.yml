@@ -128,6 +128,13 @@ jobs:
           node-version: "22"
       - name: Instalar dependências
         run: npm install --no-audit --no-fund
+      - name: Compilar e consultar adaptador Windows sem alterar configurações
+        shell: pwsh
+        run: |
+          $raw = & powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File desktop/pc-controls.ps1 -Operation read
+          if ($LASTEXITCODE -ne 0) { throw "O adaptador de controles Windows falhou" }
+          $state = $raw | ConvertFrom-Json
+          if ($state.scope -ne "windows-defaults") { throw "O adaptador retornou estado inválido" }
       - name: Gerar executável portátil
         run: npm run desktop:exe
       - name: Publicar EXE
