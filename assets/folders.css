@@ -84,3 +84,7 @@
 .folder-card--mypc .folder-big-icon{background:linear-gradient(135deg,rgba(116,139,255,.24),rgba(96,109,212,.07));color:#a0b2ff}
 .folder-header--mypc{background:radial-gradient(circle at 90% 25%,rgba(104,131,245,.14),transparent 50%),var(--surface)}
 .folder-header--mypc .folder-header-icon{background:rgba(106,133,255,.1);color:#9aafff}
+
+.folder-search-row{margin:0 0 18px;max-width:540px}
+.folder-search-row .search-field{width:100%;max-width:none;min-height:48px}
+.folder-search-row input{font-size:16px}

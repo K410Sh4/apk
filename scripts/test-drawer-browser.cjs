@@ -60,6 +60,11 @@ const server=http.createServer((req,res)=>{
   assertions+=6;
   // A pesquisa da Home deve considerar apenas as pastas exibidas.
   await page.goto(base+'/index.html');
+  await page.keyboard.press('/');assert.equal(await page.evaluate(()=>document.activeElement.id),'app-search');
+  assert.ok(await page.locator('#app-search').isVisible());
+  await page.locator('#app-search').fill('zzzzzz');
+  assert.ok(await page.locator('#search-empty').isVisible());
+  await page.keyboard.press('Escape');assert.equal(await page.locator('.folder-card:visible').count(),3);assertions+=4;
   await page.evaluate(()=>localStorage.setItem('appspace.preferences.v1',JSON.stringify({mobileNavStyle:'minimal'})));
   await page.reload();
   await page.evaluate(()=>window.savedTile=document.querySelector('.launcher-tile'));
@@ -77,6 +82,22 @@ const server=http.createServer((req,res)=>{
   // Touch listeners remain live after rendering/reordering the launcher.
   await page.locator('.launcher-tile--stock').click();await page.waitForURL('**/apps/estoque/index.html');
   assertions+=6;
+  // A delayed native metrics callback must not reconnect the UI after disconnect.
+  const race=await browser.newContext({viewport:{width:412,height:915}});
+  await race.addInitScript(()=>{
+   localStorage.setItem('appspace.pc.connection.v1',JSON.stringify({ip:'192.168.1.20',token:'a'.repeat(64)}));
+   window.Capacitor={isNativePlatform:()=>true,Plugins:{CapacitorHttp:{request:()=>new Promise(resolve=>{window.finishMetrics=()=>resolve({status:200,data:{hostname:'PC',cpu:{},memory:{}}});})}}};
+  });
+  const racePage=await race.newPage();racePage.on('pageerror',e=>errors.push(e.message));racePage.on('dialog',dialog=>dialog.accept());
+  await racePage.goto(base+'/apps/meu-pc/index.html');
+  await racePage.waitForFunction(()=>typeof window.finishMetrics==='function');
+  await racePage.locator('#mypc-connection-panel summary').click();
+  await racePage.locator('#mypc-disconnect').click();
+  assert.ok(await racePage.locator('#mypc-submit').isEnabled());
+  await racePage.evaluate(()=>window.finishMetrics());
+  assert.equal(await racePage.locator('#mypc-status').innerText(),'Não conectado');
+  assert.equal(await racePage.evaluate(()=>localStorage.getItem('appspace.pc.connection.v1')),null);
+  assertions+=3;await race.close();
   // Local files keep the folder and editor available without networking.
   const offline=await browser.newContext({offline:true,viewport:{width:412,height:915}});
   const local=await offline.newPage();local.on('pageerror',e=>errors.push(e.message));

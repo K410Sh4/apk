@@ -5,6 +5,9 @@ const PC=window.AppSpacePC;
 if(!PC)throw Error("AppSpacePC não carregado");
 const $=id=>document.getElementById(id);
 let transport="wifi",switching=false,busy=false,generation=0;
+function setBusy(value){
+ busy=value;$("mypc-submit").disabled=value;$("mypc-test").disabled=value;
+}
 function openConnection(){const panel=$("mypc-connection-panel");if(panel)panel.open=true;}
 const instructions={
  wifi:"Use o IP e o código exibidos em Configurações do AppSpace no Windows. Ambos na mesma rede Wi-Fi.",
@@ -57,7 +60,7 @@ async function check(){
 }
 async function run(action){
  if(busy)return;
- busy=true;const session=generation;$("mypc-submit").disabled=true;$("mypc-test").disabled=true;
+ const session=generation;setBusy(true);
  try{await action();}
  catch(e){
    if(session!==generation)return;
@@ -65,7 +68,7 @@ async function run(action){
    $("mypc-status").textContent=PC.get()?"Sem sinal":"Não conectado";
    $("mypc-status").dataset.online="false";
    message(e.message||"Não foi possível conectar",true);
- }finally{busy=false;$("mypc-submit").disabled=false;$("mypc-test").disabled=false;}
+ }finally{if(session===generation)setBusy(false);}
 }
 function init(){
  for(const button of document.querySelectorAll("[data-transport]"))
@@ -96,7 +99,7 @@ function init(){
  $("mypc-cancel").addEventListener("click",()=>{switching=false;show();message("");});
  $("mypc-disconnect").addEventListener("click",()=>{
    if(!window.confirm("Desconectar Meu PC? Os aplicativos deixarão de acessar este computador."))return;
-   generation++;PC.disconnect();switching=false;show();message("Pareamento removido deste dispositivo.");
+   generation++;setBusy(false);PC.disconnect();switching=false;show();message("Pareamento removido deste dispositivo.");
  });
  $("mypc-monitor-link").addEventListener("click",event=>{
    if(!PC.get()){
@@ -108,7 +111,7 @@ function init(){
  });
  const params=new URLSearchParams(location.search);
  if(params.get("connection")==="lost"){openConnection();message("O computador não respondeu. Confira o cabo/rede e toque em Testar conexão.",true);}
- window.addEventListener("pagehide",()=>{generation++;PC.cancelPending();});
+ window.addEventListener("pagehide",()=>{generation++;setBusy(false);PC.cancelPending();});
  window.addEventListener("pageshow",event=>{if(event.persisted){show();if(PC.get())void run(check);}});
  show();
  if(PC.get()&&!params.has("connection"))void run(check);

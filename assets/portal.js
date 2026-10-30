@@ -385,8 +385,8 @@
       // A Home lista pastas; apps ocultos não podem mascarar o estado vazio.
       const matchingApps = 0;
       const matchingFolders = countMatches(folderCards);
-      if (foldersSection) foldersSection.hidden = Boolean(term) && matchingFolders === 0;
-      if (librarySection) librarySection.hidden = Boolean(term) && matchingApps === 0 && matchingFolders > 0;
+      if (foldersSection) foldersSection.hidden = false;
+      if (librarySection) librarySection.hidden = true;
       emptyState.hidden = matchingApps + matchingFolders !== 0;
     }
 
