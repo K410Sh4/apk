@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.9",
-  "minNative": "0.7.3",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.9/appspace-web-v0.7.9.zip",
-  "sha256": "216d22dbf5f73a5fa371af4634a5e8c91f5a4246a37d4222ee574b7dab1981f0",
-  "notes": "Etiqueta Studio: navegação mais limpa, instruções recolhíveis, lista de produtos compacta e prévia A4 em destaque."
+  "version": "0.7.10",
+  "minNative": "0.7.4",
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.10/appspace-web-v0.7.10.zip",
+  "sha256": "cfb1a31a28b589d58931f49654903412a9da5eef2e23ddde9102a50969ab7ce6",
+  "notes": "PC Monitor horizontal: quatro indicadores de tela cheia (CPU, RAM, GPU e tempo ligado), X para sair e restauração da orientação. Requer Android 0.7.4."
 }
