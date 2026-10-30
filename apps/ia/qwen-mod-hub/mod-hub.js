@@ -6,7 +6,7 @@
   const IDS = ["think", "memory", "vulkan", "verify"];
   const DEFAULTS = Object.freeze({ schema: 1, target: "qwen2.5-coder-7b-instruct", mods: {think:true,memory:true,vulkan:true,verify:false}, thinkMode:"balanced", contextSize:4096 });
   const el = id => document.getElementById(id);
-  let connected = false, applying = false, pending = false;
+  let connected = false, applying = false, pending = false, modelReady = false;
   let config;
   try { config = normalize(readJSON(KEY)); }
   catch (_) { config = normalize(DEFAULTS); }
@@ -49,6 +49,8 @@
     pending=true;
     connected=false;
     el("ai-apply").disabled=true;
+    el("ai-chat-send").disabled=true;
+    el("ai-clear-memory").disabled=true;
     el("ai-connection-status").textContent="Configuração não aplicada";
     count();
     message("Configuração alterada. Salve o perfil antes de aplicar ao REA.");
@@ -59,6 +61,8 @@
     pending=false;
     connected=false;
     el("ai-apply").disabled=true;
+    el("ai-chat-send").disabled=true;
+    el("ai-clear-memory").disabled=true;
     el("ai-connection-status").textContent="Não conectada";
     message("Perfil salvo neste dispositivo. Ainda não foi aplicado ao REA.","success");
     return true;
@@ -77,9 +81,9 @@
     if(!["http:","https:"].includes(url.protocol)||!isPrivateHost(url.hostname)||url.username||url.password||url.search||url.hash||url.pathname!=="/") throw new Error("Use somente http(s) e um host local/privado, sem caminho ou credenciais.");
     return url.origin;
   }
-  async function request(base, route, method, token, payload) {
+  async function request(base, route, method, token, payload, timeoutMs=6000) {
     const ctl=new AbortController();
-    const timer=setTimeout(()=>ctl.abort(),6000);
+    const timer=setTimeout(()=>ctl.abort(),timeoutMs);
     try {
       const headers={"Authorization":"Bearer "+token,"Accept":"application/json"};
       if(payload)headers["Content-Type"]="application/json";
@@ -103,10 +107,13 @@
     try {
       const status=await request(base,"/api/v1/status","GET",token);
       if(status.agent!=="rea-qwen-mod-host"||status.apiVersion!==1||status.capabilities?.mods!==true) throw new Error("O serviço respondeu, mas não implementa o protocolo do Qwen Mod Hub v1.");
-      connected=true;save(HOST_KEY,base);el("ai-host").value=base;
-      el("ai-connection-status").textContent="Agente autenticado";
+      connected=true;modelReady=Boolean(status.model?.ready);
+      save(HOST_KEY,base);el("ai-host").value=base;
+      el("ai-connection-status").textContent=modelReady?"Agente e Qwen online":"Agente online · Qwen offline";
       el("ai-apply").disabled=pending;
-      message("Agente REA autenticado. O perfil ainda não foi aplicado.","success");
+      el("ai-chat-send").disabled=true;
+      el("ai-clear-memory").disabled=false;
+      message(modelReady?"Agente autenticado e Qwen disponível. Aplique o perfil antes de testar.":"Agente autenticado, mas o llama-server do Qwen não respondeu. É possível aplicar o perfil; para conversar inicie o modelo.","success");
     }catch(e){el("ai-connection-status").textContent="Não conectada";message(e.message,"error");}
     finally{btn.disabled=false;}
   }
@@ -116,11 +123,44 @@
     try {
       const body=await request(validateHost(el("ai-host").value),"/api/v1/mods/apply","POST",el("ai-token").value.trim(),{schema:1,profile:config});
       if(body.agent!=="rea-qwen-mod-host"||body.apiVersion!==1||body.applied!==true) throw new Error("Agente não confirmou a aplicação; não considere os mods ativos.");
-      message("O agente confirmou a aplicação do perfil. Consulte seus logs para validar cada módulo.","success");
-      el("ai-connection-status").textContent="Perfil aplicado";
+      modelReady=Boolean(body.modelReady);
+      el("ai-chat-send").disabled=!modelReady;
+      const vulkan=body.moduleStatus?.vulkan?.state==="manual";
+      el("ai-connection-status").textContent=modelReady?"Perfil aplicado · Qwen online":"Perfil aplicado · Qwen offline";
+      message("Perfil aplicado ao controlador local. "+(modelReady?"Qwen pronto para teste. ":"Qwen ainda desconectado. ")+(vulkan?"Vulkan exige iniciar/reiniciar o llama-server com backend Vulkan; não houve alteração da GPU.":"Pesos GGUF preservados."),"success");
     }catch(e){message("Aplicação não confirmada: "+e.message,"error");el("ai-connection-status").textContent="Aplicação não confirmada";}
     finally{applying=false;el("ai-apply").disabled=!connected;}
   }
+
+  async function chat(event) {
+    event.preventDefault();
+    if(!connected||pending||!modelReady) {message("Aplique um perfil e conecte ao Qwen antes de testar.","error");return;}
+    const prompt=el("ai-prompt").value.trim();
+    if(prompt.length<2||prompt.length>6000){message("Digite uma pergunta de 2 a 6.000 caracteres.","error");return;}
+    const btn=el("ai-chat-send");
+    btn.disabled=true;
+    el("ai-chat-response").hidden=true;
+    el("ai-chat-meta").textContent="Processando no Qwen local. Modos de revisão podem realizar várias inferências.";
+    try{
+      const response=await request(validateHost(el("ai-host").value),"/api/v1/chat","POST",el("ai-token").value.trim(),{prompt},240000);
+      if(response.agent!=="rea-qwen-mod-host"||response.apiVersion!==1||typeof response.answer!=="string"||!Number.isInteger(response.passes))throw Error("Resposta incompatível com o contrato do REA Mod Host.");
+      el("ai-chat-response").textContent=response.answer;
+      el("ai-chat-response").hidden=false;
+      el("ai-chat-meta").textContent=String(response.passes)+" passagem(ns) · "+String(response.elapsedMs||0)+" ms · Memórias recuperadas: "+String(response.memoryUsed||0)+" · "+String(response.verification||"sem verificação");
+      message("Resposta gerada localmente. Revise resultados técnicos antes de usar.","success");
+    }catch(e){el("ai-chat-meta").textContent="Falha na consulta ao Qwen.";message(e.message,"error");}
+    finally{btn.disabled=!connected||pending||!modelReady;}
+  }
+  async function clearMemory(){
+    if(!connected)return;
+    if(!window.confirm("Apagar o histórico de memória do agente Windows? Esta ação não pode ser desfeita."))return;
+    try{
+      const response=await request(validateHost(el("ai-host").value),"/api/v1/memory/clear","POST",el("ai-token").value.trim(),{confirm:true});
+      if(response.cleared!==true)throw Error("Agente não confirmou a limpeza.");
+      message("Memória persistente do agente apagada.","success");
+    }catch(e){message("Falha ao limpar memória: "+e.message,"error");}
+  }
+
   function exportProfile() {
     if(pending&&!saveProfile())return;
     const body=JSON.stringify(config,null,2)+"\n";
@@ -156,6 +196,8 @@
   el("ai-reset").addEventListener("click",reset);
   el("ai-agent-form").addEventListener("submit",connect);
   el("ai-apply").addEventListener("click",apply);
-  el("ai-host").addEventListener("input",()=>{connected=false;el("ai-apply").disabled=true;el("ai-connection-status").textContent="Não conectada";});
-  el("ai-token").addEventListener("input",()=>{connected=false;el("ai-apply").disabled=true;el("ai-connection-status").textContent="Não conectada";});
+  el("ai-chat-form").addEventListener("submit",chat);
+  el("ai-clear-memory").addEventListener("click",clearMemory);
+  el("ai-host").addEventListener("input",()=>{connected=false;modelReady=false;el("ai-apply").disabled=true;el("ai-chat-send").disabled=true;el("ai-clear-memory").disabled=true;el("ai-connection-status").textContent="Não conectada";});
+  el("ai-token").addEventListener("input",()=>{connected=false;modelReady=false;el("ai-apply").disabled=true;el("ai-chat-send").disabled=true;el("ai-clear-memory").disabled=true;el("ai-connection-status").textContent="Não conectada";});
 })();
