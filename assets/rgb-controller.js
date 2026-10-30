@@ -62,6 +62,21 @@ function render(data){
  $("rgb-alert").dataset.error=String(Boolean(data.reason));
  filter();
 }
+// O desktop acessa sua API interna de mesma origem diretamente. Algumas OTAs
+// antigas mantêm uma lista de rotas desatualizada em AppSpacePC.request,
+// embora o EXE novo já tenha /__api/rgb/devices. Não contornar token no celular.
+async function readInventory(){
+ if(!PC?.isDesktop&&window.location.protocol!=="appspace:")return PC.request("/rgb/devices");
+ const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),9500);
+ try{
+  const response=await window.fetch("/__api/rgb/devices",{
+   method:"GET",headers:{"Accept":"application/json"},signal:abort.signal,cache:"no-store"
+  });
+  let data;try{data=await response.json()}catch(_){data={}}
+  if(!response.ok)throw Error(data?.error||"API RGB indisponível no EXE (HTTP "+response.status+")");
+  return data;
+ }finally{clearTimeout(timeout)}
+}
 let busy=false;
 async function refresh(){
  if(busy)return;
@@ -71,7 +86,7 @@ async function refresh(){
  busy=true;$("rgb-refresh").disabled=true;
  setText("rgb-status","Consultando Windows");setText("rgb-alert","Lendo dispositivos USB/HID do computador...");
  try{
-   const result=await PC.request("/rgb/devices");
+   const result=await readInventory();
    if(!result||!Array.isArray(result.devices))throw Error("Resposta de inventário inválida");
    $("rgb-status").dataset.online="true";setText("rgb-status","Windows conectado");render(result);
  }catch(err){
