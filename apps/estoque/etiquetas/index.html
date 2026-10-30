@@ -40,12 +40,8 @@
       </div>
     </header>
     <section class="batch-entry" aria-label="Fluxo de produção de etiquetas">
-      <div class="batch-entry-flow">
-        <span><b>01</b> Crie o modelo <small>Você está aqui</small></span>
-        <span><b>02</b> Informe os valores</span>
-        <span><b>03</b> Confira e imprima</span>
-      </div>
-      <a class="batch-entry-button" href="./lote/index.html">Criar lista e imprimir <span aria-hidden="true">→</span></a>
+      <span class="batch-entry-current" aria-label="Etapa 1 de 3: modelo">01 / 03 <strong>Modelo</strong></span>
+      <a class="batch-entry-button" href="./lote/index.html" aria-label="Próximo passo: lista de etiquetas e impressão">Lista e impressão <span aria-hidden="true">→</span></a>
     </section>
     <div class="studio-layout">
       <aside class="studio-left" aria-label="Ferramentas do editor">
@@ -70,19 +66,22 @@
           <option value="vazio">Em branco</option>
         </select>
         <button type="button" class="studio-button secondary full" id="apply-template">Usar modelo</button>
-        <p class="studio-hint">Modelos substituem a etiqueta atual. Exporte o projeto antes, se quiser preservá-lo.</p>
-        <p class="studio-hint">Android: ao exportar, use Compartilhar → Arquivos/Drive para manter uma cópia fora do aplicativo.</p>
-        <button type="button" class="studio-button secondary full studio-clear-canvas" id="clear-canvas-mobile">Limpar todo o conteúdo</button>
+        <details class="studio-help-details"><summary>Modelos e backup</summary>
+          <p>Trocar o modelo substitui a etiqueta. Salve uma cópia antes. No Android, escolha Arquivos ou Drive ao exportar.</p>
+        </details>
+        <button type="button" class="studio-button secondary full studio-clear-canvas" id="clear-canvas-mobile">Limpar etiqueta</button>
         </div>
         <div class="studio-divider"></div>
-        <div class="studio-side-links"><button type="button" id="import-project">Importar projeto JSON</button><button type="button" id="clear-label" class="studio-danger">Limpar etiqueta inteira</button><a href="../index.html">Voltar ao Estoque</a></div>
+        <div class="studio-side-links"><button type="button" id="import-project">Importar projeto JSON</button><button type="button" id="clear-label" class="studio-danger">Limpar etiqueta</button><a href="../index.html">Voltar ao Estoque</a></div>
       </aside>
       <main class="studio-center">
         <div class="studio-canvas-head">
-          <div class="studio-canvas-intro"><span class="studio-kicker">EDITOR</span><h1>Sua etiqueta <span class="studio-canvas-size-hint" id="studio-size-hint">60 × 40 mm</span></h1><p>Arraste para mover, faça pinça para dimensionar e toque duas vezes no texto para editar.</p></div>
+          <div class="studio-canvas-intro"><h1>Modelo <span class="studio-canvas-size-hint" id="studio-size-hint">60 × 40 mm</span></h1>
+            <details class="studio-help-details studio-gesture-help"><summary aria-label="Ajuda sobre gestos de edição">Como editar?</summary><p>Arraste para mover · Pinça para redimensionar · Toque duplo para alterar texto.</p></details>
+          </div>
           <div class="studio-view-switch" role="group" aria-label="Visualização do projeto">
-            <button type="button" data-view-mode="label" aria-pressed="true">Editar etiqueta</button>
-            <button type="button" data-view-mode="a4" aria-pressed="false">Folha A4</button>
+            <button type="button" data-view-mode="label" aria-pressed="true" aria-label="Editar etiqueta">Editar</button>
+            <button type="button" data-view-mode="a4" aria-pressed="false" aria-label="Visualizar folha A4">A4</button>
           </div>
           <div class="studio-zoom"><label for="zoom">Zoom</label><input id="zoom" type="range" min="60" max="160" step="10" value="100"><output id="zoom-output">100%</output></div>
         </div>
@@ -91,32 +90,30 @@
             <svg id="label-canvas" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prévia editável da etiqueta" viewBox="0 0 60 40"></svg>
           </div>
           <div class="studio-a4-frame" id="studio-a4-frame" hidden>
-            <div class="studio-a4-header"><strong>FOLHA A4</strong><span>210 × 297 mm · proporção real</span></div>
+            <div class="studio-a4-header"><strong>A4</strong><span>210 × 297 mm</span></div>
             <svg id="a4-preview" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparação proporcional entre sua etiqueta e a folha A4" viewBox="0 0 210 297"></svg>
-            <p>Visualização proporcional, não escala física da tela. Para impressão, use papel A4 e 100%.</p>
+            <details class="studio-help-details"><summary>Escala de impressão</summary><p>A prévia mantém a proporção, não o tamanho físico na tela. Imprima em A4, escala 100%.</p></details>
           </div>
         </div>
-        <div class="studio-canvas-foot"><span id="canvas-size">60 × 40 mm</span><span id="selection-status">Toque em um item para editar</span><button type="button" class="studio-mobile-trigger studio-edit-selection" id="studio-open-properties" aria-controls="studio-properties-panel" aria-expanded="false" hidden>Editar elemento <span aria-hidden="true">↗</span></button><button type="button" class="studio-mobile-trigger studio-delete-selection" id="studio-delete-selected" aria-label="Apagar elemento selecionado" hidden>Apagar <span aria-hidden="true">✕</span></button><button type="button" class="studio-mobile-trigger studio-edit-label" id="studio-open-label" aria-controls="studio-properties-panel" aria-expanded="false">Tamanho e papel</button></div>
+        <div class="studio-canvas-foot"><span id="canvas-size">60 × 40 mm</span><span id="selection-status">Toque em um item para editar</span><button type="button" class="studio-mobile-trigger studio-edit-selection" id="studio-open-properties" aria-controls="studio-properties-panel" aria-expanded="false" hidden>Editar <span aria-hidden="true">↗</span></button><button type="button" class="studio-mobile-trigger studio-delete-selection" id="studio-delete-selected" aria-label="Apagar elemento selecionado" hidden>Apagar <span aria-hidden="true">✕</span></button><button type="button" class="studio-mobile-trigger studio-edit-label" id="studio-open-label" aria-controls="studio-properties-panel" aria-expanded="false">Tamanho</button></div>
         <section class="studio-export" id="studio-export-panel" aria-labelledby="export-title" aria-modal="false">
-          <div class="studio-export-head"><div><span class="studio-kicker">ARQUIVOS</span><h2 id="export-title">Exportar e imprimir</h2><p>Salve sua arte ou imprima as etiquetas em tamanho real.</p></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-export" aria-label="Fechar opções de exportação">✕</button></div>
+          <div class="studio-export-head"><div><h2 id="export-title">Exportar</h2></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-export" aria-label="Fechar opções de exportação">✕</button></div>
           <div class="studio-export-buttons">
-            <button type="button" class="studio-button secondary studio-mobile-trigger" id="studio-export-project">Salvar projeto JSON</button>
+            <button type="button" class="studio-button secondary studio-mobile-trigger" id="studio-export-project" title="Salvar projeto JSON">Salvar projeto</button>
             <button type="button" class="studio-button secondary studio-mobile-trigger" id="studio-import-project">Importar projeto</button>
-            <button type="button" class="studio-button secondary studio-mobile-trigger" id="studio-export-svg">Etiqueta SVG</button>
+            <button type="button" class="studio-button secondary studio-mobile-trigger" id="studio-export-svg">SVG</button>
             <button type="button" class="studio-button secondary" id="download-png">PNG (300 DPI)</button>
-            <button type="button" class="studio-button secondary" id="download-sheet">Folha A4 (SVG)</button>
+            <button type="button" class="studio-button secondary" id="download-sheet">A4 (SVG)</button>
             <button type="button" class="studio-button primary" id="print-sheet">Imprimir A4</button>
-            <button type="button" class="studio-button secondary" id="find-printers">Impressoras Wi-Fi</button>
+            <button type="button" class="studio-button secondary" id="find-printers">Impressora Wi-Fi</button>
           </div>
-          <div class="studio-printer-help" id="printer-help" role="status" aria-live="polite">
-            Ao escolher Impressoras Wi-Fi, o Android abre o seletor de impressão do sistema.
-            Impressoras são descobertas pelos serviços de impressão instalados no celular, sem cabo USB.
-            Em versões antigas do APK, use Exportar SVG até instalar a versão com suporte nativo.
-          </div>
+          <details class="studio-export-help"><summary>Ajuda para imprimir</summary>
+            <div class="studio-printer-help" id="printer-help" role="status" aria-live="polite">Use uma impressora Wi-Fi disponível no serviço de impressão do Android. Para preservar o tamanho, selecione A4 e escala 100%.</div>
+          </details>
         </section>
       </main>
       <aside class="studio-right" id="studio-properties-panel" aria-label="Propriedades da etiqueta e dos elementos" aria-modal="false">
-        <div class="studio-panel-heading"><div><span>PERSONALIZAR</span><small>Edite somente o que precisa</small></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-properties" aria-label="Fechar propriedades">✕</button></div>
+        <div class="studio-panel-heading"><div><span>PROPRIEDADES</span></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-properties" aria-label="Fechar propriedades">✕</button></div>
         <div class="studio-mobile-trigger studio-sheet-tabs" role="tablist" aria-label="Seções de propriedades"><button type="button" role="tab" data-sheet-tab="element" aria-selected="true">Elemento</button><button type="button" role="tab" data-sheet-tab="label" aria-selected="false">Etiqueta</button><button type="button" role="tab" data-sheet-tab="paper" aria-selected="false">Folha A4</button></div>
         <div class="studio-props-group studio-props-label">
           <strong>Etiqueta</strong>
@@ -126,7 +123,7 @@
           </div>
           <label>Cor de fundo<input type="color" id="label-background" value="#ffffff"></label>
         </div>
-        <div class="studio-props-group studio-props-element" id="selection-empty"><strong>Selecione um elemento</strong><p>Toque no texto, forma, imagem ou código de barras da etiqueta para alterar suas propriedades.</p></div>
+        <div class="studio-props-group studio-props-element" id="selection-empty"><strong>Selecione um item</strong><p>Toque na etiqueta para editar.</p></div>
         <div class="studio-props-group studio-props-element" id="selection-props" hidden>
           <div class="studio-props-title"><strong id="selected-type">Elemento</strong><button type="button" id="delete-element" class="studio-danger">Excluir</button></div>
           <label id="field-text-row">Conteúdo<textarea id="item-text" rows="3" maxlength="250" spellcheck="false"></textarea></label>
@@ -167,7 +164,7 @@
       </aside>
     </div>
     <div class="studio-mobile-overlay" id="studio-mobile-overlay" hidden></div>
-    <footer class="studio-footer"><span>Etiqueta Studio · AppSpace · Projeto local</span><span>Editor próprio · Sem dependências externas</span></footer>
+    <footer class="studio-footer"><span>Etiqueta Studio · AppSpace</span></footer>
   </div>
   <div id="print-root" aria-hidden="true"></div>
   <input type="file" id="image-file" accept="image/png,image/jpeg,image/webp" hidden>
