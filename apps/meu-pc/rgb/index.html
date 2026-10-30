@@ -6,16 +6,15 @@
 <link rel="stylesheet" href="../../../assets/portal.css">
 <link rel="stylesheet" href="../../../assets/personalization.css">
 <link rel="stylesheet" href="../../../assets/rgb-controller.css">
+<link rel="stylesheet" href="../../../assets/pc-controls.css">
 <link rel="stylesheet" href="../../../assets/rgb-sync.css">
-<link rel="stylesheet" href="../../../assets/rgb-hub-setup.css">
 <link rel="stylesheet" href="../../../assets/rgb-hub-setup.css">
 <script src="../../../assets/ota.js" defer></script>
 <script src="../../../assets/pc-connection.js" defer></script>
 <script src="../../../assets/rgb-controller.js" defer></script>
+<script src="../../../assets/pc-controls.js" defer></script>
 <script src="../../../assets/rgb-sync-engine.js" defer></script>
 <script src="../../../assets/rgb-sync-ui.js" defer></script>
-<script src="../../../assets/rgb-hub-model.js" defer></script>
-<script src="../../../assets/rgb-hub-setup.js" defer></script>
 <script src="../../../assets/rgb-hub-model.js" defer></script>
 <script src="../../../assets/rgb-hub-setup.js" defer></script>
 </head>
@@ -25,18 +24,65 @@
     <a class="rgb-back" href="../index.html" aria-label="Voltar para Meu PC">←</a>
     <div class="rgb-brand">
       <span class="rgb-brand-icon" aria-hidden="true">◉</span>
-      <div><strong>RGB <span>Controller</span></strong><small>MEU PC · DISPOSITIVOS E COMPATIBILIDADE</small></div>
+      <div><strong>RGB <span>Controller</span></strong><small>MEU PC · CONTROLES DO WINDOWS</small></div>
     </div>
     <span id="rgb-status" class="rgb-connection" role="status">Verificando PC</span>
   </header>
   <main class="rgb-content">
     <div class="rgb-intro">
       <div><span class="rgb-eyebrow">INVENTÁRIO DE HARDWARE</span>
-      <h1>Seus dispositivos</h1>
-      <p>Identificação em tempo real no Windows. O reconhecimento por USB não garante controle RGB.</p></div>
+      <h1>Controles e dispositivos</h1>
+      <p>Controle o que o Windows oferece e consulte os periféricos detectados. RGB físico continua indisponível.</p></div>
       <button id="rgb-refresh" class="rgb-refresh" type="button">↻ Atualizar</button>
     </div>
     <section id="rgb-alert" class="rgb-alert" role="status" aria-live="polite">Conectando ao computador...</section>
+    <section id="pc-controls" class="rgb-section pc-controls-section" aria-labelledby="pc-controls-title">
+      <div class="rgb-section-head">
+        <div><span class="rgb-eyebrow">CONTROLE REAL · API DO WINDOWS</span>
+          <h2 id="pc-controls-title">Controles disponíveis</h2></div>
+        <span class="rgb-pill" id="pc-controls-connection">Verificando Windows</span>
+      </div>
+      <p class="pc-controls-note">Estas opções controlam os dispositivos de áudio <strong>padrão do Windows</strong> e as configurações globais de mouse/teclado. O microfone padrão pode não ser o FIFINE; as velocidades não são configurações exclusivas dos periféricos USB listados abaixo.</p>
+      <div class="pc-controls-grid">
+        <article class="pc-controls-card">
+          <div class="pc-controls-card-head"><h3>Microfone padrão</h3><span class="rgb-pill" id="pc-mic-status">Verificando</span></div>
+          <p>Silenciar ou ajustar o volume de captura. Não modifica o RGB do microfone.</p>
+          <label for="pc-mic-range">Volume de entrada <strong id="pc-mic-value">—</strong></label>
+          <input id="pc-mic-range" type="range" min="0" max="100" step="1" disabled>
+          <div class="pc-controls-buttons">
+            <button id="pc-mic-apply" type="button" disabled>Aplicar volume</button>
+            <button id="pc-mic-mute" type="button" aria-pressed="false" disabled>Silenciar</button>
+          </div>
+        </article>
+        <article class="pc-controls-card">
+          <div class="pc-controls-card-head"><h3>Saída de áudio padrão</h3><span class="rgb-pill" id="pc-speaker-status">Verificando</span></div>
+          <p>Volume e mute do alto-falante ou fone de ouvido definido no Windows.</p>
+          <label for="pc-speaker-range">Volume de saída <strong id="pc-speaker-value">—</strong></label>
+          <input id="pc-speaker-range" type="range" min="0" max="100" step="1" disabled>
+          <div class="pc-controls-buttons">
+            <button id="pc-speaker-apply" type="button" disabled>Aplicar volume</button>
+            <button id="pc-speaker-mute" type="button" aria-pressed="false" disabled>Silenciar</button>
+          </div>
+        </article>
+        <article class="pc-controls-card">
+          <div class="pc-controls-card-head"><h3>Velocidade do ponteiro</h3><span class="rgb-pill" id="pc-mouse-status">Verificando</span></div>
+          <p>Preferência geral do cursor no Windows, de 1 (lento) a 20 (rápido). Não ajusta DPI físico.</p>
+          <label for="pc-mouse-range">Velocidade <strong id="pc-mouse-value">—</strong></label>
+          <input id="pc-mouse-range" type="range" min="1" max="20" step="1" disabled>
+          <div class="pc-controls-buttons"><button id="pc-mouse-apply" type="button" disabled>Aplicar velocidade</button></div>
+        </article>
+        <article class="pc-controls-card">
+          <div class="pc-controls-card-head"><h3>Repetição do teclado</h3><span class="rgb-pill" id="pc-keyboard-status">Verificando</span></div>
+          <p>Velocidade de repetição ao segurar uma tecla, de 0 a 31. Não altera iluminação nem firmware.</p>
+          <label for="pc-keyboard-range">Repetição <strong id="pc-keyboard-value">—</strong></label>
+          <input id="pc-keyboard-range" type="range" min="0" max="31" step="1" disabled>
+          <div class="pc-controls-buttons"><button id="pc-keyboard-apply" type="button" disabled>Aplicar repetição</button></div>
+        </article>
+      </div>
+      <p class="pc-controls-note">Os ajustes de mouse e teclado são globais e permanecem nas preferências do Windows. O celular pareado pode enviar essas mudanças enquanto o EXE estiver em execução.</p>
+      <div class="pc-controls-buttons"><button id="pc-controls-refresh" type="button">Atualizar estado</button></div>
+      <p id="pc-controls-message" role="status" aria-live="polite">Conectando ao computador...</p>
+    </section>
     <section class="rgb-grid" aria-label="Dispositivos identificados">
       <article class="rgb-device rgb-controller" data-rgb-kind="controller">
         <div class="rgb-device-head"><div class="rgb-device-icon" aria-hidden="true">▦</div><div><span class="rgb-device-kind">ILUMINAÇÃO</span><h2>Controladora RGB</h2></div></div>
