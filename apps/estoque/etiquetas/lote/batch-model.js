@@ -133,5 +133,74 @@
     }
     return {...verified,pages:result};
   }
-  return Object.freeze({variableFields,defaultFields,fresh,validateData,calculate,count,validateForPrint,items,previewPage,pages});
+
+  // CSV separado por ponto e vírgula, compatível com editores de planilha pt-BR.
+  // Células iniciadas por fórmulas são prefixadas com apóstrofo ao exportar.
+  const csvCell=value=>{
+    let text=String(value??"");
+    if(/^[=+@-]|^[\\t\\r]/.test(text))text="'"+text;
+    return '"'+text.replace(/"/g,'""')+'"';
+  };
+  function toCsv(template,batch){
+    const defs=variableFields(template).filter(f=>batch.fields.includes(f.id));
+    if(!defs.length)throw Error("Selecione campos variáveis antes de exportar CSV.");
+    const header=["Quantidade",...defs.map(f=>f.name+" ["+f.id+"]")];
+    const rows=batch.rows.map(row=>[row.quantity,...defs.map(f=>row.values[f.id]??"")]);
+    return "\\ufeff"+[header,...rows].map(cells=>cells.map(csvCell).join(";")).join("\\r\\n")+"\\r\\n";
+  }
+  function parseCsv(text){
+    if(typeof text!=="string"||text.length>200000)throw Error("CSV inválido ou maior que 200 KB.");
+    const result=[],row=[];let cell="",quoted=false;
+    const source=text.replace(/^\\uFEFF/,"");
+    for(let i=0;i<source.length;i++){
+      const ch=source[i];
+      if(quoted){
+        if(ch==='"'&&source[i+1]==='"'){cell+='"';i++;}
+        else if(ch==='"')quoted=false;
+        else cell+=ch;
+      }else if(ch==='"'){
+        if(cell.length)throw Error("CSV com aspas em posição inválida.");
+        quoted=true;
+      }else if(ch===';'){row.push(cell);cell="";}
+      else if(ch==='\\n'||ch==='\\r'){
+        if(ch==='\\r'&&source[i+1]==='\\n')i++;
+        row.push(cell);result.push(row.splice(0));cell="";
+      }else cell+=ch;
+    }
+    if(quoted)throw Error("CSV com aspas não fechadas.");
+    if(cell!==""||row.length){row.push(cell);result.push(row);}
+    return result.filter(r=>r.some(v=>v.trim()!==""));
+  }
+  function fromCsv(text,template,current){
+    const data=parseCsv(text);
+    if(data.length<2||data.length>101)throw Error("CSV exige cabeçalho e 1 a 100 produtos.");
+    const defs=variableFields(template);
+    const names=data[0].map(x=>x.trim().toLocaleLowerCase("pt-BR"));
+    if(names[0]!=="quantidade")throw Error("A primeira coluna do CSV deve ser Quantidade.");
+    if(new Set(names).size!==names.length)throw Error("CSV contém colunas duplicadas.");
+    const mapping=names.slice(1).map(name=>{
+      const found=defs.filter(f=>name===(f.name+" ["+f.id+"]").toLocaleLowerCase("pt-BR")||
+        name===f.id.toLocaleLowerCase("pt-BR")||name===f.name.toLocaleLowerCase("pt-BR"));
+      if(found.length!==1)throw Error("Coluna não reconhecida ou ambígua: "+name.slice(0,70));
+      return found[0];
+    });
+    if(!mapping.length||new Set(mapping.map(f=>f.id)).size!==mapping.length)
+      throw Error("CSV precisa de ao menos um campo editável sem duplicatas.");
+    const rows=data.slice(1).map((cells,index)=>{
+      if(cells.length!==names.length)throw Error("Número de colunas incorreto na linha "+(index+2)+".");
+      if(!/^[0-9]+$/.test(cells[0].trim()))throw Error("Quantidade inválida na linha "+(index+2)+".");
+      const quantity=Number(cells[0].trim());
+      if(quantity<1||quantity>200)throw Error("Quantidade deve ser de 1 a 200 na linha "+(index+2)+".");
+      const values=Object.fromEntries(defs.map(f=>[f.id,f.initial]));
+      mapping.forEach((field,i)=>{
+        const raw=cells[i+1];
+        values[field.id]=safe(raw.startsWith("'")&&/^[=+@-]/.test(raw.slice(1))?raw.slice(1):raw);
+      });
+      return {id:"row-"+(index+1),quantity,values};
+    });
+    const result=validateData({...current,fields:mapping.map(f=>f.id),rows,activeStep:"list"},template);
+    if(count(result)>500)throw Error("O CSV ultrapassa 500 etiquetas; reduza as cópias.");
+    return result;
+  }
+  return Object.freeze({variableFields,defaultFields,fresh,validateData,calculate,count,validateForPrint,items,previewPage,pages,toCsv,fromCsv});
 });
