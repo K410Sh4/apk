@@ -56,6 +56,21 @@ jobs:
           fi
           echo "OTA_VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "OTA_NOTES=$NOTES" >> "$GITHUB_ENV"
+      - name: Garantir versão OTA estritamente superior à publicada
+        run: |
+          node - <<'NODE'
+          const fs=require("node:fs");
+          const published=JSON.parse(fs.readFileSync("ota/latest.json","utf8")).version;
+          const requested=process.env.OTA_VERSION;
+          const parts=s=>s.split(".").map(Number);
+          const p=parts(published),n=parts(requested);
+          if(p.length!==3||n.length!==3||p.some(x=>!Number.isInteger(x))||
+             n.some(x=>!Number.isInteger(x))||
+             !n.some((value,i)=>value!==p[i]&&n.slice(0,i).every((v,j)=>v===p[j])&&value>p[i])){
+            console.error("A nova OTA deve ser superior à versão atual: "+published);
+            process.exit(1);
+          }
+          NODE
       - name: Verificar HTML, links e assets
         run: npm run check
       - name: Empacotar site offline na raiz do ZIP
