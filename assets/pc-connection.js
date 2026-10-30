@@ -67,11 +67,11 @@
    if(method!==(path==="/pair"?"POST":"GET"))throw Error("Método não permitido");
    const target=options.endpoint||get();
    if(!desktop&&!ipv4(target?.ip))throw Error("Informe um IP de rede local válido");
-   const address=desktop?(path==="/metrics"?"/__api/metrics":"/__api/desktop"):
+   const address=desktop?(path==="/metrics"?"/__api/metrics":path==="/rgb/devices"?"/__api/rgb/devices":"/__api/desktop"):
      "http://"+target.ip+":"+PORT+path;
    const headers={"Accept":"application/json"};
    if(options.data)headers["Content-Type"]="application/json";
-   if(path==="/metrics"&&!desktop){
+   if((path==="/metrics"||path==="/rgb/devices")&&!desktop){
      if(!validToken(target.token))throw Error("Conecte o computador em Meu PC");
      headers["Authorization"]="Bearer "+target.token;
    }
