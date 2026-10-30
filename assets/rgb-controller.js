@@ -48,12 +48,12 @@ function render(data){
   setText("rgb-controller-detail","Possível controladora reconhecida pelo OpenRGB; confirme o modelo no Windows.");
  }
  setText("rgb-openrgb-status",rgb.connected?"SDK local conectado":"SDK não detectado");
- $("rgb-openrgb-status").dataset.state=rgb.connected?"detected":"missing";
+ if($("rgb-openrgb-status"))$("rgb-openrgb-status").dataset.state=rgb.connected?"detected":"missing";
  setText("rgb-openrgb-note",rgb.connected?
   "OpenRGB detectado em 127.0.0.1. Dispositivos listados somente para identificação; esta versão não modifica a iluminação.":
   "OpenRGB não está executando um SDK local. Ative-o somente em 127.0.0.1 se desejar uma segunda fonte de identificação.");
- const list=$("rgb-openrgb-list");list.replaceChildren();
- if(!sdkDevices.length){const li=document.createElement("li");li.textContent="Nenhum dispositivo RGB confirmado pelo SDK.";list.append(li)}
+ const list=$("rgb-openrgb-list");if(list)list.replaceChildren();
+ if(!sdkDevices.length){const li=document.createElement("li");li.textContent="Nenhum dispositivo RGB confirmado pelo SDK.";list?.append(li)}
  for(const item of sdkDevices.slice(0,32)){
    const li=document.createElement("li");li.textContent=String(item.name||"Dispositivo sem nome").slice(0,100);list.append(li);
  }
