@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b101b">
+<title>Meu PC — AppSpace</title>
+<link rel="stylesheet" href="../../assets/portal.css">
+<link rel="stylesheet" href="../../assets/personalization.css">
+<link rel="stylesheet" href="../../assets/folders.css">
+<link rel="stylesheet" href="../../assets/mobile-navigation.css">
+<link rel="stylesheet" href="../../assets/my-pc.css">
+<script src="../../assets/portal.js" defer></script>
+<script src="../../assets/ota.js" defer></script>
+<script src="../../assets/pc-connection.js" defer></script>
+<script src="../../assets/my-pc.js" defer></script>
+</head>
+<body class="page-folder page-my-pc">
+<div class="app-shell">
+<aside class="sidebar" aria-label="Navegação"><a class="brand" href="../../index.html" aria-label="AppSpace"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span class="brand-type">app<span>space</span></span></a>
+<div class="sidebar-group"><span class="nav-caption">WORKSPACE</span><nav class="side-nav" aria-label="Navegação principal">
+<a href="../../index.html" class="nav-link"><span>⌂</span><span>Início</span></a>
+<a href="../../index.html#pastas" class="nav-link active" aria-current="page"><span>▦</span><span>Pastas</span></a>
+<a href="../../configuracoes.html" class="nav-link"><span>⚙</span><span>Configurações</span></a>
+</nav></div></aside>
+<div class="main-column">
+<header class="topbar"><div class="topbar-left"><a href="../../index.html" class="mobile-brand">app<b>space</b></a>
+<div class="breadcrumbs"><a href="../../index.html">Início</a><span class="crumb-divider">/</span><strong>Meu PC</strong></div></div>
+<div class="topbar-actions"><a href="../../configuracoes.html" class="monitor-settings-link" aria-label="Configurações">⚙</a></div></header>
+<main class="main-content mypc-main">
+<a href="../../index.html#pastas" class="folder-back">← Pastas</a>
+<header class="mypc-title"><div><span class="section-kicker">CENTRAL DE CONEXÃO</span><h1>Meu PC</h1><p>Conecte uma vez. Use em todos os aplicativos do computador.</p></div>
+<span id="mypc-status" class="mypc-status" data-online="false" role="status">Não conectado</span></header>
+<section class="mypc-connect" aria-label="Conectar ao computador">
+<div id="mypc-connected" class="mypc-connected" hidden>
+<div><span class="section-kicker">COMPUTADOR PAREADO</span><strong id="mypc-host">Meu computador</strong>
+<small id="mypc-address">—</small></div>
+<div class="mypc-connect-actions">
+<button id="mypc-test" type="button" class="mypc-btn primary">Testar conexão</button>
+<button id="mypc-change" type="button" class="mypc-btn secondary">Trocar rede</button>
+<button id="mypc-disconnect" type="button" class="mypc-btn subtle">Desconectar</button>
+</div>
+</div>
+<div id="mypc-setup">
+<div class="mypc-transport" role="group" aria-label="Método de conexão">
+<button type="button" data-transport="wifi" aria-pressed="true">Wi-Fi</button>
+<button type="button" data-transport="usb" aria-pressed="false">USB</button>
+</div>
+<div id="mypc-instructions" class="mypc-instructions">Abra o AppSpace no Windows e consulte o IP e o código em Configurações. Use a mesma rede Wi-Fi.</div>
+<form id="mypc-form" class="mypc-form">
+<label>IP do Windows<input type="text" id="mypc-ip" maxlength="15" inputmode="decimal" autocomplete="off" placeholder="192.168.1.100" required></label>
+<label>Código do PC<input type="text" id="mypc-code" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" autocomplete="one-time-code" placeholder="6 dígitos"></label>
+<button type="submit" id="mypc-submit" class="mypc-btn primary">Conectar</button>
+</form>
+<details class="mypc-help"><summary>Como conectar?</summary>
+<div id="mypc-help-content">Mantenha o EXE do AppSpace aberto e consulte o endereço IP e o código na página Configurações do Windows.</div></details>
+<button type="button" class="mypc-btn subtle" id="mypc-cancel" hidden>Cancelar</button>
+</div>
+<div id="mypc-feedback" class="mypc-feedback" role="status" aria-live="polite"></div>
+</section>
+<section class="mypc-apps" aria-labelledby="mypc-apps-heading">
+<div class="mypc-apps-heading"><h2 id="mypc-apps-heading">Aplicativos do PC</h2><span>1 disponível</span></div>
+<a id="mypc-monitor-link" class="mypc-app" href="./monitor/index.html">
+<span class="mypc-app-icon" aria-hidden="true">▥</span><span class="mypc-app-copy"><strong>PC Monitor</strong>
+<small>CPU, RAM, GPU e tempo ligado</small></span><span class="mypc-arrow" aria-hidden="true">↗</span></a>
+</section>
+<p class="mypc-security">Somente rede privada · Conexão HTTP local · Sem controle remoto do computador</p>
+</main>
+<nav class="mobile-nav" aria-label="Navegação móvel">
+<a href="../../index.html"><span>⌂</span><span>Início</span></a>
+<a href="../../index.html#pastas" aria-current="page"><span>▦</span><span>Pastas</span></a>
+<a href="../../configuracoes.html"><span>⚙</span><span>Ajustes</span></a>
+</nav>
+</div></div></body></html>
