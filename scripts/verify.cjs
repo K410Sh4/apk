@@ -41,6 +41,9 @@ const monitorCss = text("assets/pc-monitor.css");
 const lan = text("desktop/lan.cjs");
 const desktopUpdater = text("desktop/updates.cjs");
 const electronMain = text("desktop/main.cjs");
+const aiAgent = text("desktop/ai/host.cjs");
+const aiEngine = text("desktop/ai/engine.cjs");
+const aiProfile = text("desktop/ai/profile.cjs");
 const desktopClient = text("assets/desktop-updates.js");
 const mobileLAN = text("scripts/prepare-mobile-lan.cjs");
 const foldersCss = text("assets/folders.css");
@@ -158,6 +161,11 @@ assert.match(qwenHub, /mod-hub\.js/);
 assert.match(qwenCss, /ai-mods/);
 assert.match(qwenJs, /appspace\.ia\.qwen-mod-hub\.v1/);
 assert.match(qwenJs, /applied!==true/);
+assert.match(qwenHub, /id="ai-chat-form"/);
+assert.match(qwenHub, /id="ai-chat-response"/);
+assert.match(aiAgent, /rea-qwen-mod-host/);
+assert.match(aiEngine, /v1\/chat\/completions/);
+assert.match(aiProfile, /validateProfile/);
 new Function(qwenJs);
 assert.match(js, /launcher-tile--ai/);
 assert.match(foldersCss, /folder-card--ai/);
@@ -346,6 +354,7 @@ execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { std
 for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/pc-monitor-v3.css", "assets/rgb-controller.css", "assets/rgb-controller.js", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "apps/meu-pc/rgb/index.html", "apps/ia/index.html", "apps/ia/qwen-mod-hub/index.html", "apps/ia/qwen-mod-hub/mod-hub.js", "apps/ia/qwen-mod-hub/mod-hub.css", "apps/ia/qwen-mod-hub/README.md", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
+execFileSync(process.execPath, ["--test", path.join(root, "scripts/test-ai-agent.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-my-pc.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-rgb.cjs")], { stdio: "inherit" });

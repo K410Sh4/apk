@@ -2,7 +2,7 @@
 <html lang="pt-BR" data-theme="dark">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0b101b"><meta name="description" content="Qwen Mod Hub: configurações locais e integração futura com REA.">
+<meta name="theme-color" content="#0b101b"><meta name="description" content="Qwen Mod Hub: controle local e integração experimental com o REA Mod Host.">
 <title>Qwen Mod Hub — AppSpace</title>
 <link rel="stylesheet" href="../../../assets/portal.css">
 <link rel="stylesheet" href="../../../assets/personalization.css">
@@ -34,21 +34,31 @@
 <div class="ai-panel-head"><div><span class="ai-kicker">01 / MÓDULOS</span><h2 id="mods-title">Modificadores</h2><p>O interruptor altera o perfil local; não modifica os pesos do Qwen nem ativa recursos no REA por conta própria.</p></div><span class="ai-count" id="ai-enabled-count">0 ativos no perfil</span></div>
 <div class="ai-mods">
 <label class="ai-mod"><span class="ai-mod-icon">✦</span><span class="ai-mod-copy"><strong>Adaptive Think <small>v0.1</small></strong><span>Plano, revisão e verificação em múltiplas passagens.</span></span><input type="checkbox" data-mod="think" aria-label="Habilitar Adaptive Think"></label>
-<label class="ai-mod"><span class="ai-mod-icon">▤</span><span class="ai-mod-copy"><strong>Long-Term Memory <small>v0.1</small></strong><span>Recuperação seletiva de conhecimento e análises anteriores.</span></span><input type="checkbox" data-mod="memory" aria-label="Habilitar Long-Term Memory"></label>
+<label class="ai-mod"><span class="ai-mod-icon">▤</span><span class="ai-mod-copy"><strong>Long-Term Memory <small>v0.1</small></strong><span>Quando ativado, armazena localmente até 32 interações no PC para recuperação.</span></span><input type="checkbox" data-mod="memory" aria-label="Habilitar Long-Term Memory"></label>
 <label class="ai-mod"><span class="ai-mod-icon">◇</span><span class="ai-mod-copy"><strong>Vulkan Optimizer <small>v0.1</small></strong><span>Perfil proposto de inferência para AMD RDNA 1.</span></span><input type="checkbox" data-mod="vulkan" aria-label="Habilitar Vulkan Optimizer"></label>
-<label class="ai-mod"><span class="ai-mod-icon">✓</span><span class="ai-mod-copy"><strong>Code Verify <small>v0.1</small></strong><span>Solicita testes e checagem de evidências antes da resposta.</span></span><input type="checkbox" data-mod="verify" aria-label="Habilitar Code Verify"></label>
+<label class="ai-mod"><span class="ai-mod-icon">✓</span><span class="ai-mod-copy"><strong>Code Verify <small>v0.1</small></strong><span>Faz revisão textual extra por IA; não executa testes de código.</span></span><input type="checkbox" data-mod="verify" aria-label="Habilitar Code Verify"></label>
 </div>
 <div class="ai-options"><label>Intensidade Think<select id="ai-think-mode"><option value="economy">Econômico</option><option value="balanced">Equilibrado</option><option value="deep">Profundo</option></select></label><label>Janela de contexto<select id="ai-context"><option value="4096">4.096 tokens</option><option value="8192">8.192 tokens</option></select></label></div>
 <div class="ai-actions"><button class="ai-btn ai-primary" id="ai-save" type="button">Salvar perfil local</button><button class="ai-btn" id="ai-export" type="button">Exportar JSON</button><label class="ai-btn ai-file">Importar JSON<input type="file" id="ai-import" accept="application/json,.json" hidden></label><button class="ai-btn ai-danger" id="ai-reset" type="button">Restaurar padrão</button></div>
 </section>
 <section class="ai-panel" aria-labelledby="rea-title">
-<div class="ai-panel-head"><div><span class="ai-kicker">02 / INTEGRAÇÃO REA</span><h2 id="rea-title">Conexão com agente Windows</h2><p>O agente REA ainda precisa implementar este protocolo. Nenhum comando é executado no computador sem conexão autenticada.</p></div></div>
+<div class="ai-panel-head"><div><span class="ai-kicker">02 / INTEGRAÇÃO REA</span><h2 id="rea-title">Conexão com agente Windows</h2><p>O REA Mod Host v0.2 é um serviço separado do executável REA. Execute npm run ai:agent no Windows; a comunicação com o Qwen requer llama-server local ativo. Nenhum código do REA é alterado.</p></div></div>
 <form id="ai-agent-form" class="ai-connection-form">
 <label>Endereço local do agente<input id="ai-host" type="url" inputmode="url" placeholder="http://127.0.0.1:8765" spellcheck="false" autocomplete="off"></label>
 <label>Token de sessão<input id="ai-token" type="password" placeholder="Token do REA" autocomplete="off" spellcheck="false"></label>
 <div class="ai-actions"><button class="ai-btn" id="ai-connect" type="submit">Testar conexão</button><button class="ai-btn ai-primary" id="ai-apply" type="button" disabled>Aplicar perfil no REA</button></div>
 </form>
-<p class="ai-note">Somente localhost ou IP privado. Token não é salvo. A conexão depende de uma API REA futura, autenticação e permissões CORS adequadas.</p>
+<p class="ai-note">A primeira versão aceita somente loopback (127.0.0.1). Para controlar pelo Android via USB, use adb reverse tcp:8765 tcp:8765. O token não é salvo; não exponha esta API na internet.</p>
+</section>
+<section class="ai-panel" aria-labelledby="chat-title">
+<div class="ai-panel-head"><div><span class="ai-kicker">03 / TESTE REAL</span><h2 id="chat-title">Laboratório Qwen</h2><p>Teste o Qwen local com o perfil aplicado. O modo Think faz revisão textual extra; não garante que o código foi compilado nem testado.</p></div></div>
+<form id="ai-chat-form" class="ai-chat-form">
+<label for="ai-prompt">Sua pergunta para o Qwen</label>
+<textarea id="ai-prompt" rows="4" maxlength="6000" placeholder="Analise este trecho Luau e procure erros de lógica..." required></textarea>
+<div class="ai-actions"><button class="ai-btn ai-primary" id="ai-chat-send" type="submit" disabled>Executar no Qwen</button><button class="ai-btn" id="ai-clear-memory" type="button" disabled>Limpar memória do agente</button></div>
+</form>
+<div class="ai-chat-meta" id="ai-chat-meta" role="status" aria-live="polite">Aguardando conexão com o Qwen local.</div>
+<pre class="ai-chat-response" id="ai-chat-response" aria-label="Resposta do Qwen" tabindex="0" hidden></pre>
 </section>
 <div class="ai-feedback" id="ai-feedback" role="status" aria-live="polite">Perfil inicial carregado. Nenhuma modificação foi aplicada ao Qwen.</div>
 </main>

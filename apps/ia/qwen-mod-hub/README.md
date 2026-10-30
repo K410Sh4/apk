@@ -1,33 +1,80 @@
-# Qwen Mod Hub v0.1 — contrato de integração REA
+# Qwen Mod Hub + REA Mod Host v0.2 (protótipo funcional)
 
-## Estado atual
-O aplicativo AppSpace em `apps/ia/qwen-mod-hub/` funciona **offline**, apresenta quatro módulos, persiste configurações no armazenamento do dispositivo, importa/exporta um perfil JSON validado e permite testar um endpoint REA.
+## O que funciona
 
-Não está instalado um servidor REA neste repositório. Os interruptores **não** modificam o modelo GGUF, não executam LoRA e não alteram parâmetros do llama.cpp sem confirmação do agente Windows. As versões dos mods são identificadores de especificação, não pacotes baixáveis. O OTA atual do AppSpace distribui arquivos web do aplicativo; um mecanismo OTA de módulos executáveis Windows requer projeto próprio, verificação criptográfica, isolamento e rollback.
+- Pasta **IA** e Qwen Mod Hub no AppSpace (Windows, navegador e Android).
+- Preferências offline, importação/exportação JSON e estado de ativação explícito.
+- **REA Mod Host** independente, sem dependências externas, executado via Node.js 22+ no Windows.
+- API local autenticada, validação estrita e mensagens de estado por módulo.
+- Quando o llama-server está aberto: endpoint de chat realmente envia perguntas ao Qwen.
+- **Adaptive Think**: economy (1 inferência), balanced (3 inferências), deep (4 inferências); Code Verify acrescenta uma revisão textual por IA.
+- **Long-Term Memory**: grava até 32 interações resumidas no PC **somente enquanto Memory está ativado**. Recuperação lexical básica. Há opção para limpar.
+- **Vulkan Optimizer**: **somente sinalização de perfil**. O backend Vulkan deve ser configurado ao iniciar o llama-server. Não altera driver, BIOS, clocks, pesos GGUF ou código REA.
+- Testes de protocolo e segurança em scripts/test-ai-agent.cjs.
 
-## Módulos do perfil v1
-- `think`: proposta de raciocínio adaptativo, com modos `economy`, `balanced`, `deep`.
-- `memory`: futura recuperação de memória e contexto seletivos.
-- `vulkan`: futura gestão de perfil AMD Vulkan, sem prometer desempenho.
-- `verify`: futura orquestração de validações determinísticas.
+> O agente deste repositório é um **adaptador experimental**. Não substitui nem altera o executável REA do projeto paralelo. Sem integração explicitamente implementada no REA.exe, o REA continuará executando seu fluxo original.
 
-O JSON exportado contém `schema:1`, `target:"qwen2.5-coder-7b-instruct"`, `mods` (quatro booleanos), `thinkMode` e `contextSize` (4096 ou 8192). O agente deve validar novamente todos os campos.
+## Teste no Windows (sem nuvem)
 
-## API planejada para o executável REA
-Implementar e proteger **no Windows**, não no WebView Android:
-- `GET /api/v1/status` — requer `Authorization: Bearer <token>`, devolve `{"agent":"rea-qwen-mod-host","apiVersion":1,"capabilities":{"mods":true}}`.
-- `POST /api/v1/mods/apply` — requer token e `Content-Type: application/json`; corpo `{"schema":1,"profile":{...}}`. Só responder com `{"agent":"rea-qwen-mod-host","apiVersion":1,"applied":true}` quando o perfil **de fato** tiver sido aplicado. Adicionar detalhes de validação por módulo na próxima versão.
+Você precisa do Node.js 22+, dos arquivos Qwen2.5-Coder-7B-Instruct GGUF e de uma compilação llama.cpp com Vulkan compatível com RX 5700 XT.
 
-## Segurança
-- O frontend aceita apenas loopback e endereços IPv4 privados. Ele não lista nem instala scripts remotos.
-- Armazena localmente apenas a URL base; **não salva o token**.
-- Exigir autenticação, CORS limitado às origens AppSpace autorizadas e proteção contra DNS rebinding / CSRF no agente.
-- O agente deve usar um identificador de pareamento exclusivo, HTTPS para rede local quando disponível, limites de requisição, permissões mínimas, logs, validação de esquema e nenhum shell arbitrário.
-- Em Android, acesso HTTP local depende das regras de rede do aplicativo. Se a conexão falhar, a exportação de perfil continua funcional.
-- Não declarar operação aplicada com base em uma resposta HTTP genérica.
+**Terminal 1 — iniciar Qwen:** substitua o caminho do modelo.
 
-## Próximos testes
-1. Interface e persistência: importar, mudar modos, recarregar e exportar.
-2. Validar que não é possível contatar domínios públicos nem aplicar perfil sem token/handshake.
-3. Adicionar serviço REA Windows versionado e testes de contrato; medir diferenças reais Qwen puro vs. mods.
-4. OTA via bundle web AppSpace; OTA do agente Windows separadamente após assinatura/verificação.
+~~~powershell
+.\llama-server.exe -m "C:\IA\models\qwen2.5-coder-7b-instruct-q4_k_m.gguf" -ngl 99 -c 4096 --host 127.0.0.1 --port 8080
+~~~
+
+Se VRAM ficar insuficiente, diminua contexto e camadas de offload; não suponha que Q5 ou 8K caibam sem medir. llama.cpp oferece API OpenAI-compatible POST /v1/chat/completions.
+
+**Terminal 2 — na pasta do repositório apk:**
+
+~~~powershell
+npm.cmd run ai:agent
+~~~
+
+O serviço exibe a URL **http://127.0.0.1:8765** e um token aleatório **de cada execução**. Não compartilhe o token.
+
+Abra AppSpace → IA → Qwen Mod Hub. Cole endereço e token, clique **Testar conexão**, salve e **Aplique o perfil no REA**, e use **Laboratório Qwen**. O painel sinaliza quando o backend estiver offline.
+
+**Android experimental por USB:** com depuração USB e adb, execute no PC:
+
+~~~powershell
+adb reverse tcp:8765 tcp:8765
+~~~
+
+O telefone utiliza http://127.0.0.1:8765. Android pode bloquear HTTP dependendo da segurança do APK; não exponha servidor em rede pública como alternativa. A interface e o JSON funcionam offline sem o agente.
+
+## Contrato HTTP local
+
+Autenticação: Authorization: Bearer TOKEN. Token em memória, nunca salvo pelo painel.
+
+| Método | Caminho | Retorno |
+|---|---|---|
+| GET | /api/v1/status | agent, apiVersion, model.ready, model.id, capabilities, moduleStatus |
+| GET | /api/v1/mods/profile | Perfil ativo e revisão |
+| POST | /api/v1/mods/apply | Confirma aplicação **no controlador** (não nos pesos) e informa pendências |
+| POST | /api/v1/chat | Recebe prompt; retorna answer, passes, elapsedMs e revisão |
+| POST | /api/v1/memory/clear | Recebe confirm:true e apaga histórico do agente |
+
+Perfil: schema 1, target qwen2.5-coder-7b-instruct, mods (think, memory, vulkan, verify), thinkMode e contextSize.
+
+A API só escuta loopback nesta versão, exige um Host adequado, restringe origens de navegador e usa token resistente a adivinhação. Não oferece execução shell, instalação remota nem comandos de sistema. Backend Qwen limitado a loopback.
+
+## Limitações e ensaios
+
+1. Think faz mais inferências e pode ser **mais lento** e até piorar algumas respostas. Não muda os pesos.
+2. Code Verify faz revisão textual, **não compila Luau** e não prova que o código está correto.
+3. A memória está em ~/.appspace/rea-qwen-memory.json no perfil Windows, fora do repositório. Pode ser limpa pelo app.
+4. Alterar contextSize no perfil não muda o contexto reservado no llama-server. Configure -c no processo.
+5. Ainda não há instalador de mods executáveis, assinatura OTA de plugins Windows, LoRA ou medição comparativa automática de qualidade.
+6. applied:true significa que o **controlador aceitou** o perfil; não prova ganhos de GPU.
+7. O serviço não controla o REA.exe. Para integrá-lo será necessário um adaptador futuro, mantendo o REA independente.
+
+## Testes
+
+~~~powershell
+npm.cmd run ai:test
+npm.cmd run check
+~~~
+
+Compare Qwen original e Think com um conjunto fixo de tarefas Luau, respostas cegas e testes reproduzíveis. Só medições demonstram ganhos.

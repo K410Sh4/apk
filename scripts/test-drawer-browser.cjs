@@ -107,6 +107,45 @@ const server=http.createServer((req,res)=>{
   assert.match(await page.locator('#ai-feedback').innerText(),/somente http\(s\) e um host local\/privado/i);
   assert.ok(await page.locator('#ai-apply').isDisabled());
   assertions+=13;
+  // Integração de UI com agente mockado: status, aplicação, chat e limpeza.
+  const aiCtx=await browser.newContext({viewport:{width:412,height:915},hasTouch:true,isMobile:true});
+  await aiCtx.addInitScript(()=>{
+    const original=window.fetch.bind(window);
+    window.fetch=(url,options)=>{
+      const value=String(url);
+      if(value.startsWith('http://127.0.0.1:8765/api/v1/')){
+        const route=value.split('/api/v1/')[1];
+        let payload;
+        if(route==='status')payload={agent:'rea-qwen-mod-host',apiVersion:1,capabilities:{mods:true,chat:true},model:{ready:true,id:'qwen-test'}};
+        else if(route==='mods/apply')payload={agent:'rea-qwen-mod-host',apiVersion:1,applied:true,modelReady:true,moduleStatus:{vulkan:{state:'manual'}}};
+        else if(route==='chat')payload={agent:'rea-qwen-mod-host',apiVersion:1,answer:'Resposta local simulada <script>não executar</script>',passes:3,elapsedMs:40,memoryUsed:0,verification:'revisão textual'};
+        else if(route==='memory/clear')payload={agent:'rea-qwen-mod-host',apiVersion:1,cleared:true};
+        else payload={error:'unsupported'};
+        return Promise.resolve(new Response(JSON.stringify(payload),{status:route==='unsupported'?404:200,headers:{'content-type':'application/json'}}));
+      }
+      return original(url,options);
+    };
+  });
+  const aiPage=await aiCtx.newPage();aiPage.on('pageerror',e=>errors.push(e.message));aiPage.on('dialog',d=>d.accept());
+  await aiPage.goto(base+'/apps/ia/qwen-mod-hub/index.html');
+  assert.equal(await aiPage.locator('[data-mod="memory"]').isChecked(),false,'Memória deve requerer opt-in');
+  await aiPage.locator('#ai-token').fill('demo-session-token');
+  await aiPage.locator('#ai-connect').click();
+  await aiPage.waitForFunction(()=>document.getElementById('ai-connection-status').textContent.includes('Qwen online'));
+  assert.ok(await aiPage.locator('#ai-apply').isEnabled());
+  await aiPage.locator('#ai-apply').click();
+  await aiPage.waitForFunction(()=>document.getElementById('ai-connection-status').textContent.includes('Perfil aplicado'));
+  assert.ok(await aiPage.locator('#ai-chat-send').isEnabled());
+  await aiPage.locator('#ai-prompt').fill('O que faz o Qwen modificado?');
+  await aiPage.locator('#ai-chat-send').click();
+  await aiPage.waitForSelector('#ai-chat-response:visible');
+  assert.match(await aiPage.locator('#ai-chat-response').innerText(),/Resposta local simulada/);
+  assert.equal(await aiPage.locator('#ai-chat-response script').count(),0,'Resposta não deve virar HTML executável');
+  assert.match(await aiPage.locator('#ai-chat-meta').innerText(),/3 passagem/);
+  await aiPage.locator('#ai-clear-memory').click();
+  await aiPage.waitForFunction(()=>document.getElementById('ai-feedback').textContent.includes('Memória persistente do agente apagada'));
+  assert.match(await aiPage.locator('#ai-feedback').innerText(),/Memória persistente do agente apagada/);
+  assertions+=8;await aiCtx.close();
   // A delayed native metrics callback must not reconnect the UI after disconnect.
   const race=await browser.newContext({viewport:{width:412,height:915}});
   await race.addInitScript(()=>{
