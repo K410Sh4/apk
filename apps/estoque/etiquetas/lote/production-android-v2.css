@@ -54,3 +54,87 @@
 .label-batch .batch-pager button{min-width:44px;min-height:44px;border-radius:50%;border:1px solid var(--p2-border);background:var(--p2-elevated)}
 .label-batch .batch-print-panel{background:linear-gradient(135deg,rgba(var(--accent-rgb),.16),transparent 83%),var(--p2-panel);border-color:rgba(var(--accent-rgb),.28)}
 .batch-native-hint{display:block;margin-top:7px;font-size:11px;color:var(--p2-muted);line-height:1.5}
+
+@media(max-width:780px){
+ .label-batch .batch-topbar{position:sticky;top:0;z-index:15;min-height:70px;padding:10px 13px;gap:9px}
+ html[data-appspace-native="true"] .label-batch .batch-topbar{padding-top:calc(9px + max(26px,env(safe-area-inset-top,0px)))}
+ .label-batch .batch-title strong{font-size:16px}
+ .label-batch .batch-title span{font-size:10px}
+ .label-batch .batch-saved{font-size:9px;padding:8px 10px;max-width:100px;overflow:hidden;text-overflow:ellipsis}
+ .label-batch .batch-main{padding:22px 13px calc(35px + env(safe-area-inset-bottom,0px))}
+ .label-batch .batch-heading{margin-bottom:14px}
+ .label-batch .batch-heading h1{font-size:30px;letter-spacing:-1px}
+ .label-batch .batch-heading p{font-size:11px;margin:7px 0}
+ .label-batch .batch-steps{gap:4px;padding:5px;margin-bottom:25px;border-radius:22px}
+ .label-batch .batch-steps button{flex-direction:column;gap:6px;min-height:72px;padding:8px 3px;font-size:11px;border-radius:18px}
+ .label-batch .batch-steps b{width:28px;height:28px;flex-basis:28px}
+ .label-batch .batch-panel{padding:16px;border-radius:21px}
+ .label-batch .batch-model-grid,.label-batch .batch-preview-layout{grid-template-columns:minmax(0,1fr);gap:12px}
+ .label-batch .batch-model-visual{min-height:200px;padding:20px}
+ .label-batch .batch-footer-actions{display:flex;gap:10px;margin-top:16px}
+ .label-batch .batch-footer-actions .batch-button{flex:1 1 auto;min-height:51px}
+ .label-batch .batch-summary{gap:8px}
+ .label-batch .batch-summary>div{padding:13px 10px;border-radius:16px}
+ .label-batch .batch-summary strong{font-size:26px}
+ .label-batch .batch-list-panel{padding:13px}
+ /* Listagem em cartões editáveis; mantém tabela semântica e IDs de campos. */
+ .label-batch .batch-table-scroll{overflow:visible;border:0;background:transparent}
+ .label-batch .batch-table{display:block;min-width:0;width:100%;border:0;table-layout:auto}
+ .label-batch .batch-table thead{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+ .label-batch .batch-table tbody{display:grid;gap:12px;width:100%}
+ .label-batch .batch-table tbody tr{
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;
+   padding:16px 14px;border-radius:21px;border:1px solid var(--p2-border);
+   background:var(--p2-elevated);min-width:0;
+ }
+ .label-batch .batch-table tbody td{
+   display:flex;flex-direction:column;justify-content:flex-start;gap:7px;
+   min-width:0;padding:0;text-align:left;border:0!important;
+ }
+ .label-batch .batch-table tbody td::before{
+   content:attr(data-label);display:block;white-space:normal;
+   font-size:10px;font-weight:760;color:var(--p2-muted);
+ }
+ .label-batch .batch-table tbody td:first-child{
+   grid-column:1/-1;display:flex;flex-direction:row;align-items:center;
+   padding-bottom:12px;border-bottom:1px solid var(--p2-border)!important;
+   color:var(--p2-accent);font-size:12px;font-weight:830;
+ }
+ .label-batch .batch-table tbody td:first-child::before{font-size:12px;color:var(--p2-text)}
+ .label-batch .batch-table tbody td.batch-cell-field{grid-column:1/-1}
+ .label-batch .batch-table tbody td input{
+   width:100%;min-width:0;max-width:none!important;min-height:48px;
+   padding:10px 12px;font-size:14px;
+ }
+ .label-batch .batch-table tbody td.batch-cell-quantity{grid-column:1}
+ .label-batch .batch-table tbody td.batch-cell-actions{
+   grid-column:2;display:flex;flex-direction:row;
+   justify-content:flex-end;align-items:flex-end;flex-wrap:wrap;gap:7px;
+ }
+ .label-batch .batch-table tbody td.batch-cell-actions::before{display:none}
+ .label-batch .batch-table tbody td.batch-cell-actions button{
+   min-height:48px;min-width:48px;margin:0;border-radius:14px;border:1px solid var(--p2-border);
+ }
+ .label-batch .batch-list-controls{display:grid;grid-template-columns:1fr;gap:10px}
+ .label-batch #add-row{width:100%;min-height:51px;background:rgba(var(--accent-rgb),.13);border-color:rgba(var(--accent-rgb),.35);color:var(--p2-accent)}
+ .label-batch .batch-list-more{margin-left:0}
+ .label-batch .batch-list-more summary{width:100%;min-height:46px}
+ .label-batch .batch-list-file-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .label-batch .batch-list-file-actions button{min-width:0}
+ .label-batch .batch-preview-stage{min-height:300px;padding:19px}
+ .label-batch .batch-paper{max-width:335px}
+ .label-batch .batch-print-panel{display:grid;gap:15px}
+ .label-batch .batch-print-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:9px}
+ .label-batch .batch-print-actions button{width:100%;min-height:51px;font-size:12px}
+}
+@media(max-width:370px){
+ .label-batch .batch-heading h1{font-size:26px}
+ .label-batch .batch-saved{display:none}
+ .label-batch .batch-main{padding-left:10px;padding-right:10px}
+ .label-batch .batch-table tbody tr{padding:14px 11px}
+ .label-batch .batch-table tbody td.batch-cell-actions button{min-width:42px}
+}
+@media print{
+ .label-batch .batch-heading-eyebrow,.label-batch .batch-native-hint{display:none!important}
+ .label-batch #batch-print-root{background:#fff!important;border:0!important;box-shadow:none!important}
+}
