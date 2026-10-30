@@ -78,13 +78,14 @@
    const plugin=capacitor?.Plugins?.CapacitorHttp;
    if(native&&!desktop&&typeof plugin?.request==="function"){
      const result=await plugin.request({url:address,method,headers,
-       data:options.data||undefined,connectTimeout:4000,readTimeout:4000});
+       data:options.data||undefined,connectTimeout:4000,readTimeout:path==="/rgb/devices"?9500:4000});
      let payload=result.data;
      if(typeof payload==="string"){try{payload=JSON.parse(payload)}catch(_){}}
      if(result.status<200||result.status>=300)throw Error(payload?.error||"HTTP "+result.status);
      return payload;
    }
-   const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),4000);
+   const timeoutMs=path==="/rgb/devices"?9500:4000;
+   const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),timeoutMs);
    try{
      const response=await root.fetch(address,{method,headers,
        body:options.data?JSON.stringify(options.data):undefined,
