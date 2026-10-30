@@ -4,6 +4,7 @@
 "use strict";
 const M=window.EtiquetaModel,B=window.EtiquetaBatch,R=window.EtiquetaBatchRender,F=window.EtiquetaFiles;
 if(!M||!B||!R||!F)throw Error("Recursos do lote não carregados");
+if(window.Capacitor?.isNativePlatform?.())document.documentElement.dataset.appspaceNative="true";
 const $=id=>document.getElementById(id);
 const TEMPLATE_KEY="appspace.estoque.etiqueta.v1";
 const BATCH_KEY="appspace.estoque.lote.v1";
@@ -256,5 +257,11 @@ $("list-file").addEventListener("change",e=>{
 });
 window.addEventListener("pagehide",save);
 displayTemplate();bindLayout();renderTable();
-displayStep(batch.activeStep);
+let requestedStep=batch.activeStep;
+if(requestedStep==="preview"){
+  try{B.validateForPrint(template,batch);}
+  catch(_){requestedStep=batch.fields.length?"list":"model";}
+}
+if(requestedStep==="list"&&!batch.fields.length)requestedStep="model";
+displayStep(requestedStep);
 })();
