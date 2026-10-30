@@ -147,6 +147,47 @@ const server=http.createServer((req,res)=>{
     assertions+=4;
   }
   await labelsContext.close();
+  // Meu PC V2: telemetria remota mockada, GPU Windows e FPS da tela distintos.
+  const monitorCtx=await browser.newContext({viewport:{width:844,height:390},isMobile:true,hasTouch:true});
+  await monitorCtx.addInitScript(()=>{
+    localStorage.setItem('appspace.pc.connection.v1',JSON.stringify({
+      ip:'192.168.1.10',token:'a'.repeat(64),transport:'wifi',hostname:'PC-Teste'
+    }));
+    window.__monitorMockGpu=65;
+    const actual=window.fetch.bind(window);
+    window.fetch=(url,opts)=>{
+      if(String(url).includes(':38473/metrics')){
+        const percent=window.__monitorMockGpu;
+        const payload={timestamp:Date.now(),hostname:'PC-Teste',
+          cpu:{percent:37,frequencyMHz:3800},memory:{percent:48,totalBytes:17179869184,usedBytes:8246337208},
+          gpu:{percent,status:percent===null?'unavailable':'ready'},uptimeSeconds:36720};
+        return Promise.resolve(new Response(JSON.stringify(payload),{status:200,headers:{'content-type':'application/json'}}));
+      }
+      return actual(url,opts);
+    };
+  });
+  const monitorPage=await monitorCtx.newPage();
+  monitorPage.on('pageerror',error=>errors.push(error.message));
+  await monitorPage.goto(base+'/apps/meu-pc/monitor/index.html');
+  await monitorPage.waitForFunction(()=>document.getElementById('monitor-gpu').textContent==='65%',{timeout:10000});
+  await monitorPage.waitForFunction(()=>Number(document.getElementById('monitor-fps').textContent)>0,{timeout:10000});
+  assert.equal(await monitorPage.locator('#monitor-cpu').innerText(),'37%');
+  assert.equal(await monitorPage.locator('#monitor-status').getAttribute('data-online'),'true');
+  assert.ok(await monitorPage.locator('#monitor-fps-details').innerText().then(s=>s.includes('não dos jogos')));
+  const monLayout=await monitorPage.evaluate(()=>({
+    cssLoaded:[...document.styleSheets].some(x=>x.href?.includes('pc-monitor-v2.css')),
+    columns:getComputedStyle(document.querySelector('.monitor-metrics')).gridTemplateColumns.split(' ').length,
+    fps:Number(document.getElementById('monitor-fps').textContent)
+  }));
+  assert.ok(monLayout.cssLoaded);
+  assert.equal(monLayout.columns,5);
+  assert.ok(monLayout.fps>0&&monLayout.fps<300);
+  await monitorPage.screenshot({path:path.join(output,'pc-monitor-v2-landscape.png'),fullPage:true});
+  await monitorPage.evaluate(()=>window.__monitorMockGpu=null);
+  await monitorPage.waitForFunction(()=>document.getElementById('monitor-gpu').textContent==='N/D',{timeout:10000});
+  assert.match(await monitorPage.locator('#monitor-gpu-details').innerText(),/indisponível/);
+  assertions+=8;
+  await monitorCtx.close();
   // Local files keep the folder and editor available without networking.
   const offline=await browser.newContext({offline:true,viewport:{width:412,height:915}});
   const local=await offline.newPage();local.on('pageerror',e=>errors.push(e.message));
