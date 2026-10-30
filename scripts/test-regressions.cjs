@@ -60,7 +60,7 @@ function browser(name, {stored={},capacitor,fetch,query={}}={}) {
 function lanHarness() {
   let handler;
   const server=new EventEmitter(); server.listen=()=>{server.listening=true;};server.unref=()=>{};server.close=()=>{};
-  const api=loadModule('desktop/lan.cjs',{'node:http':{createServer:fn=>{handler=fn;return server;}},'node:os':{...os,networkInterfaces:()=>({})},'./gpu.cjs':{createGpuSampler:()=>({start(){},stop(){},sample:()=>({percent:null,status:'unsupported'})})},'./rgb.cjs':{createRgbInventory:()=>({scan:async()=>({available:true,devices:[]})})}}).startLanServer();
+  const api=loadModule('desktop/lan.cjs',{'node:http':{createServer:fn=>{handler=fn;return server;}},'node:os':{...os,networkInterfaces:()=>({})},'./gpu.cjs':{createGpuSampler:()=>({start(){},stop(){},sample:()=>({percent:null,status:'unsupported'})})},'./rgb.cjs':{createRgbInventory:()=>({scan:async()=>({available:true,devices:[]})})},'./pc-controls.cjs':{createWindowsControls:()=>({read:async()=>({available:false}),write:async()=>({available:false})})}}).startLanServer();
   function request(body,finish=true) {
     const req=new EventEmitter();req.headers={host:'127.0.0.1:38473'};req.socket={remoteAddress:'127.0.0.1'};req.method='POST';req.url='/pair';req.destroy=()=>{};
     const res={setHeader(){},writeHead(code){this.status=code;},end(body){this.body=body;}};
