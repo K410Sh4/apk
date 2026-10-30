@@ -2,6 +2,7 @@
 /* AppSpace LAN 0.6 — telemetria somente leitura, com pareamento temporário. */
 const http = require("node:http");
 const os = require("node:os");
+const {createGpuSampler}=require("./gpu.cjs");
 const { randomInt, randomBytes, timingSafeEqual } = require("node:crypto");
 const PORT = 38473;
 const ALLOWED_ORIGINS = new Set(["https://localhost", "http://localhost", "capacitor://localhost", "appspace://portal"]);
@@ -18,6 +19,8 @@ function startLanServer() {
   const pin = String(randomInt(100000,999999));
   const secret = randomBytes(32).toString("hex");
   const attempts = new Map();
+  const gpuSampler=createGpuSampler();
+  gpuSampler.start();
   let previous = cpuTimes();
   let server;
   let port = PORT, error = "";
@@ -28,7 +31,7 @@ function startLanServer() {
     previous = now;
     const cpu = os.cpus();
     const totalRam = os.totalmem(), freeRam = os.freemem();
-    return { timestamp:Date.now(), hostname:os.hostname(), cpu:{percent:total>0?Math.max(0,Math.min(100,Math.round(100*(1-idle/total)))):0,model:cpu[0]?.model || "", cores:cpu.length,frequencyMHz:cpu[0]?.speed||null}, memory:{totalBytes:totalRam,usedBytes:totalRam-freeRam,freeBytes:freeRam,percent:Math.round(100*(totalRam-freeRam)/totalRam)}, uptimeSeconds:Math.round(os.uptime()), gpu:{percent:null,temperatureC:null}, system:os.platform() };
+    return { timestamp:Date.now(), hostname:os.hostname(), cpu:{percent:total>0?Math.max(0,Math.min(100,Math.round(100*(1-idle/total)))):0,model:cpu[0]?.model || "", cores:cpu.length,frequencyMHz:cpu[0]?.speed||null}, memory:{totalBytes:totalRam,usedBytes:totalRam-freeRam,freeBytes:freeRam,percent:Math.round(100*(totalRam-freeRam)/totalRam)}, uptimeSeconds:Math.round(os.uptime()), gpu:gpuSampler.sample(), system:os.platform() };
   }
   function status() {return {enabled:Boolean(server?.listening),port,address:ipv4s()[0]||null,addresses:ipv4s(),pin:server?.listening?pin:null,error};}
   function respond(res,statusCode,data,origin) {
@@ -89,7 +92,7 @@ function startLanServer() {
   server.on("error",e=>{error="Porta "+port+" indisponível ("+e.code+")";});
   server.listen(PORT,"0.0.0.0");
   server.unref();
-  return {status,sample,stop:()=>server.close()};
+  return {status,sample,stop:()=>{gpuSampler.stop();server.close();}};
 }
 module.exports={startLanServer};
 
