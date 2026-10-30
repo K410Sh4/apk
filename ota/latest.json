@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.7",
+  "version": "0.7.8",
   "minNative": "0.7.3",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.7/appspace-web-v0.7.7.zip",
-  "sha256": "b20047da6d5b3a7f23c56d6003d89be3986aaf6a77eee1afb11bc500a3016f5c",
-  "notes": "Etiqueta Studio: redimensionamento por pinça de dois dedos, toque duplo para editar textos e códigos, botão Apagar e limpeza completa com Desfazer."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.8/appspace-web-v0.7.8.zip",
+  "sha256": "561bd50bf4204db15440f97c9406298689942d24e4cec912e171af387fa1137a",
+  "notes": "Etiqueta Studio: fluxo guiado modelo → lista de valores e quantidades → prévia A4 com grade, alinhamento e margens personalizáveis → impressão em lote."
 }
