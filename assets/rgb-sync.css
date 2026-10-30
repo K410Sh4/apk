@@ -1,0 +1,23 @@
+/* AppSpace RGB Sync — prévia local de LEDs, não controla hardware. */
+.rgb-sync-section{border-color:#574689;background:radial-gradient(circle at 65% -25%,#42316c66,transparent 55%),linear-gradient(145deg,#1a1e37,#101827 80%)}
+.rgb-sync-warning{color:#f6c797!important;background:#3f302766;border:1px solid #b9816b75;border-radius:12px;padding:11px 13px;font-size:12px!important;line-height:1.55}
+.rgb-sync-controls{display:grid;grid-template-columns:minmax(150px,1.35fr) minmax(90px,.6fr) repeat(2,minmax(125px,1fr));gap:12px;margin-top:19px}
+.rgb-sync-control{display:flex;flex-direction:column;gap:8px;min-width:0;color:#b6c9e6;font-size:12px;font-weight:700}
+.rgb-sync-control select,.rgb-sync-control input[type=color]{height:43px;max-width:100%;border:1px solid #4b5575;border-radius:11px;background:#111b31;color:#f3f6ff;padding:7px 11px;font:inherit;cursor:pointer}
+.rgb-sync-control input[type=color]{padding:4px;width:100%;min-width:45px}
+.rgb-sync-control input[type=range]{accent-color:#a68aff;width:100%;min-height:30px;cursor:pointer}
+.rgb-sync-toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:17px 0 13px}
+.rgb-sync-toggle{display:flex;gap:9px;align-items:center;color:#c9d7ef;font-size:12px}
+.rgb-sync-toggle input{width:17px;height:17px;accent-color:#a68aff;cursor:pointer}
+.rgb-sync-toolbar #rgb-sync-start{min-width:132px;padding:10px 14px}
+#rgb-sync-state{color:#9caed0;font-size:12px}
+.rgb-sync-preview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-top:13px}
+.rgb-sync-tile{border:1px solid #425273;background:#111b31;border-radius:15px;display:flex;align-items:center;flex-direction:column;gap:9px;padding:16px 10px;min-width:0}
+.rgb-sync-tile-label{font-size:12px;font-weight:800;color:#dbe4fa;text-align:center;line-height:1.4}
+.rgb-sync-led{width:min(75%,120px);height:20px;border-radius:100px;background:#7353bc;transition:background-color .08s linear,box-shadow .08s linear;box-shadow:0 0 14px #7353bc88}
+.rgb-sync-tile-value{font:700 12px ui-monospace,monospace;color:#d9e2f7}
+.rgb-sync-not-physical{font-size:10px;color:#97a8c9}
+.rgb-sync-footnote{font-size:11px!important;color:#9aaed1!important;line-height:1.6;margin:15px 0 0!important}
+@media(max-width:800px){.rgb-sync-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.rgb-sync-preview{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:400px){.rgb-sync-controls{gap:10px}.rgb-sync-preview{gap:8px}.rgb-sync-toolbar{align-items:flex-start;flex-direction:column}.rgb-sync-tile{padding:11px 5px}.rgb-sync-tile-label{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.rgb-sync-led{transition:none}}
