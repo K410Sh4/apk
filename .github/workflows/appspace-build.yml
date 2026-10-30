@@ -90,6 +90,23 @@ jobs:
         run: |
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon
+      - name: Validar assinatura de release com chave EFÊMERA de teste (não publicar)
+        run: |
+          umask 077
+          export APPSPACE_RELEASE_KEYSTORE_PATH="$RUNNER_TEMP/appspace-ci-only.jks"
+          export APPSPACE_RELEASE_STORE_PASSWORD="$(openssl rand -hex 18)"
+          export APPSPACE_RELEASE_KEY_ALIAS="appspace-ci"
+          export APPSPACE_RELEASE_KEY_PASSWORD="$APPSPACE_RELEASE_STORE_PASSWORD"
+          keytool -genkeypair -noprompt -keystore "$APPSPACE_RELEASE_KEYSTORE_PATH" -storetype PKCS12 \
+            -storepass "$APPSPACE_RELEASE_STORE_PASSWORD" -keypass "$APPSPACE_RELEASE_KEY_PASSWORD" \
+            -alias "$APPSPACE_RELEASE_KEY_ALIAS" -keyalg RSA -keysize 2048 -validity 1 \
+            -dname "CN=AppSpace CI Only"
+          node scripts/prepare-release-signing.cjs
+          cd mobile/android
+          ./gradlew assembleRelease --no-daemon
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/release/app-release.apk
+          cd ../..
+          rm -f "$APPSPACE_RELEASE_KEYSTORE_PATH"
       - name: Publicar APK
         uses: actions/upload-artifact@v4
         with:
