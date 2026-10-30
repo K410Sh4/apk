@@ -6,9 +6,12 @@
 <link rel="stylesheet" href="../../../assets/portal.css">
 <link rel="stylesheet" href="../../../assets/personalization.css">
 <link rel="stylesheet" href="../../../assets/rgb-controller.css">
+<link rel="stylesheet" href="../../../assets/rgb-sync.css">
 <script src="../../../assets/ota.js" defer></script>
 <script src="../../../assets/pc-connection.js" defer></script>
 <script src="../../../assets/rgb-controller.js" defer></script>
+<script src="../../../assets/rgb-sync-engine.js" defer></script>
+<script src="../../../assets/rgb-sync-ui.js" defer></script>
 </head>
 <body class="rgb-page">
 <div class="rgb-app">
@@ -57,6 +60,42 @@
         <div class="rgb-device-detail" id="rgb-redragon-detail">USB VID 04D9 · PID FC30</div>
         <p class="rgb-device-tip">Não executaremos comandos não documentados no periférico.</p>
       </article>
+    </section>
+    <section class="rgb-section rgb-sync-section" aria-labelledby="rgb-sync-title">
+      <div class="rgb-section-head">
+        <div><span class="rgb-eyebrow">MOTOR INTERNO · APPSPACE RGB SYNC</span>
+          <h2 id="rgb-sync-title">Sincronização de iluminação</h2>
+        </div>
+        <span class="rgb-pill">Modo de prévia</span>
+      </div>
+      <p class="rgb-sync-warning">A sincronização abaixo funciona como simulação local. Não envia cores ao teclado, mouse, microfone ou gabinete enquanto seus protocolos RGB não estiverem confirmados.</p>
+      <div class="rgb-sync-controls">
+        <label class="rgb-sync-control">Efeito
+          <select id="rgb-sync-effect" aria-label="Efeito RGB">
+            <option value="solid">Cor fixa</option>
+            <option value="breathing">Respiração</option>
+            <option value="rainbow">Arco-íris</option>
+            <option value="wave">Onda entre dispositivos</option>
+            <option value="pulse">Pulso</option>
+          </select>
+        </label>
+        <label class="rgb-sync-control">Cor principal
+          <input id="rgb-sync-color" type="color" value="#9c70ff" aria-label="Selecionar cor principal">
+        </label>
+        <label class="rgb-sync-control">Brilho <span id="rgb-sync-brightness-value">75%</span>
+          <input id="rgb-sync-brightness" type="range" min="0" max="100" step="1" value="75">
+        </label>
+        <label class="rgb-sync-control">Velocidade <span id="rgb-sync-speed-value">50</span>
+          <input id="rgb-sync-speed" type="range" min="1" max="100" step="1" value="50">
+        </label>
+      </div>
+      <div class="rgb-sync-toolbar">
+        <label class="rgb-sync-toggle"><input id="rgb-sync-together" type="checkbox" checked> Mesma fase em todos os dispositivos</label>
+        <button id="rgb-sync-start" class="rgb-refresh" type="button" aria-pressed="false">Iniciar prévia</button>
+        <span id="rgb-sync-state" role="status" aria-live="polite">Prévia pausada</span>
+      </div>
+      <div class="rgb-sync-preview" id="rgb-sync-preview" role="group" aria-label="Prévia virtual dos quatro dispositivos"></div>
+      <p class="rgb-sync-footnote">Os quatro quadros são virtuais. A saída física será ativada apenas para dispositivos reconhecidos por um driver validado. As preferências de efeito ficam salvas localmente neste aplicativo.</p>
     </section>
     <section class="rgb-section" aria-labelledby="rgb-openrgb-title">
       <div class="rgb-section-head"><div><span class="rgb-eyebrow">INTEGRAÇÃO OPCIONAL</span><h2 id="rgb-openrgb-title">OpenRGB no computador</h2></div><span id="rgb-openrgb-status" class="rgb-pill">Desconhecido</span></div>

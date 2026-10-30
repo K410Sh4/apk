@@ -328,6 +328,22 @@ const server=http.createServer((req,res)=>{
   assert.equal(await rgbPage.locator('[data-device-status="keyboard"]').innerText(),'Detectado');
   assert.equal(await rgbPage.locator('[data-device-status="controller"]').innerText(),'Não identificado');
   assert.ok((await rgbPage.locator('#rgb-keyboard-detail').innerText()).includes('HID do fabricante'));
+  // O motor de sincronização é funcional na prévia sem enviar comandos ao PC.
+  await rgbPage.waitForSelector('#rgb-sync-preview .rgb-sync-tile');
+  assert.equal(await rgbPage.locator('.rgb-sync-tile').count(),4);
+  await rgbPage.locator('#rgb-sync-effect').selectOption('rainbow');
+  await rgbPage.locator('#rgb-sync-brightness').fill('64');
+  assert.equal(await rgbPage.locator('#rgb-sync-brightness-value').innerText(),'64%');
+  const colors=await rgbPage.locator('.rgb-sync-tile-value').allInnerTexts();
+  assert.equal(new Set(colors).size,1,"Arco-íris em fase deve ter mesma cor nos quatro canais");
+  await rgbPage.locator('#rgb-sync-effect').selectOption('wave');
+  const waveColors=await rgbPage.locator('.rgb-sync-tile-value').allInnerTexts();
+  assert.ok(new Set(waveColors).size>1,"Onda deve ter fases diferentes");
+  await rgbPage.locator('#rgb-sync-start').click();
+  assert.equal(await rgbPage.locator('#rgb-sync-start').innerText(),'Pausar prévia');
+  await rgbPage.locator('#rgb-sync-start').click();
+  assert.equal(await rgbPage.locator('#rgb-sync-start').innerText(),'Iniciar prévia');
+  assert.ok((await rgbPage.locator('.rgb-sync-footnote').innerText()).includes('virtuais'));
   await rgbPage.locator('#rgb-search').fill('MI_01');
   assert.ok((await rgbPage.locator('#rgb-count').innerText()).includes('1 interface'));
   assert.ok(await rgbPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
@@ -335,7 +351,7 @@ const server=http.createServer((req,res)=>{
   await rgbPage.setViewportSize({width:1280,height:800});
   assert.ok(await rgbPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await rgbPage.screenshot({path:path.join(output,'rgb-controller-desktop.png'),fullPage:true});
-  assertions+=7;await rgbCtx.close();
+  assertions+=15;await rgbCtx.close();
   // Reproduzir captura real: GUI RGB nova + AppSpacePC antigo da OTA 0.7.30
   // cuja allowlist rejeita /rgb/devices. Desktop deve usar API interna.
   const rgbDesktopCtx=await browser.newContext({viewport:{width:1280,height:740}});
