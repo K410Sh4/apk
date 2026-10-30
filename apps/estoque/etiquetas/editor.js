@@ -58,25 +58,7 @@ function s(tag,attributes={},value){
   if(value!==undefined)el.textContent=String(value);
   return el;
 }
-function wrapText(text,size,maxWidth,maxHeight){
-  const charLimit=Math.max(1,Math.floor(maxWidth/(size*.53)));
-  const maxLines=Math.max(1,Math.floor(maxHeight/(size*1.18)));
-  const lines=[];
-  for(const paragraph of String(text||"").split("\n")){
-    let line="";
-    for(const word of paragraph.split(/\s+/)){
-      if(!word)continue;
-      if(line&&line.length+1+word.length>charLimit){lines.push(line);line="";}
-      if(word.length>charLimit){
-        if(line){lines.push(line);line="";}
-        for(let i=0;i<word.length;i+=charLimit){const chunk=word.slice(i,i+charLimit);if(i+charLimit<word.length)lines.push(chunk);else line=chunk;}
-      }else line=line?line+" "+word:word;
-    }
-    if(line||!lines.length)lines.push(line);
-    if(lines.length>=maxLines)break;
-  }
-  return lines.slice(0,maxLines);
-}
+function wrapText(text,size,maxWidth,maxHeight){return M.textLayout(text,size,maxWidth,maxHeight).lines;}
 function drawItem(group,o){
   const common={fill:o.fill};
   if(o.type==="rect"){
@@ -136,6 +118,12 @@ function draw(svgElement,project,interactive=false){
         fill:"#ffffff","fill-opacity":0,"pointer-events":"all"}));
     }
     svgElement.append(group);
+    if(interactive){
+      const outside=o.x<0||o.y<0||o.x+o.w>project.width+.001||o.y+o.h>project.height+.001;
+      const clipped=o.type==="text"&&M.textLayout(o.text,o.fontSize,o.w,o.h).overflow;
+      if(outside||clipped)svgElement.append(s("rect",{x:o.x,y:o.y,width:o.w,height:o.h,fill:"none",
+        stroke:"#e84949","stroke-width":.45,"stroke-dasharray":"1.4 1","pointer-events":"none"}));
+    }
   }
   if(interactive){
     const o=current();
@@ -148,7 +136,7 @@ function draw(svgElement,project,interactive=false){
     }
   }
 }
-function exportSVG(project){const node=s("svg",{xmlns:NS});draw(node,project);return new XMLSerializer().serializeToString(node);}
+function exportSVG(project){M.validateForOutput(project);const node=s("svg",{xmlns:NS});draw(node,project);return new XMLSerializer().serializeToString(node);}
 function slug(){return (doc.name||"etiqueta").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"-").replace(/^-|-$/g,"").slice(0,50)||"etiqueta";}
 async function downloadBlob(name,blob){
   if(!window.EtiquetaFiles?.save)throw Error("Exportador de arquivos não disponível");
@@ -225,6 +213,8 @@ function updateInspector(){
   $("item-stroke-row").hidden=!["rect","ellipse","line"].includes(item.type);
   $("item-stroke-width-row").hidden=!["rect","ellipse","line"].includes(item.type);
   $("item-text").value=item.text;
+  $("item-binding").value=item.binding||"";
+  $("item-binding-row").hidden=!(item.type==="text"||item.type==="barcode");
   $("item-x").value=Number(item.x.toFixed(2));
   $("item-y").value=Number(item.y.toFixed(2));
   $("item-width").value=Number(item.w.toFixed(2));
@@ -311,7 +301,7 @@ svg.addEventListener("pointermove",e=>{
     if(drag.points.size!==2)return;
     const points=[...drag.points.values()];
     const geometry=G.pinch(drag.pinch.start,drag.pinch.first,drag.pinch.second,
-      points[0],points[1],doc);
+      points[0],points[1],doc,snapToMm);
     if(!geometry)return;
     Object.assign(obj,geometry);
     drag.moved=JSON.stringify(doc)!==drag.before;
@@ -405,7 +395,11 @@ function bindItem(id,key,min,max){
   $(id).addEventListener("change",()=>{
     if(!current())return;
     const value=number($(id).value,min,max,current()[key]);
-    trans(()=>{current()[key]=value;});
+    trans(()=>{const o=current();
+      const limit=key==="x"?doc.width-o.w:key==="y"?doc.height-o.h:
+        key==="w"?doc.width-o.x:key==="h"?doc.height-o.y:max;
+      o[key]=M.clamp(value,key==="x"||key==="y"?0:min,Math.min(max,Math.max(key==="x"||key==="y"?0:1,limit)));
+    });
   });
 }
 for(const [id,key,min,max] of [
@@ -414,6 +408,7 @@ for(const [id,key,min,max] of [
   ["item-font","fontSize",1.3,24],["item-stroke-width","strokeWidth",0,4]
 ])bindItem(id,key,min,max);
 $("item-text").addEventListener("change",()=>trans(()=>{if(current())current().text=$("item-text").value;}));
+$("item-binding").addEventListener("change",()=>trans(()=>{if(current())current().binding=$("item-binding").value;}));
 $("item-align").addEventListener("change",()=>trans(()=>{if(current())current().align=$("item-align").value;}));
 $("item-bold").addEventListener("change",()=>trans(()=>{if(current())current().weight=$("item-bold").checked?700:400;}));
 $("item-font-family").addEventListener("change",()=>trans(()=>{if(current())current().fontFamily=$("item-font-family").value;}));
