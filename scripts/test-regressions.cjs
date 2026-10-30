@@ -36,6 +36,7 @@ function browser(name, {stored={},capacitor,fetch,query={}}={}) {
   const nodes=new Map(),window=new Node(),document=new Node();
   const intervals=new Map(); let timer=0;
   document.documentElement=new Node(); document.hidden=false; document.readyState='loading';
+  document.body=new Node();
   document.getElementById=id=>{if(!nodes.has(id))nodes.set(id,new Node());return nodes.get(id);};
   document.querySelectorAll=s=>query[s]||[];
   document.createElementNS=()=>new Node();
@@ -120,6 +121,38 @@ test('monitor ignores a metrics response received after disconnect',async()=>{
   b.document.emit('DOMContentLoaded');b.get('monitor-disconnect').emit('click');
   resolve({ok:true,json:async()=>({cpu:{percent:20},memory:{percent:30}})});await tick();
   assert.equal(b.get('monitor-connection-text').textContent,'Desconectado');
+});
+test('monitor enters native landscape full-screen and X restores orientation without clearing pairing',async()=>{
+  const events=[];
+  const capacitor={
+    isNativePlatform:()=>true,
+    Plugins:{
+      ScreenOrientation:{lock:async ({orientation})=>{events.push('lock:'+orientation)},unlock:async()=>{events.push('unlock')}},
+      StatusBar:{hide:async()=>{events.push('hide')},show:async()=>{events.push('show')}},
+      CapacitorHttp:{request:async()=>({status:200,data:{
+        hostname:'PC',cpu:{percent:42,frequencyMHz:3600},
+        memory:{percent:50,totalBytes:17179869184,usedBytes:8589934592},
+        uptimeSeconds:3600,gpu:{percent:null}
+      }})}
+    }
+  };
+  const stored={'appspace.pcmonitor.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64)})};
+  const b=browser('assets/pc-monitor.js',{stored,capacitor});
+  b.document.emit('DOMContentLoaded');
+  await tick();await tick();await tick();
+  assert.equal(b.get('monitor-dashboard').hidden,false);
+  assert.equal(b.document.body.dataset.monitorActive,'true');
+  assert.ok(events.includes('lock:landscape'),'Android deve travar paisagem');
+  assert.ok(events.includes('hide'),'Barra de status deve ser ocultada');
+  assert.equal(b.get('monitor-gpu').textContent,'N/D','GPU sem sensor não deve exibir uso fictício');
+  b.get('monitor-exit').emit('click');
+  await tick();await tick();await tick();
+  assert.ok(events.includes('unlock'),'X deve liberar orientação');
+  assert.ok(events.includes('show'),'X deve restaurar barra de status');
+  assert.equal(b.document.body.dataset.monitorActive,undefined);
+  assert.equal(b.get('monitor-dashboard').hidden,true);
+  assert.ok(b.storage.has('appspace.pcmonitor.v1'),'Sair do monitor não deve apagar pareamento');
+  assert.equal(b.intervals.size,0,'Monitoramento precisa parar ao sair');
 });
 test('monitor resumes after browser back/forward cache restores the page',async()=>{
   const b=browser('assets/pc-monitor.js',{stored:{'appspace.pcmonitor.v1':JSON.stringify({ip:'192.168.1.2',token:'a'.repeat(64)})},fetch:async()=>({ok:true,json:async()=>({cpu:{},memory:{}})})});
