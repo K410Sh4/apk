@@ -240,7 +240,7 @@ new Function(js);
 assert.equal(cfg.webDir, "web");
 assert.equal(cfg.android.path, "mobile/android");
 assert.equal(pkg.main, "desktop/main.cjs");
-assert.equal(pkg.version, "0.7.6");
+assert.equal(pkg.version, "0.7.38");
 assert.match(pkg.scripts["mobile:sync"], /prepare-label-documents/);
 assert.ok(fs.existsSync(path.join(root,"scripts/prepare-release-signing.cjs")));
 assert.equal(pkg.dependencies["@capacitor/screen-orientation"], "8.0.2");
