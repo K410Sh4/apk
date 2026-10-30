@@ -1,4 +1,4 @@
 {
-  "version": "0.7.11",
-  "notes": "Nova pasta Meu PC: conexão única ao Windows por Wi-Fi ou ancoragem USB, migração automática do pareamento antigo e PC Monitor movido para a pasta."
+  "version": "0.7.12",
+  "notes": "Tela inicial simplificada: removidas a pasta Sistema e a demonstração Primeiro app. Biblioteca mostra somente Etiqueta Studio e PC Monitor em Meu PC."
 }
