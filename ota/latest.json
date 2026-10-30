@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.4",
+  "version": "0.7.5",
   "minNative": "0.7.3",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.4/appspace-web-v0.7.4.zip",
-  "sha256": "7d46a2a4a58e0a3d1b2458f863f900565a914c83f621527c1062c7cb0ef15702",
-  "notes": "Correções da auditoria: OTA nativo seguro, PC Monitor, Code39 sem alteração silenciosa, backup de etiquetas Android e exportação A4 completa."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.5/appspace-web-v0.7.5.zip",
+  "sha256": "b0e4a5527e805c46bcf961dd28c2e5da2ba4af1e7230062b462ba817e13548a5",
+  "notes": "Etiqueta Studio: corrigida somente a inclinação da barra divisória cinza e a posição de seu ponto de seleção."
 }
