@@ -326,6 +326,12 @@ assert.match(rgbPage,/rgb-keyboard-detail/);
 assert.match(rgbPage,/rgb-fifine-detail/);
 assert.match(rgbPage,/rgb-controller-detail/);
 assert.match(rgbPage,/assets\/rgb-controller\.js/);
+const rgbJs=text("assets/rgb-controller.js");
+const rgbCss=text("assets/rgb-controller.css");
+assert.match(rgbJs,/\/__api\/rgb\/devices/,"RGB precisa usar API desktop direta");
+assert.match(rgbJs,/PC\?\.isDesktop/,"Não depender da allowlist da OTA antiga");
+assert.match(rgbCss,/Segoe UI/,"Garantir fonte sans-serif do AppSpace");
+
 assert.match(text("desktop/rgb.cjs"),/createRgbInventory/);
 assert.match(pcConnection,/\/rgb\/devices/);
 assert.match(monitorCss, /monitor-metrics/);
