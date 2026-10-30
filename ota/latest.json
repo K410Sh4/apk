@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.12",
+  "version": "0.7.13",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.12/appspace-web-v0.7.12.zip",
-  "sha256": "2d852127b40dc7412c2e35e9c6a25ba649b447af1a8132d13d14935e99d1b028",
-  "notes": "Tela inicial simplificada: removidas a pasta Sistema e a demonstração Primeiro app. Biblioteca mostra somente Etiqueta Studio e PC Monitor em Meu PC."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.13/appspace-web-v0.7.13.zip",
+  "sha256": "835287d332fd7c709e1d122c2426d84c3fa19c82c672a1d594f26a28731dc842",
+  "notes": "Correção de Configurações: removida a prévia antiga Primeiro app e atualizados links e instruções para Meu PC. Catálogo mantém apenas apps reais."
 }
