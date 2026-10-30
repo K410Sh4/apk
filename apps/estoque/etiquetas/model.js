@@ -157,16 +157,37 @@
     }
     return doc;
   }
-  function sheet(width,height,gap=2,margin=5){
+  function layoutA4(width,height,settings={}){
     width=clamp(width,20,210);height=clamp(height,15,297);
-    gap=clamp(gap,0,20);margin=clamp(margin,0,30);
-    const columns=Math.floor((210-2*margin+gap)/(width+gap));
-    const rows=Math.floor((297-2*margin+gap)/(height+gap));
-    if(columns<1||rows<1)return {columns:0,rows:0,perPage:0,positions:[]};
+    const margin=clamp(settings.margin??5,0,30);
+    const gapX=clamp(settings.gapX??2,0,20),gapY=clamp(settings.gapY??2,0,20);
+    const areaW=210-2*margin,areaH=297-2*margin;
+    const maxCols=Math.floor((areaW+gapX)/(width+gapX));
+    const maxRows=Math.floor((areaH+gapY)/(height+gapY));
+    if(maxCols<1||maxRows<1)throw Error("A etiqueta não cabe na folha A4 com a margem escolhida.");
+    const columns=settings.columns==="auto"||settings.columns==null?maxCols:Math.floor(Number(settings.columns));
+    const rows=settings.rows==="auto"||settings.rows==null?maxRows:Math.floor(Number(settings.rows));
+    if(!Number.isFinite(columns)||!Number.isFinite(rows)||columns<1||rows<1||
+       columns>maxCols||rows>maxRows)throw Error("A grade excede o espaço A4.");
+    const startSlot=clamp(Math.floor(Number(settings.startSlot??1)),1,300);
+    if(startSlot>columns*rows)throw Error("A primeira posição excede os espaços desta folha. Ajuste a posição inicial.");
+    const occupiedW=columns*width+(columns-1)*gapX,occupiedH=rows*height+(rows-1)*gapY;
+    const factor=v=>v==="end"?1:v==="center"?.5:0;
+    const startX=margin+(areaW-occupiedW)*factor(settings.alignX);
+    const startY=margin+(areaH-occupiedH)*factor(settings.alignY);
     const positions=[];
     for(let row=0;row<rows;row++)for(let col=0;col<columns;col++)
-      positions.push({x:margin+col*(width+gap),y:margin+row*(height+gap)});
-    return {columns,rows,perPage:columns*rows,positions};
+      positions.push({x:startX+col*(width+gapX),y:startY+row*(height+gapY),row,col});
+    return {columns,rows,perPage:columns*rows,positions,maxCols,maxRows,
+      occupiedW,occupiedH,margin,gapX,gapY,startSlot};
   }
-  return Object.freeze({SCHEMA,presets,element,project,validate,validateForOutput,textLayout,barcodeBits,sheet,clamp,FIELD_LABELS});
+  // Compatibilidade para a antiga prévia do Studio: apenas o posicionamento visual.
+  function sheet(width,height,gap=2,margin=5){
+    try{
+      const layout=layoutA4(width,height,{gapX:gap,gapY:gap,margin,alignX:"start",alignY:"start"});
+      return {columns:layout.columns,rows:layout.rows,perPage:layout.perPage,
+        positions:layout.positions.map(({x,y})=>({x,y}))};
+    }catch(_){return {columns:0,rows:0,perPage:0,positions:[]};}
+  }
+  return Object.freeze({SCHEMA,presets,element,project,validate,validateForOutput,textLayout,barcodeBits,sheet,layoutA4,clamp,FIELD_LABELS});
 });
