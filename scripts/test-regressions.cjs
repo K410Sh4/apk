@@ -289,3 +289,57 @@ test('editor precision toggles never leak grid to exported document and alignmen
   assert.equal(getSaved().objects[0].y,4);
   assert.deepEqual(JSON.parse(b.storage.get('appspace.estoque.precision.v1')),{grid:true,snap:true});
 });
+
+test('REA architecture keeps barcode and readable SKU identical on production',()=>{
+  const M=require('../apps/estoque/etiquetas/model.js'),B=require('../apps/estoque/etiquetas/lote/batch-model.js');
+  const template=M.project('codigo'),batch=B.fresh(template);
+  assert.deepEqual(batch.fields,['product.sku']);
+  batch.rows[0].values['product.sku']='EST-999';
+  const rendered=B.pages(template,batch).pages[0][0].label.objects.filter(o=>o.binding==='product.sku');
+  assert.equal(rendered.length,2);
+  assert.deepEqual(rendered.map(o=>o.text),['EST-999','EST-999']);
+  // Antigos documentos (sem binding) são convertidos sem alterar IDs.
+  const legacy=JSON.parse(JSON.stringify(template));
+  legacy.objects.forEach(o=>delete o.binding);
+  const migrated=M.validate(legacy);
+  assert.deepEqual(migrated.objects.filter(o=>o.binding==='product.sku').map(o=>o.type),['barcode','text']);
+});
+test('REA model redesign preserves semantic product data',()=>{
+  const M=require('../apps/estoque/etiquetas/model.js'),B=require('../apps/estoque/etiquetas/lote/batch-model.js');
+  const initial=M.project('preco'),batch=B.fresh(initial);
+  batch.rows[0].values['product.name']='Arroz';
+  batch.rows[0].values['product.price']='R$ 12,40';
+  const redesigned=M.project('preco');
+  redesigned.objects[0].fontFamily='Georgia';
+  const restored=B.validateData(batch,redesigned);
+  assert.deepEqual(restored.fields,['product.name','product.price']);
+  assert.equal(restored.rows[0].values['product.name'],'Arroz');
+  assert.equal(restored.rows[0].values['product.price'],'R$ 12,40');
+  assert.equal(B.pages(redesigned,restored).pages[0][0].label.objects[0].text,'Arroz');
+  // Dados legados indexados por ID são migrados para o campo novo.
+  const legacy=JSON.parse(JSON.stringify(initial));
+  const nameId=legacy.objects[0].id;
+  const old={fields:[nameId],rows:[{id:'r1',quantity:1,values:{[nameId]:'Café'}}],layout:batch.layout};
+  const mapped=B.validateData(old,initial);
+  assert.equal(mapped.rows[0].values['product.name'],'Café');
+});
+test('REA preview rejects overflowing text instead of printing an incomplete price',()=>{
+  const M=require('../apps/estoque/etiquetas/model.js'),B=require('../apps/estoque/etiquetas/lote/batch-model.js');
+  const doc=M.project('preco'),batch=B.fresh(doc);
+  batch.rows[0].values['product.price']='R$ 12345,99';
+  assert.equal(M.textLayout('R$ 12345,99',9,52,12).overflow,true);
+  assert.throws(()=>B.validateForPrint(doc,batch),/Texto não cabe/);
+  assert.throws(()=>M.validateForOutput({...doc,objects:[...doc.objects,
+    M.element('text',{x:100,y:4,text:'EXTERNO'})]}),/fora dos limites/);
+});
+test('REA multi-page production accepts 101 sheets for sparse large labels',()=>{
+  const M=require('../apps/estoque/etiquetas/model.js'),B=require('../apps/estoque/etiquetas/lote/batch-model.js');
+  const t=M.project('preco');t.width=200;t.height=200;
+  const batch=B.fresh(t);batch.rows[0].quantity=101;
+  const pages=B.pages(t,batch);
+  assert.equal(pages.pages.length,101);
+  assert.equal(pages.pages.flat().length,101);
+  const native=source('native/label-documents/LabelDocumentsPlugin.java');
+  assert.match(native,/ACTION_CREATE_DOCUMENT/);assert.match(native,/ACTION_OPEN_DOCUMENT/);
+  assert.match(source('scripts/prepare-label-documents.cjs'),/registerPlugin\(LabelDocumentsPlugin.class\)/);
+});
