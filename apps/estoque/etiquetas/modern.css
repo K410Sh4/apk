@@ -250,3 +250,26 @@
    display:flex;min-height:44px;margin-top:13px;font-size:11px;
  }
 }
+
+
+/* Modelo → lista → impressão: indicação clara sem alterar ferramentas do editor. */
+.batch-entry{display:flex;align-items:center;gap:15px;justify-content:space-between;
+ padding:10px 21px;border-bottom:1px solid var(--studio-modern-line);background:var(--studio-modern-elevated)}
+.batch-entry-flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
+.batch-entry-flow>span{display:flex;align-items:center;gap:6px;border:1px solid var(--studio-modern-line);
+ border-radius:9px;padding:8px 10px;color:var(--muted);font-size:10px;font-weight:700;white-space:nowrap}
+.batch-entry-flow>span:first-child{color:var(--accent);background:rgba(var(--accent-rgb),.06)}
+.batch-entry-flow b{font-size:10px}
+.batch-entry-flow small{font-size:9px;color:var(--muted);font-weight:500}
+.batch-entry-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:43px;
+ padding:10px 14px;border-radius:10px;background:rgba(var(--accent-rgb),.14);border:1px solid rgba(var(--accent-rgb),.35);
+ color:var(--accent);font-size:11px;font-weight:780;text-decoration:none;white-space:nowrap}
+.batch-entry-button:hover{filter:brightness(1.12)}
+@media(max-width:850px){
+ .batch-entry{padding:10px 13px;gap:10px;flex-wrap:wrap}
+ .batch-entry-flow{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .batch-entry-flow>span{min-height:32px;white-space:normal;font-size:9px;padding:5px 6px;justify-content:center;text-align:center}
+ .batch-entry-flow small{display:none}
+ .batch-entry-button{display:flex;width:100%;min-height:44px;font-size:12px}
+}
+@media print{.batch-entry{display:none!important}}
