@@ -82,7 +82,8 @@
 .batch-controls-grid label{display:grid;align-content:start;gap:7px;color:var(--muted);font-size:10px;font-weight:700}
 .batch-controls-grid input,.batch-controls-grid select{width:100%;min-width:0;min-height:43px;border-radius:10px;
  padding:8px 10px;border:1px solid var(--stroke);color:var(--text);background:var(--surface-2);font-size:12px}
-.batch-controls-grid label:nth-last-child(-n+2){grid-column:span 2}
+.batch-fine-tune .batch-controls-grid label:nth-last-child(-n+2){grid-column:span 2}
+.batch-layout-panel>.batch-controls-grid label:last-child{grid-column:span 2}
 .batch-layout-result{background:var(--surface-2);padding:14px;border-radius:11px;color:var(--text);
  font-size:11px;line-height:1.6;margin:16px 0;min-height:46px}
 .batch-preview-main{display:grid;gap:15px;min-width:0}
