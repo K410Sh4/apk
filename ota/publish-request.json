@@ -1,4 +1,4 @@
 {
-  "version": "0.7.26",
-  "notes": "Etiqueta Studio aprimorado: grade de 5 mm, ajuste de 1 mm, alinhamento e duplicação; geração em lote com tabela CSV, posições livres na folha A4, prévia mais leve e impressão."
+  "version": "0.7.27",
+  "notes": "REA: Etiqueta Studio focado no visual; dados de produtos e SKU estáveis; avisos de texto cortado; gerador A4 consistente; preparar integração Android Arquivos, compartilhar e salvar como PDF (seletor nativo exige APK 0.7.5)."
 }
