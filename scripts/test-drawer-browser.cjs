@@ -109,6 +109,10 @@ const server=http.createServer((req,res)=>{
   for(const [width,height] of [[320,640],[412,915],[1280,800]]){
     await labelsPage.setViewportSize({width,height});
     await labelsPage.goto(base+'/apps/estoque/etiquetas/index.html');
+    assert.ok(await labelsPage.locator('.studio-workspace-eyebrow').isVisible());
+    assert.ok(await labelsPage.locator('.studio-stage-label').isVisible());
+    const hasNewStudioStyles=await labelsPage.evaluate(()=>[...document.styleSheets].some(s=>s.href?.includes('studio-android-v2.css')));
+    assert.ok(hasNewStudioStyles,'Studio Android V2 CSS was not loaded');
     await labelsPage.locator('#studio-grid').click();
     assert.equal(await labelsPage.locator('#studio-grid').getAttribute('aria-pressed'),'true');
     await labelsPage.locator('#studio-snap').click();
@@ -116,6 +120,23 @@ const server=http.createServer((req,res)=>{
     if(width===412)await labelsPage.screenshot({path:path.join(output,'etiqueta-editor-mobile.png'),fullPage:true});
     await labelsPage.goto(base+'/apps/estoque/etiquetas/lote/index.html');
     await labelsPage.locator('#next-list').click();
+    assert.ok(await labelsPage.locator('td.batch-cell-field[data-label]').count()>0);
+    if(width<=412){
+      const mobileCards=await labelsPage.evaluate(()=>{
+        const table=document.querySelector('.batch-table'),row=table?.querySelector('tbody tr');
+        return {
+          hasStyles:[...document.styleSheets].some(s=>s.href?.includes('production-android-v2.css')),
+          display:getComputedStyle(row).display,tableWidth:table.getBoundingClientRect().width,
+          viewport:innerWidth,labels:[...row.querySelectorAll('td')].map(td=>td.dataset.label)
+        };
+      });
+      assert.ok(mobileCards.hasStyles,'Production Android V2 CSS was not loaded');
+      assert.equal(mobileCards.display,'grid','Mobile products should be cards, not a wide table');
+      assert.ok(mobileCards.tableWidth<=mobileCards.viewport+1,'Mobile products overflow the viewport');
+      assert.ok(mobileCards.labels.includes('Cópias'));
+      if(width===412)await labelsPage.screenshot({path:path.join(output,'etiqueta-produtos-cartoes-mobile.png'),fullPage:true});
+    }
+    
     await labelsPage.locator('#next-preview').click();
     await labelsPage.locator('#layout-start-slot').fill('2');
     await labelsPage.locator('#layout-start-slot').press('Tab');
