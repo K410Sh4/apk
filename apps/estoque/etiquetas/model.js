@@ -53,6 +53,11 @@
       if(typeof raw.image==="string" && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(raw.image) && raw.image.length<=2100000) o.image=raw.image;
       else throw Error("Imagem inválida: use PNG, JPEG ou WebP de até 1,5 MB");
     }
+    if(type==="barcode"){
+      // Rejeitar caracteres inválidos: nunca apagar caracteres de SKU.
+      o.text=o.text.toUpperCase();
+      if(!barcodeBits(o.text))throw Error("Code 39 inválido: use A–Z, 0–9, espaço, - . $ / + % (1–24 caracteres)");
+    }
     return o;
   }
   function project(template="preco"){
@@ -95,8 +100,8 @@
     return doc;
   }
   function barcodeBits(value){
-    const text=safeText(value,40).toUpperCase().replace(/[^0-9A-Z.\- $/+%]/g,"").slice(0,24);
-    if(!text)return null;
+    const text=safeText(value,250).toUpperCase();
+    if(!/^[0-9A-Z. $\\/+%-]{1,24}$/.test(text))return null;
     return {text,bits:("*"+text+"*").split("").map(c=>CODE39[c]).join("0")};
   }
   function sheet(width,height,gap=2,margin=5){
