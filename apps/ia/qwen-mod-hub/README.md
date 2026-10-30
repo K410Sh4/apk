@@ -1,5 +1,21 @@
 # Qwen Mod Hub + REA Mod Host v0.2 (protótipo funcional)
 
+## Como usar, sem termos técnicos
+
+O Qwen Mod Hub é o **controle remoto** da IA. O **Qwen roda no PC**, não no celular.
+
+1. **Conectar:** inicie o Qwen e o serviço no Windows, copie o código de conexão para o aplicativo.
+2. **Escolher:** selecione **Rápido**, **Equilibrado** ou **Detalhado** e toque em **Usar este modo no PC**.
+3. **Conversar:** escreva uma pergunta e toque em **Enviar pergunta**.
+
+O modo **Equilibrado** vem selecionado para começar. Rápido diminui revisões; Detalhado aumenta revisões e pode demorar mais. Nenhum modo garante resposta melhor.
+
+**Mais opções** guarda os recursos avançados: memória opcional, revisão extra, Vulkan, contexto e importar/exportar configurações. A memória fica desligada até você habilitar.
+
+Sem um Qwen iniciado no computador, o chat permanece desabilitado. No Android, a versão atual da conexão usa USB preparado com `adb reverse` (não conecta diretamente por Wi-Fi).
+
+
+
 ## O que funciona
 
 - Pasta **IA** e Qwen Mod Hub no AppSpace (Windows, navegador e Android).
