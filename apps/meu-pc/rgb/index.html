@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b101b"><title>RGB Controller — Meu PC · AppSpace</title>
+<link rel="stylesheet" href="../../../assets/portal.css">
+<link rel="stylesheet" href="../../../assets/personalization.css">
+<link rel="stylesheet" href="../../../assets/rgb-controller.css">
+<script src="../../../assets/ota.js" defer></script>
+<script src="../../../assets/pc-connection.js" defer></script>
+<script src="../../../assets/rgb-controller.js" defer></script>
+</head>
+<body class="rgb-page">
+<div class="rgb-app">
+  <header class="rgb-topbar">
+    <a class="rgb-back" href="../index.html" aria-label="Voltar para Meu PC">←</a>
+    <div class="rgb-brand">
+      <span class="rgb-brand-icon" aria-hidden="true">◉</span>
+      <div><strong>RGB <span>Controller</span></strong><small>MEU PC · DISPOSITIVOS E COMPATIBILIDADE</small></div>
+    </div>
+    <span id="rgb-status" class="rgb-connection" role="status">Verificando PC</span>
+  </header>
+  <main class="rgb-content">
+    <div class="rgb-intro">
+      <div><span class="rgb-eyebrow">INVENTÁRIO DE HARDWARE</span>
+      <h1>Seus dispositivos</h1>
+      <p>Identificação em tempo real no Windows. O reconhecimento por USB não garante controle RGB.</p></div>
+      <button id="rgb-refresh" class="rgb-refresh" type="button">↻ Atualizar</button>
+    </div>
+    <section id="rgb-alert" class="rgb-alert" role="status" aria-live="polite">Conectando ao computador...</section>
+    <section class="rgb-grid" aria-label="Dispositivos identificados">
+      <article class="rgb-device rgb-controller" data-rgb-kind="controller">
+        <div class="rgb-device-head"><div class="rgb-device-icon" aria-hidden="true">▦</div><div><span class="rgb-device-kind">ILUMINAÇÃO</span><h2>Controladora RGB</h2></div></div>
+        <span class="rgb-pill" data-device-status="controller">A detectar</span>
+        <p class="rgb-device-desc">Gabinete e ventoinhas RGB/ARGB. Pode usar SATA, controle remoto ou uma ponte USB.</p>
+        <div class="rgb-device-detail" id="rgb-controller-detail">Nenhum controlador USB confirmado</div>
+        <p class="rgb-device-tip">Se aparecer no OpenRGB, poderemos confirmar o suporte. Não conecte ARGB 5 V em RGB 12 V.</p>
+      </article>
+      <article class="rgb-device rgb-microphone" data-rgb-kind="fifine">
+        <div class="rgb-device-head"><div class="rgb-device-icon" aria-hidden="true">♬</div><div><span class="rgb-device-kind">ÁUDIO USB</span><h2>Microfone FIFINE</h2></div></div>
+        <span class="rgb-pill" data-device-status="fifine">A detectar</span>
+        <p class="rgb-device-desc">Dispositivo de áudio e interfaces HID relacionadas. Iluminação depende do modelo.</p>
+        <div class="rgb-device-detail" id="rgb-fifine-detail">USB VID 3142 · PID A010</div>
+        <p class="rgb-device-tip">O Windows detectar o microfone não significa que seus LEDs possam ser alterados.</p>
+      </article>
+      <article class="rgb-device rgb-keyboard" data-rgb-kind="keyboard">
+        <div class="rgb-device-head"><div class="rgb-device-icon" aria-hidden="true">⌨</div><div><span class="rgb-device-kind">IDENTIFICAÇÃO AVANÇADA</span><h2>Teclado USB</h2></div></div>
+        <span class="rgb-pill" data-device-status="keyboard">A confirmar</span>
+        <p class="rgb-device-desc">Possível Sate G50, ainda não confirmado. Analise as interfaces e coleções HID.</p>
+        <div class="rgb-device-detail" id="rgb-keyboard-detail">USB VID 0C45 · PID 8006</div>
+        <p class="rgb-device-tip">VID/PID iguais não comprovam firmware igual. Nenhum comando é enviado ao teclado.</p>
+      </article>
+      <article class="rgb-device rgb-mouse" data-rgb-kind="redragon">
+        <div class="rgb-device-head"><div class="rgb-device-icon" aria-hidden="true">◖</div><div><span class="rgb-device-kind">MOUSE HID</span><h2>Mouse Redragon?</h2></div></div>
+        <span class="rgb-pill" data-device-status="redragon">A confirmar</span>
+        <p class="rgb-device-desc">Provável dispositivo Redragon com botões adicionais e HID do fabricante.</p>
+        <div class="rgb-device-detail" id="rgb-redragon-detail">USB VID 04D9 · PID FC30</div>
+        <p class="rgb-device-tip">Não executaremos comandos não documentados no periférico.</p>
+      </article>
+    </section>
+    <section class="rgb-section" aria-labelledby="rgb-openrgb-title">
+      <div class="rgb-section-head"><div><span class="rgb-eyebrow">INTEGRAÇÃO OPCIONAL</span><h2 id="rgb-openrgb-title">OpenRGB no computador</h2></div><span id="rgb-openrgb-status" class="rgb-pill">Desconhecido</span></div>
+      <p id="rgb-openrgb-note">A conexão de descoberta consulta exclusivamente 127.0.0.1 no PC. Ative o servidor SDK do OpenRGB localmente para identificar dispositivos suportados.</p>
+      <ul id="rgb-openrgb-list" class="rgb-openrgb-list"><li>Nenhum dispositivo informado.</li></ul>
+      <p class="rgb-security">Somente leitura nesta versão. Nenhum dispositivo, firmware, driver, cor ou perfil será alterado. Mantenha o servidor OpenRGB limitado a 127.0.0.1, nunca exposto à rede.</p>
+    </section>
+    <section class="rgb-section" aria-labelledby="rgb-search-title">
+      <div class="rgb-section-head"><div><span class="rgb-eyebrow">BUSCA TÉCNICA</span><h2 id="rgb-search-title">Interfaces do teclado e periféricos</h2></div></div>
+      <label class="rgb-search-label" for="rgb-search">Filtrar por nome, VID/PID, interface, classe ou HID</label>
+      <input id="rgb-search" type="search" placeholder="Ex.: 0C45, MI_01, HID, teclado, FIFINE" autocomplete="off" spellcheck="false">
+      <div class="rgb-table-wrap"><table class="rgb-table"><thead><tr><th>Dispositivo</th><th>Identificador</th><th>Interface</th><th>Classe</th></tr></thead><tbody id="rgb-results"><tr><td colspan="4">Aguardando inventário...</td></tr></tbody></table></div>
+      <p id="rgb-count" class="rgb-count">Nenhuma leitura concluída.</p>
+    </section>
+  </main>
+</div>
+</body>
+</html>
