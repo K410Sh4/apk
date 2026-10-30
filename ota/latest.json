@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.36",
+  "version": "0.7.37",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.36/appspace-web-v0.7.36.zip",
-  "sha256": "54ad84a4f45e32793565bb25a6e8d6993e5b4270b739aed7cbb46b55982f765c",
-  "notes": "AppSpace RGB Sync: novo motor interno de sincronização e prévia de LEDs com cor fixa, respiração, arco-íris, onda e pulso. Brilho, velocidade e cenas salvos loc"
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.37/appspace-web-v0.7.37.zip",
+  "sha256": "06e0191df7b5715aa72094d61c19568ab25ac70edd541a3daa10cf42e297ecda",
+  "notes": "RGB Controller: configuração da sua controladora SATA + CFAN/PWM + entrada ARGB 5 V, mapa de cabos, estado físico, alertas de cooler da CPU e pinagem. Salva no "
 }
