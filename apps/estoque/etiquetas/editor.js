@@ -80,7 +80,10 @@ function drawItem(group,o){
     group.append(s("ellipse",{cx:o.x+o.w/2,cy:o.y+o.h/2,rx:o.w/2,ry:o.h/2,fill:o.fill,
       stroke:o.stroke,"stroke-width":o.strokeWidth}));
   }else if(o.type==="line"){
-    group.append(s("line",{x1:o.x,y1:o.y,x2:o.x+o.w,y2:o.y+o.h,
+    // Barras divisórias antigas têm h=1 mm por causa do limite mínimo do modelo.
+    // Alinhar só essas linhas; diagonais intencionais (h > 1) continuam diagonais.
+    const endY = o.h <= 1 ? o.y : o.y + o.h;
+    group.append(s("line",{x1:o.x,y1:o.y,x2:o.x+o.w,y2:endY,
       stroke:o.stroke,"stroke-width":Math.max(.2,o.strokeWidth||.4),"stroke-linecap":"round"}));
   }else if(o.type==="image"){
     group.append(s("image",{x:o.x,y:o.y,width:o.w,height:o.h,href:o.image,preserveAspectRatio:"xMidYMid meet"}));
@@ -128,7 +131,7 @@ function draw(svgElement,project,interactive=false){
       svgElement.append(s("rect",{class:"label-selection",x:o.x,y:o.y,
         width:Math.max(1,o.w),height:Math.max(1,o.h)}));
       svgElement.append(s("circle",{class:"label-resize","data-resize-id":o.id,
-        cx:o.x+o.w,cy:o.y+o.h,r:Math.max(1,Math.min(1.8,doc.width/70)),
+        cx:o.x+o.w,cy:o.type==="line" && o.h<=1 ? o.y : o.y+o.h,r:Math.max(1,Math.min(1.8,doc.width/70)),
         fill:"#ffffff",stroke:"#2e7bfa","stroke-width":.4}));
     }
   }
