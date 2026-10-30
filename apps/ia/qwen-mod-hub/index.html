@@ -27,40 +27,93 @@
 <div class="breadcrumbs"><a href="../index.html">IA</a><span class="crumb-divider">/</span><strong>Qwen Mod Hub</strong></div></div>
 <div class="topbar-actions"><a class="settings-link" href="../../../configuracoes.html" title="Configurações" aria-label="Configurações">⚙</a><button type="button" class="theme-toggle" data-theme-toggle aria-label="Alternar tema"><svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 15.5A8.8 8.8 0 0 1 8.5 3.7 8.8 8.8 0 1 0 20.3 15.5Z"/></svg></button></div></header>
 <main class="main-content ai-main">
-<a class="ai-back" href="../index.html">← Voltar para IA</a>
-<div class="ai-hero"><div><span class="ai-kicker">LOCAL AI • EXPERIMENTAL</span><h1>Qwen <span>Mod Hub</span></h1><p>Configure módulos do Qwen2.5-Coder 7B para o projeto REA. Seus ajustes ficam neste dispositivo até serem enviados explicitamente ao agente Windows.</p></div><span class="ai-core-icon" aria-hidden="true">✧</span></div>
-<div class="ai-summary"><div><small>Modelo-alvo</small><strong>Qwen2.5-Coder 7B</strong></div><div><small>GPU-alvo</small><strong>RX 5700 XT • Vulkan</strong></div><div><small>Conexão com REA</small><strong id="ai-connection-status">Não conectada</strong></div></div>
-<section aria-labelledby="mods-title" class="ai-panel">
-<div class="ai-panel-head"><div><span class="ai-kicker">01 / MÓDULOS</span><h2 id="mods-title">Modificadores</h2><p>O interruptor altera o perfil local; não modifica os pesos do Qwen nem ativa recursos no REA por conta própria.</p></div><span class="ai-count" id="ai-enabled-count">0 ativos no perfil</span></div>
-<div class="ai-mods">
-<label class="ai-mod"><span class="ai-mod-icon">✦</span><span class="ai-mod-copy"><strong>Adaptive Think <small>v0.1</small></strong><span>Plano, revisão e verificação em múltiplas passagens.</span></span><input type="checkbox" data-mod="think" aria-label="Habilitar Adaptive Think"></label>
-<label class="ai-mod"><span class="ai-mod-icon">▤</span><span class="ai-mod-copy"><strong>Long-Term Memory <small>v0.1</small></strong><span>Quando ativado, armazena localmente até 32 interações no PC para recuperação.</span></span><input type="checkbox" data-mod="memory" aria-label="Habilitar Long-Term Memory"></label>
-<label class="ai-mod"><span class="ai-mod-icon">◇</span><span class="ai-mod-copy"><strong>Vulkan Optimizer <small>v0.1</small></strong><span>Perfil proposto de inferência para AMD RDNA 1.</span></span><input type="checkbox" data-mod="vulkan" aria-label="Habilitar Vulkan Optimizer"></label>
-<label class="ai-mod"><span class="ai-mod-icon">✓</span><span class="ai-mod-copy"><strong>Code Verify <small>v0.1</small></strong><span>Faz revisão textual extra por IA; não executa testes de código.</span></span><input type="checkbox" data-mod="verify" aria-label="Habilitar Code Verify"></label>
+<a class="ai-back" href="../index.html">← Voltar à pasta IA</a>
+<header class="ai-hero">
+  <span class="ai-hero-icon" aria-hidden="true">
+    <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9a9 9 0 0 0-9 9c0 3 1.5 5.5 3.8 7A9 9 0 0 0 19 40h3V9h-3Zm10 0a9 9 0 0 1 9 9c0 3-1.5 5.5-3.8 7A9 9 0 0 1 29 40h-3V9h3ZM22 18h4m-4 12h4"/></svg>
+  </span>
+  <div><span class="ai-eyebrow">SUA IA NO COMPUTADOR</span><h1>Qwen Mod Hub</h1><p>Escolha como o Qwen responde e converse com ele. <strong>A IA roda no PC; este aplicativo é o controle.</strong></p></div>
+</header>
+<div class="ai-status-banner" id="ai-status-banner" data-state="offline" role="status" aria-live="polite">
+  <span class="ai-status-led" aria-hidden="true"></span>
+  <div><strong id="ai-connection-status">PC desconectado</strong><p id="ai-status-hint">Conecte o computador no passo 1.</p></div>
 </div>
-<div class="ai-options"><label>Intensidade Think<select id="ai-think-mode"><option value="economy">Econômico</option><option value="balanced">Equilibrado</option><option value="deep">Profundo</option></select></label><label>Janela de contexto<select id="ai-context"><option value="4096">4.096 tokens</option><option value="8192">8.192 tokens</option></select></label></div>
-<div class="ai-actions"><button class="ai-btn ai-primary" id="ai-save" type="button">Salvar perfil local</button><button class="ai-btn" id="ai-export" type="button">Exportar JSON</button><label class="ai-btn ai-file">Importar JSON<input type="file" id="ai-import" accept="application/json,.json" hidden></label><button class="ai-btn ai-danger" id="ai-reset" type="button">Restaurar padrão</button></div>
+<nav class="ai-shortcuts" aria-label="Etapas para usar a IA">
+  <a href="#connect-card"><span>1</span> Conectar</a>
+  <a href="#mode-card"><span>2</span> Escolher modo</a>
+  <a href="#chat-card"><span>3</span> Conversar</a>
+</nav>
+<section class="ai-panel ai-step" id="connect-card" aria-labelledby="rea-title">
+  <div class="ai-step-heading"><span class="ai-step-number">1</span><div><h2 id="rea-title">Conecte ao computador</h2><p>Abra a IA no seu PC e copie o código que aparecer na tela.</p></div></div>
+  <details class="ai-help"><summary>Como preparar o PC?</summary>
+    <div class="ai-help-body">
+      <p><strong>Primeiro:</strong> abra o Qwen pelo llama-server no computador.</p>
+      <p><strong>Depois:</strong> na pasta do AppSpace no Windows, abra um terminal e execute:</p>
+      <div class="ai-command"><code>npm.cmd run ai:agent</code><button id="ai-copy-command" type="button" class="ai-copy" aria-label="Copiar comando">Copiar</button></div>
+      <p>Copie o código (token) mostrado no terminal e cole abaixo. Não compartilhe esse código.</p>
+      <p><strong>No celular:</strong> esta versão usa USB com <code>adb reverse tcp:8765 tcp:8765</code> configurado no PC. Conectar apenas pelo Wi-Fi ainda não é suportado.</p>
+    </div>
+  </details>
+  <form id="ai-agent-form" class="ai-connect-form">
+    <label class="ai-field" for="ai-token">Código de conexão do PC
+      <input id="ai-token" type="password" placeholder="Cole o código exibido no computador" autocomplete="off" spellcheck="false">
+    </label>
+    <div class="ai-connect-row"><button class="ai-btn ai-primary" id="ai-connect" type="submit">Conectar ao PC</button><span class="ai-muted">A IA precisa estar aberta no Windows.</span></div>
+    <details class="ai-technical"><summary>Endereço de conexão (avançado)</summary>
+      <label class="ai-field" for="ai-host">Endereço do serviço
+        <input id="ai-host" type="url" inputmode="url" placeholder="http://127.0.0.1:8765" spellcheck="false" autocomplete="off">
+      </label>
+      <p>Use o endereço padrão, a menos que tenha mudado a porta do serviço Windows.</p>
+    </details>
+  </form>
 </section>
-<section class="ai-panel" aria-labelledby="rea-title">
-<div class="ai-panel-head"><div><span class="ai-kicker">02 / INTEGRAÇÃO REA</span><h2 id="rea-title">Conexão com agente Windows</h2><p>O REA Mod Host v0.2 é um serviço separado do executável REA. Execute npm run ai:agent no Windows; a comunicação com o Qwen requer llama-server local ativo. Nenhum código do REA é alterado.</p></div></div>
-<form id="ai-agent-form" class="ai-connection-form">
-<label>Endereço local do agente<input id="ai-host" type="url" inputmode="url" placeholder="http://127.0.0.1:8765" spellcheck="false" autocomplete="off"></label>
-<label>Token de sessão<input id="ai-token" type="password" placeholder="Token do REA" autocomplete="off" spellcheck="false"></label>
-<div class="ai-actions"><button class="ai-btn" id="ai-connect" type="submit">Testar conexão</button><button class="ai-btn ai-primary" id="ai-apply" type="button" disabled>Aplicar perfil no REA</button></div>
-</form>
-<p class="ai-note">A primeira versão aceita somente loopback (127.0.0.1). Para controlar pelo Android via USB, use adb reverse tcp:8765 tcp:8765. O token não é salvo; não exponha esta API na internet.</p>
+<section class="ai-panel ai-step" id="mode-card" aria-labelledby="mods-title">
+  <div class="ai-step-heading"><span class="ai-step-number">2</span><div><h2 id="mods-title">Escolha como a IA responde</h2><p>Comece pelo modo equilibrado. Você pode mudar quando quiser.</p></div></div>
+  <label class="ai-field" for="ai-think-mode">Modo de resposta
+    <select id="ai-think-mode"><option value="economy">Rápido — menos espera</option><option value="balanced">Equilibrado — recomendado</option><option value="deep">Detalhado — mais revisão</option></select>
+  </label>
+  <p id="ai-mode-explainer" class="ai-mode-explainer">O Qwen faz uma revisão extra para responder com mais cuidado. Pode demorar mais.</p>
+  <label class="ai-mod ai-mod-main"><span class="ai-mod-icon" aria-hidden="true">✦</span><span class="ai-mod-copy"><strong>Revisar resposta (Think)</strong><span>Quando ligado, a IA revisa a própria resposta. Isso não garante que esteja correta.</span></span><input type="checkbox" data-mod="think" aria-label="Revisar resposta Think"></label>
+  <div class="ai-primary-actions">
+    <button class="ai-btn ai-primary" id="ai-apply" type="button" disabled>Usar este modo no PC</button>
+    <p>O botão ficará disponível depois que você conectar o PC no passo 1.</p>
+  </div>
+  <details class="ai-advanced" id="ai-advanced-options">
+    <summary>Mais opções <span>(opcional)</span></summary>
+    <div class="ai-advanced-body">
+      <p>Estas configurações não são necessárias para começar.</p>
+      <div class="ai-mods">
+        <label class="ai-mod"><span class="ai-mod-copy"><strong>Guardar conversas (Memória)</strong><span>Salva até 32 interações no PC para ajudar nas próximas respostas. Fica desligado por padrão.</span></span><input type="checkbox" data-mod="memory" aria-label="Guardar conversas no PC"></label>
+        <label class="ai-mod"><span class="ai-mod-copy"><strong>Revisão extra de código</strong><span>A IA procura possíveis problemas no texto. Não executa testes de programação.</span></span><input type="checkbox" data-mod="verify" aria-label="Revisão extra de código"></label>
+        <label class="ai-mod"><span class="ai-mod-copy"><strong>Perfil Vulkan (experimental)</strong><span>Não acelera a placa de vídeo automaticamente. O motor do Qwen precisa ser configurado no PC.</span></span><input type="checkbox" data-mod="vulkan" aria-label="Perfil Vulkan experimental"></label>
+      </div>
+      <label class="ai-field" for="ai-context">Contexto (opção técnica)
+        <select id="ai-context"><option value="4096">4.096 tokens</option><option value="8192">8.192 tokens</option></select>
+      </label>
+      <p>Essa opção é só uma preferência do perfil; o limite real é configurado no Qwen do PC.</p>
+      <div class="ai-extra-actions">
+        <button class="ai-btn" id="ai-save" type="button">Salvar escolha neste aparelho</button>
+        <button class="ai-btn" id="ai-export" type="button">Exportar configuração</button>
+        <label class="ai-btn ai-file">Importar configuração<input type="file" id="ai-import" accept="application/json,.json" hidden></label>
+        <button class="ai-btn" id="ai-clear-memory" type="button" disabled>Apagar memória do PC</button>
+        <button class="ai-btn ai-danger" id="ai-reset" type="button">Voltar ao padrão</button>
+      </div>
+      <p class="ai-small">Módulos selecionados: <span id="ai-enabled-count">0</span>. Ativar uma opção no aplicativo não altera os pesos do Qwen.</p>
+    </div>
+  </details>
 </section>
-<section class="ai-panel" aria-labelledby="chat-title">
-<div class="ai-panel-head"><div><span class="ai-kicker">03 / TESTE REAL</span><h2 id="chat-title">Laboratório Qwen</h2><p>Teste o Qwen local com o perfil aplicado. O modo Think faz revisão textual extra; não garante que o código foi compilado nem testado.</p></div></div>
-<form id="ai-chat-form" class="ai-chat-form">
-<label for="ai-prompt">Sua pergunta para o Qwen</label>
-<textarea id="ai-prompt" rows="4" maxlength="6000" placeholder="Analise este trecho Luau e procure erros de lógica..." required></textarea>
-<div class="ai-actions"><button class="ai-btn ai-primary" id="ai-chat-send" type="submit" disabled>Executar no Qwen</button><button class="ai-btn" id="ai-clear-memory" type="button" disabled>Limpar memória do agente</button></div>
-</form>
-<div class="ai-chat-meta" id="ai-chat-meta" role="status" aria-live="polite">Aguardando conexão com o Qwen local.</div>
-<pre class="ai-chat-response" id="ai-chat-response" aria-label="Resposta do Qwen" tabindex="0" hidden></pre>
+<section class="ai-panel ai-step" id="chat-card" aria-labelledby="chat-title">
+  <div class="ai-step-heading"><span class="ai-step-number">3</span><div><h2 id="chat-title">Converse com o Qwen</h2><p>Escreva uma pergunta. A resposta será gerada no seu PC.</p></div></div>
+  <form id="ai-chat-form" class="ai-chat-form">
+    <label class="ai-field" for="ai-prompt">Sua pergunta
+      <textarea id="ai-prompt" rows="4" maxlength="6000" placeholder="Ex.: encontre problemas neste código Luau..." required></textarea>
+    </label>
+    <button class="ai-btn ai-primary" id="ai-chat-send" type="submit" disabled>Enviar pergunta</button>
+  </form>
+  <p class="ai-chat-meta" id="ai-chat-meta" role="status" aria-live="polite">Conecte o PC e escolha um modo para começar.</p>
+  <pre class="ai-chat-response" id="ai-chat-response" aria-label="Resposta do Qwen" tabindex="0" hidden></pre>
 </section>
-<div class="ai-feedback" id="ai-feedback" role="status" aria-live="polite">Perfil inicial carregado. Nenhuma modificação foi aplicada ao Qwen.</div>
+<div class="ai-feedback" id="ai-feedback" role="status" aria-live="polite">Comece conectando o computador no passo 1.</div>
 </main>
 <nav class="mobile-nav" aria-label="Navegação móvel"><a href="../../../index.html"><span>⌂</span><span>Início</span></a><a href="../index.html" aria-current="page"><span>▦</span><span>IA</span></a><a href="../../../configuracoes.html"><span>⚙</span><span>Ajustes</span></a></nav>
 </div></div>

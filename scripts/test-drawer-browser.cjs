@@ -90,6 +90,8 @@ const server=http.createServer((req,res)=>{
   assert.ok(await page.locator('[data-mod="think"]').isChecked());
   await page.locator('[data-mod="think"]').uncheck();
   await page.locator('#ai-think-mode').selectOption('deep');
+  assert.ok(!(await page.locator('#ai-advanced-options').evaluate(el=>el.open)),'Opções avançadas devem começar fechadas');
+  await page.locator('#ai-advanced-options > summary').click();
   await page.locator('#ai-save').click();
   assert.match(await page.locator('#ai-feedback').innerText(),/salvo neste dispositivo/i);
   assert.ok(await page.locator('#ai-apply').isDisabled());
@@ -101,6 +103,7 @@ const server=http.createServer((req,res)=>{
     buffer:Buffer.from(JSON.stringify({schema:1,target:'qwen2.5-coder-7b-instruct',mods:{think:true,memory:false,vulkan:true,verify:true},thinkMode:'economy',contextSize:8192}))});
   assert.equal(await page.locator('[data-mod="memory"]').isChecked(),false);
   assert.equal(await page.locator('#ai-context').inputValue(),'8192');
+  await page.locator('.ai-technical > summary').click();
   await page.locator('#ai-host').fill('https://example.com');
   await page.locator('#ai-token').fill('test-token');
   await page.locator('#ai-connect').click();
@@ -131,17 +134,34 @@ const server=http.createServer((req,res)=>{
   assert.equal(await aiPage.locator('[data-mod="memory"]').isChecked(),false,'Memória deve requerer opt-in');
   await aiPage.locator('#ai-token').fill('demo-session-token');
   await aiPage.locator('#ai-connect').click();
-  await aiPage.waitForFunction(()=>document.getElementById('ai-connection-status').textContent.includes('Qwen online'));
+  await aiPage.waitForFunction(()=>document.getElementById('ai-connection-status').textContent==='PC conectado');
   assert.ok(await aiPage.locator('#ai-apply').isEnabled());
   await aiPage.locator('#ai-apply').click();
-  await aiPage.waitForFunction(()=>document.getElementById('ai-connection-status').textContent.includes('Perfil aplicado'));
+  await aiPage.waitForFunction(()=>document.getElementById('ai-connection-status').textContent.includes('Tudo pronto'));
   assert.ok(await aiPage.locator('#ai-chat-send').isEnabled());
   await aiPage.locator('#ai-prompt').fill('O que faz o Qwen modificado?');
   await aiPage.locator('#ai-chat-send').click();
   await aiPage.waitForSelector('#ai-chat-response:visible');
   assert.match(await aiPage.locator('#ai-chat-response').innerText(),/Resposta local simulada/);
   assert.equal(await aiPage.locator('#ai-chat-response script').count(),0,'Resposta não deve virar HTML executável');
-  assert.match(await aiPage.locator('#ai-chat-meta').innerText(),/3 passagem/);
+  assert.match(await aiPage.locator('#ai-chat-meta').innerText(),/3 etapas/);
+  // A escolha pode ser alterada sem reconectar: aplicar também salva mudanças locais.
+  await aiPage.locator('#ai-think-mode').selectOption('deep');
+  assert.ok(await aiPage.locator('#ai-apply').isEnabled());
+  assert.ok(await aiPage.locator('#ai-chat-send').isDisabled());
+  await aiPage.locator('#ai-apply').click();
+  await aiPage.waitForFunction(()=>document.getElementById('ai-connection-status').textContent.includes('Tudo pronto'));
+  assert.equal(await aiPage.evaluate(()=>JSON.parse(localStorage.getItem('appspace.ia.qwen-mod-hub.v1')).thinkMode),'deep');
+  assert.ok(await aiPage.locator('#ai-chat-send').isEnabled());
+  // Testa mobile pequeno, mobile horizontal e desktop, mantendo a tela sem rolagem lateral.
+  for(const [width,height] of [[320,640],[412,915],[844,390],[1280,800]]){
+    await aiPage.setViewportSize({width,height});
+    assert.ok(await aiPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Qwen Hub overflow '+width);
+    if(width===412) await aiPage.screenshot({path:path.join(output,'qwen-mod-hub-simples-mobile.png'),fullPage:true});
+    if(width===1280) await aiPage.screenshot({path:path.join(output,'qwen-mod-hub-simples-desktop.png'),fullPage:true});
+  }
+  await aiPage.setViewportSize({width:412,height:915});
+  await aiPage.locator('#ai-advanced-options > summary').click();
   await aiPage.locator('#ai-clear-memory').click();
   await aiPage.waitForFunction(()=>document.getElementById('ai-feedback').textContent.includes('Memória persistente do agente apagada'));
   assert.match(await aiPage.locator('#ai-feedback').innerText(),/Memória persistente do agente apagada/);
