@@ -1,4 +1,4 @@
 {
-  "version": "0.7.12",
-  "notes": "Tela inicial simplificada: removidas a pasta Sistema e a demonstração Primeiro app. Biblioteca mostra somente Etiqueta Studio e PC Monitor em Meu PC."
+  "version": "0.7.13",
+  "notes": "Correção de Configurações: removida a prévia antiga Primeiro app e atualizados links e instruções para Meu PC. Catálogo mantém apenas apps reais."
 }
