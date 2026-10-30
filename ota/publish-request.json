@@ -1,4 +1,4 @@
 {
-  "version": "0.7.6",
-  "notes": "Etiqueta Studio modernizado: mais área para criação, ferramentas inferiores compactas, propriedades contextuais e painel de exportação minimalista."
+  "version": "0.7.7",
+  "notes": "Etiqueta Studio: redimensionamento por pinça de dois dedos, toque duplo para editar textos e códigos, botão Apagar e limpeza completa com Desfazer."
 }
