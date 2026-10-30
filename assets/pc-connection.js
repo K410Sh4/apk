@@ -62,29 +62,29 @@
    try{storage()?.removeItem(KEY);storage()?.removeItem(LEGACY)}catch(_){}
  }
  async function request(path,options={}){
-   if(!["/metrics","/pair","/health","/rgb/devices"].includes(path))throw Error("Rota não autorizada");
+   if(!["/metrics","/pair","/health","/rgb/devices","/pc/controls"].includes(path))throw Error("Rota não autorizada");
    const method=options.method||"GET";
-   if(method!==(path==="/pair"?"POST":"GET"))throw Error("Método não permitido");
+   if(method!==(path==="/pair"?"POST":path==="/pc/controls"&&options.data?"POST":"GET"))throw Error("Método não permitido");
    const target=options.endpoint||get();
    if(!desktop&&!ipv4(target?.ip))throw Error("Informe um IP de rede local válido");
-   const address=desktop?(path==="/metrics"?"/__api/metrics":path==="/rgb/devices"?"/__api/rgb/devices":"/__api/desktop"):
+   const address=desktop?(path==="/metrics"?"/__api/metrics":path==="/rgb/devices"?"/__api/rgb/devices":path==="/pc/controls"?"/__api/pc/controls":"/__api/desktop"):
      "http://"+target.ip+":"+PORT+path;
    const headers={"Accept":"application/json"};
    if(options.data)headers["Content-Type"]="application/json";
-   if((path==="/metrics"||path==="/rgb/devices")&&!desktop){
+   if((path==="/metrics"||path==="/rgb/devices"||path==="/pc/controls")&&!desktop){
      if(!validToken(target.token))throw Error("Conecte o computador em Meu PC");
      headers["Authorization"]="Bearer "+target.token;
    }
    const plugin=capacitor?.Plugins?.CapacitorHttp;
    if(native&&!desktop&&typeof plugin?.request==="function"){
      const result=await plugin.request({url:address,method,headers,
-       data:options.data||undefined,connectTimeout:4000,readTimeout:path==="/rgb/devices"?9500:4000});
+       data:options.data||undefined,connectTimeout:4000,readTimeout:path==="/pc/controls"?12000:path==="/rgb/devices"?9500:4000});
      let payload=result.data;
      if(typeof payload==="string"){try{payload=JSON.parse(payload)}catch(_){}}
      if(result.status<200||result.status>=300)throw Error(payload?.error||"HTTP "+result.status);
      return payload;
    }
-   const timeoutMs=path==="/rgb/devices"?9500:4000;
+   const timeoutMs=path==="/pc/controls"?12000:path==="/rgb/devices"?9500:4000;
    const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),timeoutMs);
    try{
      const response=await root.fetch(address,{method,headers,
