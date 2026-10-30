@@ -42,7 +42,12 @@ test("REA Mod Host autentica, aplica perfil, conversa no Qwen e apaga memória",
   const {url,token}=await agent.listen();
   assert.equal((await call(url,"/api/v1/status","bad")).status,401);
   assert.equal((await call(url,"/api/v1/status",token,"GET",undefined,{Origin:"https://evil.example"})).status,403);
-  assert.equal((await call(url,"/api/v1/status",token,"GET",undefined,{Host:"evil.example"})).status,403);
+  // fetch/undici pode normalizar o Host; envio bruto garante que testamos a defesa do servidor.
+  const spoofed=await new Promise((resolve,reject)=>{
+    const req=http.request(url+"/api/v1/status",{headers:{Host:"evil.example",Authorization:"Bearer "+token}},res=>{res.resume();res.on("end",()=>resolve(res.statusCode));});
+    req.on("error",reject);req.end();
+  });
+  assert.equal(spoofed,403);
   const status=await call(url,"/api/v1/status",token,"GET",undefined,{Origin:"capacitor://localhost"});
   assert.equal(status.status,200);
   assert.equal(status.headers.get("access-control-allow-origin"),"capacitor://localhost");
