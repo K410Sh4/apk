@@ -1,4 +1,4 @@
 {
-  "version": "0.7.32",
-  "notes": "Nova pasta IA e Qwen Mod Hub: perfis Think, Memory, Verify e Vulkan, laboratorio Qwen e integracao local opcional com REA Mod Host Windows."
+  "version": "0.7.33",
+  "notes": "Qwen Mod Hub mais simples: conectar ao PC, escolher modo e conversar. Textos claros, estado visivel e opcoes avancadas recolhidas."
 }
