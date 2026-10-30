@@ -267,7 +267,10 @@ assert.match(monitor, /id="monitor-cpu"/);
 assert.match(monitor, /id="monitor-ram"/);
 assert.match(monitor, /id="monitor-gpu"/);
 assert.match(monitor, /id="monitor-uptime"/);
-assert.doesNotMatch(monitor, /id="monitor-cpu-spark"/);
+assert.match(monitor, /id="monitor-cpu-spark"/);
+assert.match(monitor, /id="monitor-fps"/);
+assert.match(monitor, /id="monitor-gpu-details"/);
+assert.match(monitor, /pc-monitor-v2\.css/);
 assert.match(monitor, /assets\/pc-monitor\.js/);
 assert.match(monitorCss, /monitor-metrics/);
 assert.match(monitorCss, /monitor-focus/);
@@ -280,6 +283,8 @@ assert.match(pcConnection, /\/__api\/metrics/);
 assert.match(monitorJs, /PC\.check\(/);
 assert.match(lan, /timingSafeEqual/);
 assert.match(lan, /\/metrics/);
+assert.match(lan, /createGpuSampler/);
+assert.match(monitorJs, /requestAnimationFrame/);
 assert.match(lan, /\/pair/);
 assert.match(desktopUpdater, /sha256/);
 assert.match(desktopUpdater, /extract-zip/);
@@ -297,11 +302,12 @@ for(const source of [monitorJs, pcConnection, myPcUi, lan, desktopUpdater, elect
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 execFileSync(process.execPath, [path.join(root, "scripts/test-my-pc.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdio: "inherit" });
+execFileSync(process.execPath, [path.join(root, "scripts/test-gpu.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-modern.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-gestures.cjs")], { stdio: "inherit" });
