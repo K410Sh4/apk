@@ -13,8 +13,10 @@
 <script src="../../assets/ota.js" defer></script>
 <script src="../../assets/pc-connection.js" defer></script>
 <script src="../../assets/my-pc.js" defer></script>
+<link rel="stylesheet" href="../../assets/app-drawer.css">
+<script src="../../assets/app-drawer.js" defer></script>
 </head>
-<body class="page-folder page-my-pc">
+<body class="page-folder page-my-pc page-app-drawer">
 <div class="app-shell">
 <aside class="sidebar" aria-label="Navegação"><a class="brand" href="../../index.html" aria-label="AppSpace"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span><span class="brand-type">app<span>space</span></span></a>
 <div class="sidebar-group"><span class="nav-caption">WORKSPACE</span><nav class="side-nav" aria-label="Navegação principal">
@@ -27,9 +29,25 @@
 <div class="breadcrumbs"><a href="../../index.html">Início</a><span class="crumb-divider">/</span><strong>Meu PC</strong></div></div>
 <div class="topbar-actions"><a href="../../configuracoes.html" class="monitor-settings-link" aria-label="Configurações">⚙</a></div></header>
 <main class="main-content mypc-main">
-<a href="../../index.html#pastas" class="folder-back">← Pastas</a>
-<header class="mypc-title"><div><span class="section-kicker">CENTRAL DE CONEXÃO</span><h1>Meu PC</h1><p>Conecte uma vez. Use em todos os aplicativos do computador.</p></div>
+<a href="../../index.html#pastas" class="drawer-back"><span aria-hidden="true">←</span> Todas as pastas</a>
+<header class="drawer-heading"><div><span class="drawer-eyebrow">APLICATIVOS</span><h1 id="folder-title">Meu PC</h1><p>Ferramentas conectadas ao seu computador</p></div>
 <span id="mypc-status" class="mypc-status" data-online="false" role="status">Não conectado</span></header>
+<section class="app-drawer" data-app-drawer="meu-pc" aria-label="Aplicativos desta pasta">
+ <div class="drawer-toolbar">
+  <div class="drawer-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+   <input id="drawer-search" type="search" aria-label="Pesquisar aplicativos nesta pasta" placeholder="Pesquisar aplicativos" autocomplete="off" enterkeyhint="search" spellcheck="false">
+   <button id="drawer-clear" type="button" aria-label="Limpar pesquisa" hidden>×</button></div>
+  <label class="drawer-sort"><span>Ordenar</span><select id="drawer-sort" aria-label="Ordenar aplicativos"><option value="az">A–Z</option><option value="za">Z–A</option></select></label>
+ </div>
+ <div class="drawer-meta"><span id="drawer-count" role="status" aria-live="polite">1 aplicativo</span><span>Toque para abrir</span></div>
+ <ul id="drawer-grid" class="drawer-grid"><li><a class="drawer-app drawer-app--pc" href="./monitor/index.html" data-drawer-app data-search="cpu ram gpu memória desempenho computador monitor" id="mypc-monitor-link"><span class="drawer-app-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="3"/><path d="M8 21h8m-4-4v4M6 12l3-3 3 4 3-5 3 2"/></svg></span><span class="drawer-app-name">PC Monitor</span></a></li></ul>
+ <div id="drawer-empty" class="drawer-empty" hidden>
+  <span class="drawer-empty-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="2"/><rect x="14" y="4" width="6" height="6" rx="2"/><rect x="4" y="14" width="6" height="6" rx="2"/><path d="M17 14v6m-3-3h6"/></svg></span><h2 id="drawer-empty-title">Esta pasta ainda está vazia</h2>
+  <p id="drawer-empty-message">Os novos aplicativos aparecerão aqui.</p>
+  <button type="button" id="drawer-reset-search" class="drawer-reset" hidden>Limpar pesquisa</button>
+ </div>
+ </section>
+<details class="drawer-connection" id="mypc-connection-panel"><summary><span>Conexão do computador</span><small>Wi-Fi ou USB</small></summary>
 <section class="mypc-connect" aria-label="Conectar ao computador">
 <div id="mypc-connected" class="mypc-connected" hidden>
 <div><span class="section-kicker">COMPUTADOR PAREADO</span><strong id="mypc-host">Meu computador</strong>
@@ -57,12 +75,7 @@
 </div>
 <div id="mypc-feedback" class="mypc-feedback" role="status" aria-live="polite"></div>
 </section>
-<section class="mypc-apps" aria-labelledby="mypc-apps-heading">
-<div class="mypc-apps-heading"><h2 id="mypc-apps-heading">Aplicativos do PC</h2><span>1 disponível</span></div>
-<a id="mypc-monitor-link" class="mypc-app" href="./monitor/index.html">
-<span class="mypc-app-icon" aria-hidden="true">▥</span><span class="mypc-app-copy"><strong>PC Monitor</strong>
-<small>CPU, RAM, GPU e tempo ligado</small></span><span class="mypc-arrow" aria-hidden="true">↗</span></a>
-</section>
+</details>
 <p class="mypc-security">Somente rede privada · Conexão HTTP local · Sem controle remoto do computador</p>
 </main>
 <nav class="mobile-nav" aria-label="Navegação móvel">

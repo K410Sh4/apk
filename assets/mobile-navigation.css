@@ -168,3 +168,10 @@
 @media(prefers-reduced-motion:reduce){
  :root[data-mobile-nav-style="minimal"] .minimal-bottom-nav *{transition:none!important}
 }
+
+/* Menos pintura durante rolagem/toque no WebView; desktop mantém os efeitos. */
+@media(max-width:850px){
+ .folder-card-art::before,.hero-glow{display:none}
+ .folder-card:hover,.app-card:hover,.launcher-tile:hover{transform:none}
+ .folder-card,.app-card{transition:border-color .14s}
+}

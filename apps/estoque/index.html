@@ -12,8 +12,10 @@
   <link rel="stylesheet" href="../../assets/mobile-navigation.css">
   <script src="../../assets/portal.js" defer></script>
   <script src="../../assets/ota.js" defer></script>
+  <link rel="stylesheet" href="../../assets/app-drawer.css">
+  <script src="../../assets/app-drawer.js" defer></script>
 </head>
-<body class="page-folder">
+<body class="page-folder page-app-drawer">
   <div class="app-shell">
     <aside class="sidebar" aria-label="Barra lateral">
       <a class="brand" href="../../index.html" aria-label="AppSpace, página inicial">
@@ -25,7 +27,7 @@
         <nav class="side-nav" aria-label="Navegação principal">
           <a href="../../index.html" class="nav-link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Início</span></a>
           <a href="../../index.html#pastas" aria-current="page" class="nav-link active"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h5l2.1 2.2h6a2 2 0 0 1 2 2v8.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 9h17"/></svg><span>Pastas</span><span class="folder-nav-count">03</span></a>
-          <a href="../../index.html#apps" class="nav-link"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Aplicativos</span><span class="nav-count">01</span></a>
+          <a href="../../index.html#pastas" class="nav-link"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Aplicativos</span><span class="nav-count">01</span></a>
           <a href="../../configuracoes.html" class="nav-link"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg><span>Configurações</span></a>
         </nav>
       </div>
@@ -48,38 +50,29 @@
           <button type="button" class="theme-toggle" data-theme-toggle aria-label="Ativar tema claro" title="Alternar tema"><svg class="sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg><svg class="moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 15.5A8.8 8.8 0 0 1 8.5 3.7 8.8 8.8 0 1 0 20.3 15.5Z"/></svg></button>
         </div>
       </header>
-      <main class="main-content folder-page">
-        <a class="folder-back" href="../../index.html#pastas">← Todas as pastas</a>
-        <section class="folder-header folder-header--stock" aria-labelledby="folder-title">
-          <div class="folder-header-icon" aria-hidden="true"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="m24 5 17 9v20l-17 9-17-9V14z"/><path d="m7 14 17 9 17-9M24 23v20M16 9l17 9m-15 9h6"/></svg></div>
-          <div class="folder-header-copy">
-            <span class="folder-eyebrow">PASTA 01 · GESTÃO</span>
-            <h1 id="folder-title">Estoque</h1>
-            <p>Ferramentas para organizar o inventário, identificar produtos e criar etiquetas personalizadas.</p>
-            <span class="folder-meta"><span class="online-dot" aria-hidden="true"></span> 1 aplicativo · Etiqueta Studio</span>
-          </div>
-        </section>
-        <section class="folder-contents" aria-labelledby="contents-title">
-          <div class="section-head"><div><span class="section-kicker">CONTEÚDO DA PASTA</span><h2 id="contents-title">Aplicativos <span class="section-count">01</span></h2><p>Escolha uma ferramenta para começar seu trabalho.</p></div></div>
-          <div class="app-grid">
-            <a class="app-card" href="./etiquetas/index.html" data-search="editor gerador etiquetas rótulos codigo de barras impressao produto preco estoque">
-              <div class="card-top"><span class="app-logo" aria-hidden="true"><span class="logo-inner">▤</span></span>
-                <span class="status-pill"><span class="status-dot"></span> Disponível</span>
-              </div>
-              <div class="card-body"><span class="app-category">ESTOQUE · IDENTIFICAÇÃO</span>
-                <h3>Etiqueta Studio</h3>
-                <p>Crie etiquetas do seu jeito: textos, formas, imagens, códigos de barras e folhas A4 para impressão.</p>
-              </div>
-              <div class="card-footer"><span>Abrir editor</span><span class="card-arrow" aria-hidden="true">↗</span></div>
-            </a>
-          </div>
-        </section>
-        <footer class="site-footer"><span>AppSpace · Estoque</span><span>Organizado para PC e celular</span></footer>
-      </main>
+      <main class="main-content drawer-main">
+ <a class="drawer-back" href="../../index.html#pastas"><span aria-hidden="true">←</span> Todas as pastas</a>
+ <header class="drawer-heading"><div><span class="drawer-eyebrow">APLICATIVOS</span><h1 id="folder-title">Estoque</h1><p>Criação e impressão de etiquetas</p></div><span class="drawer-folder-mark" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9l7 7-7 7-9-9z"/><circle cx="8.5" cy="10" r="1.3"/></svg></span></header>
+ <section class="app-drawer" data-app-drawer="estoque" aria-label="Aplicativos desta pasta">
+ <div class="drawer-toolbar">
+  <div class="drawer-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+   <input id="drawer-search" type="search" aria-label="Pesquisar aplicativos nesta pasta" placeholder="Pesquisar aplicativos" autocomplete="off" enterkeyhint="search" spellcheck="false">
+   <button id="drawer-clear" type="button" aria-label="Limpar pesquisa" hidden>×</button></div>
+  <label class="drawer-sort"><span>Ordenar</span><select id="drawer-sort" aria-label="Ordenar aplicativos"><option value="az">A–Z</option><option value="za">Z–A</option></select></label>
+ </div>
+ <div class="drawer-meta"><span id="drawer-count" role="status" aria-live="polite">2 aplicativos</span><span>Toque para abrir</span></div>
+ <ul id="drawer-grid" class="drawer-grid"><li><a class="drawer-app drawer-app--label" href="./etiquetas/index.html" data-drawer-app data-search="editor etiquetas rótulos codigo barras impressão produto preço estoque" ><span class="drawer-app-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h9l7 7-7 7-9-9z"/><circle cx="8.5" cy="10" r="1.3"/></svg></span><span class="drawer-app-name">Etiqueta Studio</span></a></li><li><a class="drawer-app drawer-app--batch" href="./etiquetas/lote/index.html" data-drawer-app data-search="etiquetas lote planilha csv produtos impressão" ><span class="drawer-app-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span class="drawer-app-name">Etiquetas em lote</span></a></li></ul>
+ <div id="drawer-empty" class="drawer-empty" hidden>
+  <span class="drawer-empty-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="2"/><rect x="14" y="4" width="6" height="6" rx="2"/><rect x="4" y="14" width="6" height="6" rx="2"/><path d="M17 14v6m-3-3h6"/></svg></span><h2 id="drawer-empty-title">Esta pasta ainda está vazia</h2>
+  <p id="drawer-empty-message">Os novos aplicativos aparecerão aqui.</p>
+  <button type="button" id="drawer-reset-search" class="drawer-reset" hidden>Limpar pesquisa</button>
+ </div>
+ </section>
+ </main>
       <nav class="mobile-nav" aria-label="Navegação móvel">
         <a href="../../index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span>Início</span></a>
         <a href="../../index.html#pastas" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h5l2.1 2.2h6a2 2 0 0 1 2 2v8.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 9h17"/></svg><span>Pastas</span></a>
-        <a href="../../index.html#apps"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Apps</span></a>
+        <a href="../../index.html#pastas"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Apps</span></a>
         <a href="../../configuracoes.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2"/></svg><span>Ajustes</span></a>
       </nav>
     </div>

@@ -34,6 +34,30 @@ jobs:
       - name: Verificar páginas e assets
         run: npm run check
 
+  drawer-ui:
+    name: Testar gavetas no Chromium
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Instalar navegador de teste isolado
+        run: |
+          npm install --prefix "$RUNNER_TEMP/appspace-browser" playwright@1.62.1 --no-audit --no-fund
+          "$RUNNER_TEMP/appspace-browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Testar tamanhos, temas, busca e navegação offline
+        run: NODE_PATH="$RUNNER_TEMP/appspace-browser/node_modules" node scripts/test-drawer-browser.cjs
+      - name: Salvar capturas e resultado
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AppSpace-Drawer-UI
+          path: dist/ui-check/
+          if-no-files-found: ignore
+          retention-days: 14
+
   android:
     name: Compilar APK Android
     needs: validate

@@ -34,7 +34,7 @@
     const settings = new URL("configuracoes.html", home);
     const items = [
       { label: "Início", icon: "⌂", url: home.href, current: document.body.classList.contains("page-home") },
-      { label: "Apps", icon: "▦", url: home.href + "#launcher", current: !document.body.classList.contains("page-home") && !document.body.classList.contains("page-settings") },
+      { label: "Apps", icon: "▦", url: home.href.split("#")[0] + "#pastas", current: !document.body.classList.contains("page-home") && !document.body.classList.contains("page-settings") },
       { label: "Ajustes", icon: "⚙", url: settings.href, current: document.body.classList.contains("page-settings") }
     ];
     const bar = document.createElement("nav");
@@ -238,6 +238,8 @@
   const launcherEmpty = document.getElementById("launcher-empty");
   const launcherOrder = document.getElementById("launcher-order");
   const normalize = (value) => String(value).toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  const tileCache = new Map();
+  let renderedOrder = null;
   const sortCollator = new Intl.Collator("pt-BR", { sensitivity: "base", numeric: true });
 
   [...folderCards, ...appCards].forEach((card, index) => {
@@ -269,8 +271,9 @@
     tile.className = "launcher-tile " + (isFolder ? "launcher-tile--folder" : "launcher-tile--app");
     if (card.classList.contains("folder-card--stock")) tile.classList.add("launcher-tile--stock");
     if (card.classList.contains("folder-card--video")) tile.classList.add("launcher-tile--video");
+    if (card.classList.contains("folder-card--mypc")) tile.classList.add("launcher-tile--mypc");
     tile.href = card.getAttribute("href") || "./index.html";
-    tile.dataset.search = card.dataset.search || getTitle(card);
+    tile.dataset.search = normalize(getTitle(card) + " " + (card.dataset.search || ""));
     const icon = document.createElement("span");
     icon.className = "launcher-tile-icon";
     icon.setAttribute("aria-hidden", "true");
@@ -293,7 +296,7 @@
     const term = normalize(launcherSearch?.value || "");
     let visible = 0;
     launcherGrid.querySelectorAll(".launcher-tile").forEach((tile) => {
-      const matches = normalize(tile.dataset.search || tile.textContent).includes(term);
+      const matches = tile.dataset.search.includes(term);
       tile.hidden = !matches;
       if (matches) visible++;
     });
@@ -312,16 +315,46 @@
     if (launcherCount) launcherCount.textContent = String(folderCards.length).padStart(2, "0");
     arrangeCards(folderCards);
     arrangeCards(appCards);
-    if (launcherGrid) {
-      launcherGrid.replaceChildren();
-      // A tela minimalista é uma gaveta de PASTAS. Os apps permanecem somente
-      // dentro de Estoque e Meu PC; não duplicar atalhos no nível principal.
+    if (launcherGrid && renderedOrder !== prefs.librarySort) {
+      const fragment = document.createDocumentFragment();
       [...folderCards].sort(compareCards).forEach((card) => {
-        launcherGrid.appendChild(createLauncherTile(card, true));
+        if (!tileCache.has(card)) tileCache.set(card, createLauncherTile(card, true));
+        fragment.append(tileCache.get(card));
       });
+      launcherGrid.replaceChildren(fragment);
+      renderedOrder = prefs.librarySort;
       filterLauncher();
     }
+    syncCatalogLinks(active);
   }
+
+  // Todos os atalhos apontam para a seção que realmente está visível.
+  function syncCatalogLinks(active) {
+    const brand = document.querySelector("a.mobile-brand, a.brand");
+    if (!brand) return;
+    const home = new URL(brand.getAttribute("href"), location.href);
+    const hash = active ? "#launcher" : "#pastas";
+    for (const link of document.querySelectorAll("a[href]")) {
+      const url = new URL(link.getAttribute("href"), location.href);
+      if (url.origin === home.origin && url.pathname === home.pathname && ["#apps", "#pastas", "#launcher"].includes(url.hash)) {
+        url.hash = hash; link.href = url.href;
+      }
+    }
+    const isHome = document.body.classList.contains("page-home");
+    const isSettings = document.body.classList.contains("page-settings");
+    const inCatalog = ["#apps", "#pastas", "#launcher"].includes(location.hash);
+    document.querySelectorAll(".minimal-bottom-nav a").forEach((link,index) => {
+      const current = index===0 ? isHome&&!inCatalog : index===1 ? !isSettings&&(!isHome||inCatalog) : isSettings;
+      if(current)link.setAttribute("aria-current","page");else link.removeAttribute("aria-current");
+    });
+    if (document.body.classList.contains("page-home") && ["#apps", "#pastas", "#launcher"].includes(location.hash) && location.hash !== hash) {
+      history.replaceState(null, "", hash);
+      document.querySelector(hash)?.scrollIntoView({behavior:"instant",block:"start"});
+    }
+  }
+  refreshLibraryView();
+  mobileViewport.addEventListener("change", refreshLibraryView);
+  window.addEventListener("hashchange", () => syncCatalogLinks(Boolean(launcher && !launcher.hidden)));
 
   if (search && emptyState) {
     const appTotal = String(appCards.length).padStart(2, "0");
@@ -343,13 +376,14 @@
       const countMatches = (cards) => {
         let visible = 0;
         for (const card of cards) {
-          const matches = normalize(card.dataset.search || card.textContent).includes(term);
+          const matches = normalize(getTitle(card) + " " + (card.dataset.search || "")).includes(term);
           card.hidden = !matches;
           if (matches) visible += 1;
         }
         return visible;
       };
-      const matchingApps = countMatches(appCards);
+      // A Home lista pastas; apps ocultos não podem mascarar o estado vazio.
+      const matchingApps = 0;
       const matchingFolders = countMatches(folderCards);
       if (foldersSection) foldersSection.hidden = Boolean(term) && matchingFolders === 0;
       if (librarySection) librarySection.hidden = Boolean(term) && matchingApps === 0 && matchingFolders > 0;
@@ -358,14 +392,13 @@
 
     search.addEventListener("input", filterApps);
     if (launcherSearch) launcherSearch.addEventListener("input", filterLauncher);
-    refreshLibraryView();
-    mobileViewport.addEventListener("change", refreshLibraryView);
+    filterApps();
     document.addEventListener("keydown", (event) => {
       const target = event.target;
       const isEditing = target instanceof HTMLElement && (target.matches("input, textarea, select") || target.isContentEditable);
       if (event.key === "/" && !event.ctrlKey && !event.metaKey && !event.altKey && !isEditing) {
         event.preventDefault();
-        (prefs.libraryView === "launcher" && launcherSearch ? launcherSearch : search).focus();
+        (launcher && !launcher.hidden && launcherSearch ? launcherSearch : search).focus();
       }
       if (event.key === "Escape" && (document.activeElement === search || document.activeElement === launcherSearch)) {
         const activeSearch = document.activeElement;

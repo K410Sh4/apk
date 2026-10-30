@@ -9,6 +9,8 @@
 })(typeof globalThis!=="undefined"?globalThis:this,function(root){
  "use strict";
  const KEY="appspace.pc.connection.v1",LEGACY="appspace.pcmonitor.v1",PORT=38473;
+ let generation=0;
+ function cancelPending(){generation++;}
  const desktop=root.location?.protocol==="appspace:";
  const capacitor=root.Capacitor;
  const native=Boolean(capacitor?.isNativePlatform?.());
@@ -56,6 +58,7 @@
    return sanitized;
  }
  function disconnect(){
+   cancelPending();
    try{storage()?.removeItem(KEY);storage()?.removeItem(LEGACY)}catch(_){}
  }
  async function request(path,options={}){
@@ -96,12 +99,15 @@
    ip=String(ip||"").trim();code=String(code||"").trim();
    if(!ipv4(ip))throw Error("IP inválido. Consulte o endereço no AppSpace do Windows.");
    if(!/^\d{6}$/.test(code))throw Error("Informe o código de seis dígitos do Windows.");
+   const session=++generation;
    const result=await request("/pair",{method:"POST",data:{code},endpoint:{ip}});
+   if(session!==generation)throw Error("Conexão cancelada");
    if(!validToken(result?.token))throw Error("Resposta de pareamento inválida");
    const candidate={ip,token:result.token,hostname:result.host||"Computador",transport};
    // Exigir confirmação com token antes de salvar a sessão compartilhada.
    const metrics=await request("/metrics",{endpoint:candidate});
    if(!metrics?.cpu||!metrics?.memory)throw Error("PC não retornou medições válidas");
+   if(session!==generation)throw Error("Conexão cancelada");
    return remember(candidate);
  }
  async function check(){
@@ -115,12 +121,14 @@
    if(desktop)throw Error("Endereço local fixo");
    const current=get();if(!current)throw Error("Nenhum computador pareado");
    if(!ipv4(ip))throw Error("IP de rede local inválido");
+   const session=++generation;
    const candidate={...current,ip:String(ip).trim(),transport};
    // Somente mantemos o mesmo token se o novo endereço prova possuir a sessão.
    const measurement=await request("/metrics",{endpoint:candidate});
    if(!measurement?.cpu||!measurement?.memory)throw Error("Computador não respondeu");
+   if(session!==generation)throw Error("Conexão cancelada");
    return remember(candidate);
  }
- return Object.freeze({get,request,pair,check,changeAddress,disconnect,ipv4,
+ return Object.freeze({get,request,pair,check,changeAddress,disconnect,cancelPending,ipv4,
    storageKey:KEY,legacyKey:LEGACY,isDesktop:desktop});
 });
