@@ -373,5 +373,5 @@ test('Android release blocks missing persistent signing credentials and injects 
   assert.match(workflow,/assembleRelease/);
   assert.match(workflow,/apksigner/);
   assert.match(workflow,/secrets.APPSPACE_ANDROID_KEYSTORE_BASE64/);
-  assert.doesNotMatch(workflow,/gradlew\\s+assembleDebug/);
+  assert.doesNotMatch(workflow,/gradlew\s+assembleDebug/);
 });
