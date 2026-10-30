@@ -229,3 +229,24 @@
   .studio-mobile-overlay{display:none!important}
   .studio-left,.studio-right,.studio-export,.studio-header{display:none!important}
 }
+
+
+/* Gesture UX: contextual deletion stays visible beside selected-element controls. */
+#studio-delete-selected{color:#ef9595;border-color:rgba(225,102,102,.25);
+  background:rgba(225,102,102,.09);font-weight:700}
+#studio-delete-selected:active{background:rgba(225,102,102,.19)}
+.studio-clear-canvas{color:#ef9595!important;border-color:rgba(225,102,102,.24)!important}
+#label-canvas{touch-action:none;-webkit-user-select:none;user-select:none}
+@media(max-width:850px){
+ .studio-canvas-foot .studio-delete-selection{
+   display:inline-flex;align-items:center;justify-content:center;gap:6px;
+   min-height:44px;padding:9px 14px;
+   border:1px solid rgba(225,102,102,.25);border-radius:12px;
+   font-size:11px;margin-top:2px;white-space:nowrap;
+ }
+ .studio-canvas-foot .studio-edit-selection{flex:1}
+ .studio-canvas-foot .studio-edit-label{flex:1}
+ .studio-template-picker .studio-clear-canvas{
+   display:flex;min-height:44px;margin-top:13px;font-size:11px;
+ }
+}
