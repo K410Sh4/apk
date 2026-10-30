@@ -409,3 +409,18 @@ A partir da base Android 0.7.3, o editor visual de etiquetas ganha um redesign d
 **Arquivos:** `apps/estoque/etiquetas/modern.css`, `modern.js`, adaptações semânticas no `index.html`, testes em `scripts/test-labels-modern.cjs` (simulação de painéis, navegação, modelos, Escape) e verificações de assets no `scripts/verify.cjs`.
 
 **Testes de aceite em aparelho:** abrir Etiqueta Studio no Android, selecionar/arrastar elemento, abrir Editar elemento, alterar texto/cor, fechar e conferir persistência; criar código de barras; alternar A4/Editar; abrir Modelos, aplicar com confirmação; salvar projeto pelo menu Exportar; verificar operação offline. A publicação CI não substitui validação em uma tela real.
+
+## Etiqueta Studio — gestos de edição (OTA 0.7.7)
+
+Escopo: alterações web apenas em `apps/estoque/etiquetas/`, compatíveis com **APK nativo >=0.7.3**. Sem alterações de código Java/Kotlin, permissões Android, protocolos de impressão, modelo JSON (`schema=1`) nem dimensões físicas.
+
+**Controles adicionados:**
+
+- **Pinça com dois dedos:** um dedo move; com dois, a distância entre os dedos ajusta proporcionalmente largura/altura do objeto selecionado. Para texto, o tamanho de fonte acompanha a escala; divisórias horizontais permanecem horizontais. O centro acompanha o deslocamento dos dedos. Medidas são preservadas em milímetros e o gesto gera um único estado de Desfazer.
+- **Toque duplo em texto/código de barras:** abre o painel contextual `Elemento` no Android, já com o campo Conteúdo focado e selecionado, pronto para substituir o texto. No desktop, duplo clique também foca o campo de edição. Seleção e arraste comum continuam funcionando.
+- **Apagar elemento:** botão vermelho `Apagar` aparece ao selecionar um objeto no canvas mobile. Usa a mesma operação de exclusão do inspetor e é reversível por `Desfazer`.
+- **Limpar todo o conteúdo:** ação separada na paleta `Modelos` (e menu lateral no desktop); exige confirmação explícita, elimina apenas objetos, preserva dimensões/nome/fundo e permite Desfazer.
+
+**Implementação:** módulo puro `gestures.js` para cálculo de escala e detecção de toque duplo; `editor.js` recebe eventos PointerEvents e grava o histórico uma vez por gesto; `modern.js` abre o painel textual ao receber `etiqueta:edit-content`. `modern.css` estiliza os botões. `scripts/test-labels-gestures.cjs` valida pinça, tradução do centro, escala da fonte, preservação das linhas, toque duplo e existência dos comandos. O simulador de regressões foi atualizado para carregar o novo módulo.
+
+**Validação em aparelho:** selecionar um texto na etiqueta, fazer pinça para aumentar/diminuir e conferir fonte + tamanho; arrastar com um dedo; toque duplo para editar conteúdo e salvar com teclado; usar Apagar e Desfazer; abrir Modelos → Limpar todo o conteúdo, cancelar e confirmar, depois Desfazer. A execução automatizada não substitui testes multitoque reais no Android.
