@@ -440,3 +440,15 @@ A experiência está dividida em três etapas, acessíveis pelo botão **Criar l
 **Impressão:** a folha A4 usa coordenadas físicas em milímetros. Android nativo 0.7.3 ou superior abre o seletor de impressão através do plugin `Printer`; no Windows/navegador usa `window.print`. Para um lote multipágina a exportação gera ZIP com um SVG por página; para uma página gera SVG único. É necessário conferir escala 100%, margens zero e compatibilidade do driver. As cores e dimensões ainda exigem teste em impressora real.
 
 **Testes:** `scripts/test-labels-batch.cjs` cobre campos variáveis, cópias de cada valor, 3×6 para 60×40mm, grade custom 2×4, alinhamento, rejeição de grade fora da folha, distribuição multipágina, limites de quantidade e invalidação de Code39; `scripts/verify.cjs` verifica a inclusão dos cinco novos arquivos no bundle offline. Falta confirmar visualmente no Android e imprimir em hardware real.
+
+## Etiqueta Studio — interface reduzida (OTA 0.7.9)
+
+**Objetivo:** diminuir a leitura e a rolagem nas páginas de edição e produção de etiquetas, especialmente em telas pequenas. Mudança exclusiva de apresentação: nenhuma alteração de geometria, modelo JSON, dados locais, métricas de impressão, pareamento ou plugins nativos.
+
+- **Modelo (editor):** a barra de etapas redundante foi reduzida a `01/03 Modelo` e ao botão `Lista e impressão`. Instruções sobre gestos, troca de modelos, backup e escala de impressão foram movidas para controles `details/summary` ("Como editar?", "Modelos e backup", "Escala de impressão"), acessíveis por toque. O SVG e o inspetor permanecem funcionais.
+- **Lista:** passo 2 agora evidencia produtos, quantidades, tabela e botão de adicionar produto. Importação/exportação JSON permanece acessível em menu expansível. Botões e títulos foram encurtados.
+- **A4:** prévia da folha aparece antes dos controles no mobile; colunas e linhas permanecem visíveis; margem, espaçamento e alinhamento estão em `Ajustes de posição` (recolhido). A validação dos valores e da escala continua inalterada.
+- **Status:** resumos mais curtos, sem duplicar instruções já disponíveis em ações ou explicações opcionais.
+- **Regressão:** `scripts/test-labels-compact.cjs` confere IDs de todos os controles, fechamento correto dos blocos de ajuda e existência de grade A4; incluído em `scripts/verify.cjs`, além dos testes anteriores de geometria e funções.
+
+**Critério de aceite no celular:** o modelo deve ser editável e exportável; "Lista e impressão" deve abrir os 3 passos sem parágrafos longos; "Ajustes de posição" deve revelar os controles completos sem perder o estado; a prévia A4 e o botão Imprimir devem permanecer acessíveis. Testes em Android real ainda necessários.
