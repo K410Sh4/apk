@@ -314,3 +314,13 @@
   .studio-app[data-mobile-panel="none"] .studio-export-help{display:none}
   .studio-export-help summary{min-height:44px}
 }
+
+
+/* Precisão editorial: controles locais, sem afetar exportação ou medidas físicas. */
+.studio-precision-bar{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:9px;padding:8px 12px 15px}
+.studio-precision-bar button{min-height:42px;padding:8px 14px;border:1px solid var(--stroke,#384151);border-radius:12px;background:var(--surface-2,#1a2230);color:var(--text,#eef2f8);font:inherit;font-size:12px;cursor:pointer}
+.studio-precision-bar button[aria-pressed="true"]{border-color:var(--accent,#8b73f5);background:rgba(var(--accent-rgb,139,115,245),.14);color:var(--accent,#9c88ff)}
+.studio-precision-bar button:focus-visible{outline:2px solid var(--accent,#9c88ff);outline-offset:2px}
+.studio-align-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
+.studio-align-actions button{min-height:44px;white-space:normal}
+@media(max-width:420px){.studio-precision-bar{justify-content:stretch}.studio-precision-bar button{flex:1 1 120px}}
