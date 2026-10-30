@@ -21,7 +21,8 @@ for(const id of ["label-canvas","studio-open-export","studio-open-properties",
 for(const id of ["step-model","step-list","step-preview","batch-field-list","batch-table-body","add-row",
  "layout-cols","layout-rows","layout-margin","layout-gap-x","layout-gap-y","layout-align-x","layout-align-y",
  "batch-paper","page-counter","batch-print","batch-download","download-list","import-list"])assert.ok(ba.has(id),id);
-assert.match(editor,/class="batch-entry-current"/);
+assert.match(editor,/class="studio-step-context"/);
+assert.match(editor,/class="studio-workspace-eyebrow"/);
 assert.match(editor,/Como editar\?/);
 assert.match(editor,/id="printer-help"/);
 assert.match(editorCss,/studio-help-details/);
@@ -33,6 +34,6 @@ assert.match(batchCss,/batch-preview-main\{display:contents\}/);
 assert.match(batchJs,/layout\.columns\+" × "\+layout\.rows/);
 assert.match(batchJs,/\$\("batch-print"\)/);
 assert.match(batchJs,/\$\("batch-download"\)/);
-for(const expr of [/<h1>Etiquetas em lote<\/h1>/,/>Modelo padrão<\/h2>/,/>Produtos e cópias<\/h2>/,/>Prévia A4<\/h2>/])
+for(const expr of [/<h1>Preparar etiquetas<\/h1>/,/>Confirme seu desenho<\/h2>/,/>Sua lista de produtos<\/h2>/,/>Revise suas folhas<\/h2>/])
  assert.match(batch,expr);
 console.log("[Etiqueta Studio] Interface compacta, ajuda opcional, controles e prévia A4: OK");
