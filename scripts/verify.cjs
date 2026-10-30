@@ -250,6 +250,7 @@ execFileSync(process.execPath, [path.join(root, "scripts/test-labels.cjs")], { s
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-modern.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-gestures.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-batch.cjs")], { stdio: "inherit" });
+execFileSync(process.execPath, [path.join(root, "scripts/test-labels-compact.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, ["--test", path.join(root, "scripts/test-regressions.cjs")], { stdio: "inherit" });
 console.log("[AppSpace] Estrutura, links e cópia dos recursos: OK.");
 
