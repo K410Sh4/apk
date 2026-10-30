@@ -42,7 +42,8 @@ function parseState(raw){
 function createWindowsControls(options={}){
  const platform=options.platform??process.platform;
  const runner=options.execFileFn||execFile;
- const script=options.scriptPath||path.join(__dirname,"pc-controls.ps1");
+ const script=options.scriptPath||path.join(__dirname,"pc-controls.ps1")
+  .replace(/([\\/])app\\.asar([\\/])/i,"$1app.asar.unpacked$2");
  const now=options.clock||Date.now;
  let cache=null,last=0,pending=null,writing=false;
  function invoke(operation,action="",value=0){
