@@ -6,16 +6,15 @@
 <link rel="stylesheet" href="../../../assets/portal.css">
 <link rel="stylesheet" href="../../../assets/personalization.css">
 <link rel="stylesheet" href="../../../assets/rgb-controller.css">
+<link rel="stylesheet" href="../../../assets/rgb-direct.css">
 <link rel="stylesheet" href="../../../assets/rgb-sync.css">
-<link rel="stylesheet" href="../../../assets/rgb-hub-setup.css">
 <link rel="stylesheet" href="../../../assets/rgb-hub-setup.css">
 <script src="../../../assets/ota.js" defer></script>
 <script src="../../../assets/pc-connection.js" defer></script>
 <script src="../../../assets/rgb-controller.js" defer></script>
+<script src="../../../assets/rgb-direct-ui.js" defer></script>
 <script src="../../../assets/rgb-sync-engine.js" defer></script>
 <script src="../../../assets/rgb-sync-ui.js" defer></script>
-<script src="../../../assets/rgb-hub-model.js" defer></script>
-<script src="../../../assets/rgb-hub-setup.js" defer></script>
 <script src="../../../assets/rgb-hub-model.js" defer></script>
 <script src="../../../assets/rgb-hub-setup.js" defer></script>
 </head>
@@ -32,18 +31,56 @@
   <main class="rgb-content">
     <div class="rgb-intro">
       <div><span class="rgb-eyebrow">INVENTÁRIO DE HARDWARE</span>
-      <h1>Seus dispositivos</h1>
-      <p>Identificação em tempo real no Windows. O reconhecimento por USB não garante controle RGB.</p></div>
+      <h1>Controle RGB</h1>
+      <p>Controle físico próprio por HID nativo do Windows, sem instalar programas ou drivers de terceiros. Dispositivos sem protocolo confirmado permanecem bloqueados.</p></div>
       <button id="rgb-refresh" class="rgb-refresh" type="button">↻ Atualizar</button>
     </div>
     <section id="rgb-alert" class="rgb-alert" role="status" aria-live="polite">Conectando ao computador...</section>
+    <section id="rgb-direct" class="rgb-section rgb-direct-section" aria-labelledby="rgb-direct-title">
+      <div class="rgb-section-head">
+        <div><span class="rgb-eyebrow">CONTROLE FÍSICO · WINDOWS HID NATIVO</span><h2 id="rgb-direct-title">RGB real do mouse</h2></div>
+        <span id="rgb-direct-status" class="rgb-pill">Verificando HID</span>
+      </div>
+      <p>Driver integrado ao AppSpace para <strong>Redragon M711 Cobra (04D9:FC30)</strong>. O aplicativo procura a interface RGB específica <strong>MI_02 / uso FFA0</strong> e não usa OpenRGB, serviços externos nem bibliotecas USB de terceiros.</p>
+      <div class="rgb-direct-grid">
+        <label class="rgb-direct-field">Cor dos LEDs
+          <input id="rgb-direct-color" type="color" value="#8d6aff" disabled aria-label="Cor física do mouse">
+        </label>
+        <label class="rgb-direct-field">Efeito físico
+          <select id="rgb-direct-effect" disabled>
+            <option value="static">Cor fixa</option>
+            <option value="breathing">Respiração</option>
+            <option value="rainbow">Arco-íris</option>
+            <option value="wave">Onda</option>
+            <option value="flashing">Piscando</option>
+          </select>
+        </label>
+        <label class="rgb-direct-field">Perfil gravado no mouse
+          <select id="rgb-direct-profile" disabled>
+            <option value="1">Perfil 1</option>
+            <option value="2">Perfil 2</option>
+            <option value="3">Perfil 3</option>
+            <option value="4">Perfil 4</option>
+            <option value="5">Perfil 5</option>
+          </select>
+        </label>
+      </div>
+      <label class="rgb-direct-accept"><input type="checkbox" id="rgb-direct-accept" disabled>
+        Autorizo modificar a iluminação do perfil selecionado do mouse. Isso pode sobrescrever a cor e o efeito salvos nesse perfil.</label>
+      <div class="rgb-direct-actions">
+        <button type="button" id="rgb-direct-apply" disabled>Aplicar RGB no mouse</button>
+        <button type="button" id="rgb-direct-refresh">Verificar conexão</button>
+      </div>
+      <p id="rgb-direct-message" class="rgb-direct-message" role="status" aria-live="polite">Aguardando interface HID...</p>
+      <p class="rgb-direct-footnote">Somente o mouse M711 recebe comandos nesta etapa. O comando pode ser aceito sem que o LED mude, por exemplo, se outro perfil estiver ativo; confirme visualmente. Não modifica DPI, botões, firmware ou ventoinhas.</p>
+    </section>
     <section class="rgb-grid" aria-label="Dispositivos identificados">
       <article class="rgb-device rgb-controller" data-rgb-kind="controller">
         <div class="rgb-device-head"><div class="rgb-device-icon" aria-hidden="true">▦</div><div><span class="rgb-device-kind">ILUMINAÇÃO</span><h2>Controladora RGB</h2></div></div>
         <span class="rgb-pill" data-device-status="controller">A detectar</span>
         <p class="rgb-device-desc">Gabinete e ventoinhas RGB/ARGB. Pode usar SATA, controle remoto ou uma ponte USB.</p>
         <div class="rgb-device-detail" id="rgb-controller-detail">Nenhum controlador USB confirmado</div>
-        <p class="rgb-device-tip">Se aparecer no OpenRGB, poderemos confirmar o suporte. Não conecte ARGB 5 V em RGB 12 V.</p>
+        <p class="rgb-device-tip">Controladora sem canal de dados identificado. Não conecte ARGB 5 V em RGB 12 V.</p>
       </article>
       <article class="rgb-device rgb-microphone" data-rgb-kind="fifine">
         <div class="rgb-device-head"><div class="rgb-device-icon" aria-hidden="true">♬</div><div><span class="rgb-device-kind">ÁUDIO USB</span><h2>Microfone FIFINE</h2></div></div>
@@ -179,12 +216,6 @@
       </div>
       <div class="rgb-sync-preview" id="rgb-sync-preview" role="group" aria-label="Prévia virtual dos quatro dispositivos"></div>
       <p class="rgb-sync-footnote">Os quatro quadros são virtuais. A saída física será ativada apenas para dispositivos reconhecidos por um driver validado. As preferências de efeito ficam salvas localmente neste aplicativo.</p>
-    </section>
-    <section class="rgb-section" aria-labelledby="rgb-openrgb-title">
-      <div class="rgb-section-head"><div><span class="rgb-eyebrow">INTEGRAÇÃO OPCIONAL</span><h2 id="rgb-openrgb-title">OpenRGB no computador</h2></div><span id="rgb-openrgb-status" class="rgb-pill">Desconhecido</span></div>
-      <p id="rgb-openrgb-note">A conexão de descoberta consulta exclusivamente 127.0.0.1 no PC. Ative o servidor SDK do OpenRGB localmente para identificar dispositivos suportados.</p>
-      <ul id="rgb-openrgb-list" class="rgb-openrgb-list"><li>Nenhum dispositivo informado.</li></ul>
-      <p class="rgb-security">Somente leitura nesta versão. Nenhum dispositivo, firmware, driver, cor ou perfil será alterado. Mantenha o servidor OpenRGB limitado a 127.0.0.1, nunca exposto à rede.</p>
     </section>
     <section class="rgb-section" aria-labelledby="rgb-search-title">
       <div class="rgb-section-head"><div><span class="rgb-eyebrow">BUSCA TÉCNICA</span><h2 id="rgb-search-title">Interfaces do teclado e periféricos</h2></div></div>
