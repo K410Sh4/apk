@@ -391,3 +391,21 @@ Seguindo a abordagem de análise incremental e evidências do REA, a implementa�
 **Distribuição:** a compilação de Android 0.7.3 é necessária para instalar os novos plugins nativos; OTA sozinho **não** altera um APK 0.7.0. O pacote web OTA posterior deve anunciar `minNative=0.7.3`. O build ainda é **debug** e não há assinatura de atualização estável; instalar a nova versão sobre a anterior pode falhar por assinatura diferente. **Não desinstale sem backup externo comprovado**. Se os arquivos não estiverem sendo exportados no APK antigo, evite desinstalar até termos um processo de migração seguro ou comprovadamente não precisar dos dados.
 
 **Critérios de aceite pendentes em dispositivos reais:** exportar arquivo JSON e confirmar sua presença em Arquivos/Drive, importar o mesmo JSON depois, imprimir folha A4 a 100% numa impressora física, parear PC Monitor e aplicar OTA no Android 0.7.3. Os testes simulados e compilação não comprovam essas operações.
+
+## Etiqueta Studio — interface minimalista (OTA 0.7.6)
+
+A partir da base Android 0.7.3, o editor visual de etiquetas ganha um redesign de **interface** sem alteração do modelo de projeto, medidas físicas em milímetros, código de barras, geometria SVG nem sistema de salvamento/impressão.
+
+**Referências e decisões:** acessibilidade Android recomenda controles touch de pelo menos 48dp; guias de toolbars recomendam agrupar poucas ações principais e ocultar ferramentas secundárias quando não usadas; softwares de etiqueta especializados separam edição da prévia de impressão. Base visual reproduzida de forma independente, sem reutilizar código de produtos de terceiros.
+
+- **Mobile até 850px:** cabeçalho com voltar, nome editável, desfazer/refazer e único botão principal **Exportar**; canvas ocupa o fluxo principal com switch Editar etiqueta / Folha A4 e zoom compacto.
+- **Dock inferior:** 7 comandos de criação com rolagem horizontal (Texto, Retângulo, Círculo, Linha, Código, Imagem e Modelos), alvo de toque >=48px, sem sobrepor o documento — margem inferior reserva espaço para a dock e a área segura do Android.
+- **Painel contextual:** ao selecionar um elemento surge **Editar elemento**. O botão **Tamanho e papel** abre a mesma janela inferior com abas Elemento, Etiqueta e Folha A4. Texto/código de barras novos abrem a guia de edição automaticamente.
+- **Exportação:** botão principal abre uma janela inferior com Salvar JSON, Importar JSON, SVG, PNG, Folha A4, Imprimir e Impressoras Wi-Fi. Aciona as funções originais sem alterar formato nem compatibilidade.
+- **Modelos:** paleta acessível a partir do dock. Mantém confirmação antes de substituir a etiqueta existente.
+- **Desktop:** permanece com três colunas, porém barras, espaçamento e cartões mais discretos, sem remover ferramentas.
+- **Acessibilidade:** botões reais, estado `aria-expanded` e `aria-selected`, `role="dialog"` no painel aberto, `Escape` para fechar, fundo bloqueado ao abrir, devolução de foco e contenção de foco pelo teclado.
+
+**Arquivos:** `apps/estoque/etiquetas/modern.css`, `modern.js`, adaptações semânticas no `index.html`, testes em `scripts/test-labels-modern.cjs` (simulação de painéis, navegação, modelos, Escape) e verificações de assets no `scripts/verify.cjs`.
+
+**Testes de aceite em aparelho:** abrir Etiqueta Studio no Android, selecionar/arrastar elemento, abrir Editar elemento, alterar texto/cor, fechar e conferir persistência; criar código de barras; alternar A4/Editar; abrir Modelos, aplicar com confirmação; salvar projeto pelo menu Exportar; verificar operação offline. A publicação CI não substitui validação em uma tela real.
