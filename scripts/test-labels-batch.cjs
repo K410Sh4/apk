@@ -11,9 +11,9 @@ assert.equal(batch.fields.length,2,"Primeiros dois campos iniciam como variávei
 assert.equal(batch.rows.length,1);
 let layout=B.calculate(template,batch.layout);
 assert.equal(layout.columns,3);assert.equal(layout.rows,6);assert.equal(layout.perPage,18);
-assert.equal(layout.positions[0].x,7); // 5 mm de margem + 2 mm livres pela centralização
+assert.equal(layout.positions[0].x,13); // 5 mm de margem + 8 mm livres pela centralização
 assert.equal(layout.positions[0].y,5);
-assert.equal(layout.positions[1].x,69);
+assert.equal(layout.positions[1].x,75);
 assert.equal(layout.positions[17].y,215);
 batch.rows[0].values[batch.fields[0]]="Biscoito integral";
 batch.rows[0].values[batch.fields[1]]="R$ 8,50";
@@ -29,9 +29,9 @@ assert.equal(result.pages[1][4].label.objects.find(o=>o.id===batch.fields[0]).te
 assert.equal(template.objects.find(o=>o.id===batch.fields[0]).text,"NOME DO PRODUTO","Modelo original não pode ser alterado pela lista");
 batch.layout={...batch.layout,columns:2,rows:4,gapX:4,gapY:3,alignX:"end",alignY:"center"};
 layout=B.calculate(template,batch.layout);
-assert.equal(layout.perPage,8);assert.equal(layout.positions[0].x,86);
-assert.equal(layout.positions[1].x,150);
-assert.equal(layout.positions[0].y,63.5);
+assert.equal(layout.perPage,8);assert.equal(layout.positions[0].x,81);
+assert.equal(layout.positions[1].x,145);
+assert.equal(layout.positions[0].y,64);
 result=B.pages(template,batch);assert.equal(result.pages.length,4);
 for(const p of result.pages.flat())assert.ok(p.position.x>=0&&p.position.y>=0&&p.position.x+60<=210&&p.position.y+40<=297);
 assert.throws(()=>B.calculate(template,{...batch.layout,columns:4}),/excede/);
