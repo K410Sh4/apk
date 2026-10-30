@@ -18,7 +18,7 @@ function td(tr,value){
 }
 function filter(){
  const term=$("rgb-search").value.trim().toLocaleLowerCase("pt-BR");
- const matches=rows.filter(r=>[r.name,r.class,r.vid,r.pid,r.mi,r.bus,r.type,r.vendorDefined?"HID fornecedor":""].join(" ").toLocaleLowerCase("pt-BR").includes(term));
+ const matches=rows.filter(r=>[r.name,r.class,r.vid,r.pid,(r.mi?"MI_"+r.mi:""),r.mi,r.bus,r.type,r.vendorDefined?"HID fornecedor":""].join(" ").toLocaleLowerCase("pt-BR").includes(term));
  const body=$("rgb-results");body.replaceChildren();
  for(const row of matches.slice(0,120)){
   const tr=document.createElement("tr");
