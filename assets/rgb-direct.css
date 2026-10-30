@@ -1,0 +1,17 @@
+/* Native RGB direct controls; visual separation from preview-only engine. */
+.rgb-direct-section{border-color:#596b9b;background:linear-gradient(135deg,#1b2442,#121b2b 75%)}
+.rgb-direct-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
+.rgb-direct-field{display:flex;flex-direction:column;gap:9px;color:#d4e2ff;font-size:12px;font-weight:700;min-width:0}
+.rgb-direct-field input,.rgb-direct-field select{width:100%;background:#111b2d;border:1px solid #485e84;border-radius:12px;padding:11px;color:#eef4ff;min-height:46px}
+.rgb-direct-field input[type=color]{padding:5px}
+.rgb-direct-field select:disabled,.rgb-direct-field input:disabled{opacity:.45}
+.rgb-direct-accept{display:flex;align-items:flex-start;gap:9px;line-height:1.55;font-size:12px;color:#d7e5fa;margin:14px 0}
+.rgb-direct-accept input{accent-color:#9a74ff;width:18px;height:18px;margin-top:1px;flex-shrink:0}
+.rgb-direct-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.rgb-direct-actions button{border:1px solid #566b91;border-radius:13px;padding:11px 16px;background:#21324e;color:#fff;font-weight:750;cursor:pointer}
+.rgb-direct-actions button:first-child{background:#8d6aff;color:#130f28;border-color:transparent}
+.rgb-direct-actions button:disabled{cursor:not-allowed;opacity:.43}
+.rgb-direct-message{padding:12px;background:#0c1829;border:1px solid #32476a;color:#d0ddf7;border-radius:12px;margin-top:14px;font-size:12px;line-height:1.55}
+.rgb-direct-footnote{color:#b0bfdd;font-size:12px;line-height:1.6;margin:10px 0}
+@media(max-width:740px){.rgb-direct-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:355px){.rgb-direct-grid{grid-template-columns:1fr}}
