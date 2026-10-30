@@ -1,4 +1,4 @@
 {
-  "version": "0.7.13",
-  "notes": "Correção de Configurações: removida a prévia antiga Primeiro app e atualizados links e instruções para Meu PC. Catálogo mantém apenas apps reais."
+  "version": "0.7.14",
+  "notes": "Modo minimalista corrigido: apenas as 3 pastas na tela inicial, sem ícones duplicados do Etiqueta Studio e PC Monitor fora das pastas."
 }
