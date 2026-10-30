@@ -41,6 +41,7 @@ function browser(name, {stored={},capacitor,fetch,query={}}={}) {
   document.createElementNS=()=>new Node();
   window.Capacitor=capacitor;
   window.EtiquetaModel=require('../apps/estoque/etiquetas/model.js');
+  window.EtiquetaGestures=require('../apps/estoque/etiquetas/gestures.js');
   const storage=new Map(Object.entries(stored));
   const context={window,document,location:{protocol:'https:'},console,URL,AbortController,
     localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},
