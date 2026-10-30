@@ -221,6 +221,37 @@ const server=http.createServer((req,res)=>{
   assert.match(await monitorPage.locator('#monitor-gpu-details').innerText(),/indisponível/);
   assertions+=20;
   await monitorCtx.close();
+  // RGB Controller: renderizar FIFINE, teclado não confirmado e controladora sem envio HID.
+  const rgbCtx=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true});
+  await rgbCtx.addInitScript(()=>{
+    localStorage.setItem('appspace.pc.connection.v1',JSON.stringify({ip:'192.168.1.10',token:'a'.repeat(64),hostname:'PC-Teste'}));
+    const original=window.fetch.bind(window);
+    window.fetch=(url,opts)=>{
+      if(String(url).includes(':38473/rgb/devices')){
+        return Promise.resolve(new Response(JSON.stringify({available:true,reason:null,devices:[
+          {id:'controller',present:false,interfaceCount:0,interfaces:[],control:'unverified'},
+          {id:'fifine',vid:'3142',pid:'A010',present:true,interfaceCount:2,interfaces:[{name:'fifine Microphone',class:'MEDIA',mi:'00',bus:'USB'}],control:'unverified'},
+          {id:'keyboard',vid:'0C45',pid:'8006',present:true,interfaceCount:5,hasVendorHID:true,interfaces:[{name:'Dispositivo definido pelo fornecedor',class:'HIDClass',mi:'01',bus:'HID',vendorDefined:true}],control:'unverified'},
+          {id:'redragon',vid:'04D9',pid:'FC30',present:true,interfaceCount:3,interfaces:[],control:'unverified'}],
+          openRGB:{connected:false,devices:[]}}),{status:200,headers:{'content-type':'application/json'}}));
+      }
+      return original(url,opts);
+    };
+  });
+  const rgbPage=await rgbCtx.newPage();rgbPage.on('pageerror',e=>errors.push(e.message));
+  await rgbPage.goto(base+'/apps/meu-pc/rgb/index.html');
+  await rgbPage.waitForFunction(()=>document.querySelector('[data-device-status="fifine"]')?.textContent==='Detectado');
+  assert.equal(await rgbPage.locator('[data-device-status="keyboard"]').innerText(),'Detectado');
+  assert.equal(await rgbPage.locator('[data-device-status="controller"]').innerText(),'Não identificado');
+  assert.ok((await rgbPage.locator('#rgb-keyboard-detail').innerText()).includes('HID do fabricante'));
+  await rgbPage.locator('#rgb-search').fill('MI_01');
+  assert.ok((await rgbPage.locator('#rgb-count').innerText()).includes('1 interface'));
+  assert.ok(await rgbPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await rgbPage.screenshot({path:path.join(output,'rgb-controller-mobile.png'),fullPage:true});
+  await rgbPage.setViewportSize({width:1280,height:800});
+  assert.ok(await rgbPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await rgbPage.screenshot({path:path.join(output,'rgb-controller-desktop.png'),fullPage:true});
+  assertions+=7;await rgbCtx.close();
   // Local files keep the folder and editor available without networking.
   const offline=await browser.newContext({offline:true,viewport:{width:412,height:915}});
   const local=await offline.newPage();local.on('pageerror',e=>errors.push(e.message));
