@@ -1,4 +1,4 @@
 {
-  "version": "0.7.4",
-  "notes": "Correções da auditoria: OTA nativo seguro, PC Monitor, Code39 sem alteração silenciosa, backup de etiquetas Android e exportação A4 completa."
+  "version": "0.7.5",
+  "notes": "Etiqueta Studio: corrigida somente a inclinação da barra divisória cinza e a posição de seu ponto de seleção."
 }
