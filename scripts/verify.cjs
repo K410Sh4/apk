@@ -249,7 +249,7 @@ assert.match(monitorCss, /monitor-focus/);
 assert.match(monitorCss, /rotate\(90deg\)/);
 assert.match(monitorJs, /ScreenOrientation/);
 assert.match(monitorJs, /StatusBar/);
-assert.match(monitorJs, /exitMonitorMode/);
+assert.match(monitorJs, /exitFullscreen/);
 assert.match(pcConnection, /CapacitorHttp/);
 assert.match(pcConnection, /\/__api\/metrics/);
 assert.match(monitorJs, /PC\.check\(/);
