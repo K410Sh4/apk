@@ -41,7 +41,7 @@
     </header>
     <section class="batch-entry" aria-label="Fluxo de produção de etiquetas">
       <span class="batch-entry-current" aria-label="Etapa 1 de 3: modelo">01 / 03 <strong>Modelo</strong></span>
-      <a class="batch-entry-button" href="./lote/index.html" aria-label="Próximo passo: lista de etiquetas e impressão">Lista e impressão <span aria-hidden="true">→</span></a>
+      <a class="batch-entry-button" href="./lote/index.html" aria-label="Usar este modelo na produção de etiquetas">Usar na produção <span aria-hidden="true">→</span></a>
     </section>
     <div class="studio-layout">
       <aside class="studio-left" aria-label="Ferramentas do editor">
@@ -115,7 +115,7 @@
       </main>
       <aside class="studio-right" id="studio-properties-panel" aria-label="Propriedades da etiqueta e dos elementos" aria-modal="false">
         <div class="studio-panel-heading"><div><span>PROPRIEDADES</span></div><button type="button" class="studio-mobile-trigger studio-sheet-close" id="studio-close-properties" aria-label="Fechar propriedades">✕</button></div>
-        <div class="studio-mobile-trigger studio-sheet-tabs" role="tablist" aria-label="Seções de propriedades"><button type="button" role="tab" data-sheet-tab="element" aria-selected="true">Elemento</button><button type="button" role="tab" data-sheet-tab="label" aria-selected="false">Etiqueta</button><button type="button" role="tab" data-sheet-tab="paper" aria-selected="false">Folha A4</button></div>
+        <div class="studio-mobile-trigger studio-sheet-tabs" role="tablist" aria-label="Seções de propriedades"><button type="button" role="tab" data-sheet-tab="element" aria-selected="true">Elemento</button><button type="button" role="tab" data-sheet-tab="label" aria-selected="false">Etiqueta</button></div>
         <div class="studio-props-group studio-props-label">
           <strong>Etiqueta</strong>
           <div class="studio-two-cols">
@@ -128,6 +128,7 @@
         <div class="studio-props-group studio-props-element" id="selection-props" hidden>
           <div class="studio-props-title"><strong id="selected-type">Elemento</strong><button type="button" id="delete-element" class="studio-danger">Excluir</button></div>
           <label id="field-text-row">Conteúdo<textarea id="item-text" rows="3" maxlength="250" spellcheck="false"></textarea></label>
+          <label id="item-binding-row">Campo de produto (opcional)<select id="item-binding"><option value="">Texto fixo / sem vínculo</option><option value="product.name">Nome do produto</option><option value="product.price">Preço</option><option value="product.sku">Código/SKU</option><option value="product.batch">Lote</option><option value="product.expiry">Validade</option></select></label>
           <div class="studio-two-cols">
             <label>Posição X (mm)<input type="number" id="item-x" step=".5"></label>
             <label>Posição Y (mm)<input type="number" id="item-y" step=".5"></label>

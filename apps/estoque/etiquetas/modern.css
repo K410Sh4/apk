@@ -324,3 +324,7 @@
 .studio-align-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0}
 .studio-align-actions button{min-height:44px;white-space:normal}
 @media(max-width:420px){.studio-precision-bar{justify-content:stretch}.studio-precision-bar button{flex:1 1 120px}}
+
+/* O Studio desenha modelos; toda produção A4/impressão pertence ao gerador. */
+.studio-props-paper,.studio-view-switch,.studio-a4-frame,#download-sheet,#print-sheet,#find-printers{display:none!important}
+#item-binding-row select{min-height:44px}

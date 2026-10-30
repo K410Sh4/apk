@@ -15,6 +15,7 @@ on:
       - "capacitor.config.json"
       - "desktop/**"
       - "scripts/**"
+      - "native/**"
       - ".github/workflows/appspace-build.yml"
 
 permissions:

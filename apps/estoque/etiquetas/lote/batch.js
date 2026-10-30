@@ -189,14 +189,16 @@ function renderPages(){return B.pages(template,batch);}
 async function exportPages(){
   const result=renderPages(),serializer=new XMLSerializer();
   const stem=(template.name||"etiquetas").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9_-]+/g,"-").slice(0,45)||"etiquetas";
+  let saveResult;
   if(result.pages.length===1){
-    await F.save(stem+"-A4.svg",new Blob([serializer.serializeToString(R.a4Page(result.pages[0]))],{type:"image/svg+xml"}));
+    saveResult=await F.save(stem+"-A4.svg",new Blob([serializer.serializeToString(R.a4Page(result.pages[0]))],{type:"image/svg+xml"}));
   }else{
     const pages=result.pages.map((data,i)=>({name:"A4-pagina-"+String(i+1).padStart(3,"0")+".svg",
       content:serializer.serializeToString(R.a4Page(data))}));
-    await F.save(stem+"-A4-"+pages.length+"-folhas.zip",F.zip(pages));
+    saveResult=await F.save(stem+"-A4-"+pages.length+"-folhas.zip",F.zip(pages));
   }
-  toast("Arquivo preparado. No Android, escolha Arquivos ou Drive e confirme o salvamento.");
+  if(saveResult==="cancelled")toast("Exportação cancelada; os produtos permanecem salvos no aplicativo.");
+  else toast(saveResult==="saved"?"Arquivo salvo no Android.":"Arquivo preparado. Confirme o destino no Android.");
 }
 function nativePrinter(){
   const cap=window.Capacitor;
@@ -267,15 +269,52 @@ $("reset-layout").addEventListener("click",()=>{
   bindStateToLayout();changed();page=0;refreshPreview();
 });
 $("batch-download").addEventListener("click",()=>void exportPages().catch(e=>toast("Falha na exportação: "+e.message)));
+$("batch-share").addEventListener("click",()=>void (async()=>{
+  const result=renderPages(),serializer=new XMLSerializer();
+  if(result.pages.length===1){
+    const svg=serializer.serializeToString(R.a4Page(result.pages[0]));
+    await F.share("etiquetas-A4.svg",new Blob([svg],{type:"image/svg+xml"}));
+  }else{
+    const pages=result.pages.map((items,i)=>({name:"A4-"+String(i+1).padStart(3,"0")+".svg",
+      content:serializer.serializeToString(R.a4Page(items))}));
+    await F.share("etiquetas-A4.zip",F.zip(pages));
+  }
+  toast("Escolha o aplicativo de destino no Android.");
+})().catch(e=>toast("Compartilhamento: "+e.message)));
+$("batch-save-pdf").addEventListener("click",()=>void (async()=>{
+  if(!nativePrinter()?.printHtml){
+    toast("Salvar PDF pelo sistema exige o APK Android com impressão nativa.");
+    return;
+  }
+  toast("No diálogo Android, escolha Salvar como PDF e confirme o destino.");
+  await printBatch();
+})().catch(e=>toast("PDF: "+e.message)));
 $("batch-print").addEventListener("click",()=>void printBatch().catch(e=>toast("Falha na impressão: "+e.message)));
-$("download-csv").addEventListener("click",()=>void exportCsv().then(()=>toast("CSV preparado para salvar.")).catch(e=>toast("Erro CSV: "+e.message)));
-$("import-csv").addEventListener("click",()=>$("csv-file").click());
+$("download-csv").addEventListener("click",()=>void exportCsv().then(status=>toast(status==="cancelled"?"Exportação CSV cancelada.":status==="saved"?"CSV salvo pelo Android.":"Confirme o destino do CSV no Android.")).catch(e=>toast("Erro CSV: "+e.message)));
+$("import-csv").addEventListener("click",async()=>{
+  try{
+    const chosen=await F.openText?.("text/*");
+    if(chosen===undefined){$("csv-file").click();return;}
+    if(chosen===null)return;
+    const candidate=B.fromCsv(chosen.text,template,batch);
+    batch=candidate;renderFields();renderTable();bindStateToLayout();changed();
+    toast("Tabela aberta pelo Android.");
+  }catch(e){toast("CSV: "+e.message);}
+});
 $("csv-file").addEventListener("change",e=>{
   const file=e.target.files?.[0];e.target.value="";
   if(file)void importCsv(file).then(()=>toast("CSV importado.")).catch(err=>toast("CSV: "+err.message));
 });
-$("download-list").addEventListener("click",()=>void exportList().then(()=>toast("Lista preparada para salvar.")).catch(e=>toast("Erro: "+e.message)));
-$("import-list").addEventListener("click",()=>$("list-file").click());
+$("download-list").addEventListener("click",()=>void exportList().then(status=>toast(status==="cancelled"?"Exportação JSON cancelada.":status==="saved"?"Lista salva pelo Android.":"Confirme o destino do JSON no Android.")).catch(e=>toast("Erro: "+e.message)));
+$("import-list").addEventListener("click",async()=>{
+  try{
+    const chosen=await F.openText?.("application/json");
+    if(chosen===undefined){$("list-file").click();return;}
+    if(chosen===null)return;
+    const file={size:chosen.size,text:async()=>chosen.text};
+    await importList(file);toast("Lista aberta pelo Android.");
+  }catch(e){toast("Lista: "+e.message);}
+});
 $("list-file").addEventListener("change",e=>{
  const file=e.target.files?.[0];e.target.value="";
  if(file)void importList(file).then(()=>toast("Lista importada.")).catch(err=>toast(err.message));
