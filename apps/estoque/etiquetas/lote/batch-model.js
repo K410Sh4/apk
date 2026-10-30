@@ -9,33 +9,57 @@
   const safe=s=>String(s??"").replace(/[\u0000-\u001f\u007f]/g,"").slice(0,250);
   const clamp=(n,min,max)=>Math.min(max,Math.max(min,Number.isFinite(+n)?+n:min));
   const alignments=["start","center","end"];
-  const variableFields=template=>M.validate(template).objects
-    .filter(o=>o.type==="text"||o.type==="barcode")
-    .map(o=>({id:o.id,type:o.type,name:o.text.slice(0,45)||"Campo vazio",initial:o.text}));
+  // IDs do canvas nunca são chaves de dados de produto; bindings semânticos são.
+  function variableFields(template){
+    const objects=M.validate(template).objects.filter(o=>o.type==="text"||o.type==="barcode");
+    const fields=new Map();
+    for(const o of objects){
+      const id=o.binding||o.id;
+      if(!fields.has(id))fields.set(id,{id,type:o.type,name:M.FIELD_LABELS?.[id]||o.text.slice(0,45)||"Campo vazio",
+        initial:o.text,objectIds:[]});
+      const field=fields.get(id);field.objectIds.push(o.id);
+      if(o.type==="barcode"){field.type="barcode";field.initial=o.text;}
+    }
+    return [...fields.values()];
+  }
   function defaultFields(template){
-    const fields=variableFields(template);
-    // Seleção inicial explícita: máximo dois campos variáveis; os demais são fixos.
-    const selected=fields.filter(o=>o.type==="text").slice(0,2);
-    if(!selected.length&&fields.length)selected.push(fields[0]);
-    return selected.map(o=>o.id);
+    const defs=variableFields(template);
+    const bound=defs.filter(f=>f.id.startsWith("product."));
+    if(bound.length)return bound.map(f=>f.id);
+    const selected=defs.filter(f=>f.type==="text").slice(0,2);
+    if(!selected.length&&defs.length)selected.push(defs[0]);
+    return selected.map(f=>f.id);
   }
   function fresh(template){
     const selected=defaultFields(template);
     const defs=variableFields(template);
-    return {version:1,fields:selected,
+    return {version:2,fields:selected,
       rows:[{id:"row-1",quantity:1,values:Object.fromEntries(defs.map(f=>[f.id,f.initial]))}],
       layout:{columns:"auto",rows:"auto",margin:5,gapX:2,gapY:2,alignX:"center",alignY:"start",startSlot:1},
       activeStep:"model"};
   }
   function validateData(raw,template){
-    const defs=variableFields(template),ids=new Set(defs.map(x=>x.id));
+    const defs=variableFields(template),byId=new Map();
+    for(const f of defs)for(const id of [f.id,...f.objectIds])byId.set(id,f.id);
     if(!raw||typeof raw!=="object")return fresh(template);
-    const fields=Array.isArray(raw.fields)?[...new Set(raw.fields.filter(id=>ids.has(id)))]:defaultFields(template);
-    const rows=Array.isArray(raw.rows)?raw.rows.slice(0,100).map((r,i)=>({
-      id:typeof r?.id==="string"&&/^[a-zA-Z0-9_-]{1,40}$/.test(r.id)?r.id:"row-"+(i+1),
-      quantity:clamp(Math.floor(+r?.quantity||1),1,200),
-      values:Object.fromEntries(defs.map(f=>[f.id,safe(r?.values?.[f.id]??f.initial)]))
-    })):[];
+    const originalFields=Array.isArray(raw.fields)?raw.fields.filter(x=>typeof x==="string"):[];
+    const mapped=[...new Set(originalFields.map(id=>byId.get(id)).filter(Boolean))];
+    const fields=mapped.length?mapped:defaultFields(template);
+    const rows=Array.isArray(raw.rows)?raw.rows.slice(0,100).map((r,i)=>{
+      const source=r?.values&&typeof r.values==="object"?r.values:{},values={};
+      // Reter apenas chaves reconhecidas do domínio ou da interface antiga para não
+      // perder a tabela quando o usuário troca o desenho. Os dados não são renderizados
+      // nem executados por essas chaves extras.
+      for(const [key,value] of Object.entries(source).slice(0,150))
+        if(/^[a-zA-Z0-9_.-]{1,80}$/.test(key))values[key]=safe(value);
+      for(const def of defs){
+        const candidates=[def.id,...originalFields.filter(id=>byId.get(id)===def.id),...def.objectIds];
+        const found=candidates.find(id=>Object.prototype.hasOwnProperty.call(source,id));
+        values[def.id]=safe(found===undefined?def.initial:source[found]);
+      }
+      return {id:typeof r?.id==="string"&&/^[a-zA-Z0-9_-]{1,40}$/.test(r.id)?r.id:"row-"+(i+1),
+        quantity:clamp(Math.floor(+r?.quantity||1),1,200),values};
+    }):[];
     const x=raw.layout||{};
     const layout={
       columns:x.columns==="auto"?"auto":clamp(Math.floor(+x.columns),1,10),
@@ -47,7 +71,7 @@
       startSlot:clamp(Math.floor(+x.startSlot||1),1,300)
     };
     if(!rows.length)rows.push({id:"row-1",quantity:1,values:Object.fromEntries(defs.map(f=>[f.id,f.initial]))});
-    return {version:1,fields,rows,layout,activeStep:["model","list","preview"].includes(raw.activeStep)?raw.activeStep:"model"};
+    return {version:2,fields,rows,layout,activeStep:["model","list","preview"].includes(raw.activeStep)?raw.activeStep:"model"};
   }
   function calculate(template,layout){
     const {width:w,height:h}=M.validate(template);
@@ -80,16 +104,23 @@
     if(!batch.rows.length)throw Error("Adicione pelo menos uma etiqueta à lista.");
     const copies=count(batch);
     if(copies<1||copies>500)throw Error("Limite de 500 etiquetas por lote. Reduza as quantidades.");
-    const valid=new Set(variableFields(doc).map(f=>f.id));
+    const fieldDefs=variableFields(doc),valid=new Set(fieldDefs.map(f=>f.id));
     for(const field of batch.fields)if(!valid.has(field))throw Error("Campo variável não existe mais no modelo.");
     for(const row of batch.rows){
       if(!Number.isInteger(row.quantity)||row.quantity<1||row.quantity>200)throw Error("Quantidade inválida; use 1 a 200 por item.");
       for(const field of batch.fields){
-        const element=doc.objects.find(o=>o.id===field);
+        const element=doc.objects.find(o=>(o.binding||o.id)===field&&o.type==="barcode");
         const value=safe(row.values[field]??"");
-        if(element.type==="barcode"&&!M.barcodeBits(value))
+        if(element&&!M.barcodeBits(value))
           throw Error("Código de barras inválido na linha "+(batch.rows.indexOf(row)+1)+". Use Code 39 (1–24 caracteres).");
       }
+    }
+    // Validar todos os valores renderizados, não apenas a linha atualmente visível.
+    const checked=new Set();
+    for(const data of items(doc,batch)){
+      const sig=JSON.stringify(data.objects);
+      if(checked.has(sig))continue;
+      checked.add(sig);M.validateForOutput(data);
     }
     return {layout,copies,pageCount:Math.ceil((copies+layout.startSlot-1)/layout.perPage)};
   }
@@ -97,8 +128,9 @@
     const doc=M.validate(template);
     for(const row of batch.rows)for(let n=0;n<row.quantity;n++){
       const objects=doc.objects.map(obj=>{
-        if(!batch.fields.includes(obj.id))return obj;
-        return {...obj,text:obj.type==="barcode"?String(row.values[obj.id]??"").toUpperCase():safe(row.values[obj.id]??"")};
+        const key=obj.binding||obj.id;
+        if(!batch.fields.includes(key))return obj;
+        return {...obj,text:obj.type==="barcode"?String(row.values[key]??"").toUpperCase():safe(row.values[key]??"")};
       });
       yield {...doc,objects};
     }
