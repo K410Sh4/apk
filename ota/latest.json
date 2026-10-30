@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "version": "0.7.15",
+  "version": "0.7.26",
   "minNative": "0.7.4",
-  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.15/appspace-web-v0.7.15.zip",
-  "sha256": "aab09109efe750e06fc360df00eeb9d1fa997cf537e79e50986e574b40781543",
-  "notes": "Gavetas Android nas 3 pastas, busca e ordenação de apps, navegação mais fluida e correções de conexão Meu PC."
+  "url": "https://github.com/K410Sh4/apk/releases/download/appspace-web-v0.7.26/appspace-web-v0.7.26.zip",
+  "sha256": "c9268537b588cbe27fae31890cb26915f99468c17d246b127ce632220f72b9fe",
+  "notes": "Etiqueta Studio aprimorado: grade de 5 mm, ajuste de 1 mm, alinhamento e duplicação; geração em lote com tabela CSV, posições livres na folha A4, prévia mais le"
 }
