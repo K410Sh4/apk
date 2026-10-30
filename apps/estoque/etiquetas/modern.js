@@ -66,11 +66,25 @@ function updateSelection(){
   const visible=!byId("selection-props")?.hidden;
   const action=byId("studio-open-properties");
   if(action)action.hidden=!visible;
+  const remove=byId("studio-delete-selected");
+  if(remove)remove.hidden=!visible;
   const size=byId("canvas-size")?.textContent?.split("·")[0]?.trim();
   if(size&&byId("studio-size-hint"))byId("studio-size-hint").textContent=size;
   // Elementos deletados: trocar para a guia de dimensões quando o painel estiver aberto.
   if(!visible&&app.dataset.sheetTab==="element"&&app.dataset.mobilePanel==="properties")selectTab("label");
 }
+// O controlador SVG emite este evento em toque duplo ou clique duplo.
+window.addEventListener("etiqueta:edit-content",()=>{
+  const input=byId("item-text");
+  if(!input)return;
+  if(mobile())open("properties","element",byId("studio-open-properties"));
+  // O campo fica no painel aberto. Selecionar tudo acelera a troca do nome/preço.
+  requestAnimationFrame(()=>{
+    input.focus({preventScroll:true});
+    input.select();
+    input.scrollIntoView?.({block:"nearest"});
+  });
+});
 byId("studio-open-export")?.addEventListener("click",event=>open("export",null,event.currentTarget));
 byId("studio-open-properties")?.addEventListener("click",event=>open("properties","element",event.currentTarget));
 byId("studio-open-label")?.addEventListener("click",event=>open("properties","label",event.currentTarget));
