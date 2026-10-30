@@ -1,4 +1,4 @@
 {
-  "version": "0.7.2",
-  "notes": "Etiqueta Studio: texto/cores SVG corrigidos, folha A4 proporcional e impressão nativa via Wi-Fi no APK Android 0.7.0."
+  "version": "0.7.4",
+  "notes": "Correções da auditoria: OTA nativo seguro, PC Monitor, Code39 sem alteração silenciosa, backup de etiquetas Android e exportação A4 completa."
 }
