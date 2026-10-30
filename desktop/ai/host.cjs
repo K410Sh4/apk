@@ -72,7 +72,8 @@ function createHost({port=8765,host="127.0.0.1",token=crypto.randomBytes(32).toS
       if(req.method==="POST"&&pathname==="/api/v1/mods/apply"){
         const input=await body(req);
         if(!input||input.schema!==1||!input.profile)throw Object.assign(Error("Corpo inválido."),{status:400});
-        profile=validateProfile(input.profile);
+        try {profile=validateProfile(input.profile);}
+        catch(err) {throw Object.assign(new Error(err.message),{status:400});}
         revision++;
         const model=await engine.getModel();
         return json(res,200,{agent:api,apiVersion:1,applied:true,revision,profile,moduleStatus:statuses(profile,Boolean(model)),modelReady:Boolean(model),
