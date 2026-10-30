@@ -308,13 +308,16 @@
     if (launcher) launcher.hidden = !active;
     if (launcherOrder) launcherOrder.textContent =
       prefs.librarySort === "az" ? "A–Z" : prefs.librarySort === "za" ? "Z–A" : "Original";
+    const launcherCount = document.querySelector(".launcher-count");
+    if (launcherCount) launcherCount.textContent = String(folderCards.length).padStart(2, "0");
     arrangeCards(folderCards);
     arrangeCards(appCards);
     if (launcherGrid) {
       launcherGrid.replaceChildren();
-      // A grade funciona como gaveta única; a ordem original coloca pastas antes de apps.
-      [...folderCards, ...appCards].sort(compareCards).forEach((card) => {
-        launcherGrid.appendChild(createLauncherTile(card, folderCards.includes(card)));
+      // A tela minimalista é uma gaveta de PASTAS. Os apps permanecem somente
+      // dentro de Estoque e Meu PC; não duplicar atalhos no nível principal.
+      [...folderCards].sort(compareCards).forEach((card) => {
+        launcherGrid.appendChild(createLauncherTile(card, true));
       });
       filterLauncher();
     }
