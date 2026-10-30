@@ -273,3 +273,44 @@
  .batch-entry-button{display:flex;width:100%;min-height:44px;font-size:12px}
 }
 @media print{.batch-entry{display:none!important}}
+
+
+/* V0.7.9 · Progressive disclosure: retain instructions without visual overload. */
+.studio-help-details,.studio-export-help{
+  min-width:0;color:var(--muted);font-size:11px;line-height:1.5;
+}
+.studio-help-details summary,.studio-export-help summary{
+  display:inline-flex;align-items:center;gap:5px;
+  min-height:32px;padding:4px 0;cursor:pointer;color:var(--muted);
+  font-size:11px;font-weight:650;list-style:none;
+}
+.studio-help-details summary::-webkit-details-marker,.studio-export-help summary::-webkit-details-marker{display:none}
+.studio-help-details summary::before,.studio-export-help summary::before{
+  content:"?";display:grid;place-items:center;width:17px;height:17px;
+  border:1px solid var(--studio-modern-line);border-radius:50%;font-size:10px;
+}
+.studio-help-details[open] p,.studio-export-help[open] .studio-printer-help{
+  display:block;font-size:11px;line-height:1.65;margin:4px 0 8px;
+}
+.batch-entry-current{display:flex;align-items:center;gap:8px;font-size:10px;
+  color:var(--accent);font-weight:700}
+.batch-entry-current strong{font-size:12px;color:var(--text)}
+.studio-export-help{flex-basis:100%}
+.studio-export-help .studio-printer-help{border-left-width:2px}
+.studio-canvas-intro h1{margin-bottom:0}
+.studio-gesture-help{margin-top:3px}
+@media(max-width:850px){
+  .batch-entry{flex-wrap:nowrap;gap:12px;justify-content:space-between}
+  .batch-entry-current{flex:0 0 auto;white-space:nowrap}
+  .batch-entry-button{width:auto;flex:1;max-width:210px;min-height:44px}
+  .studio-canvas-head .studio-help-details{display:block}
+  .studio-canvas-head .studio-help-details[open] p{display:block!important;margin-top:6px}
+  .studio-canvas-intro{flex:1 1 100%;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .studio-gesture-help{margin:0;flex:0 0 auto}
+  .studio-gesture-help summary{font-size:10px;min-height:44px;padding:7px}
+  .studio-gesture-help[open]{flex-basis:100%}
+  .studio-canvas-intro:has(.studio-gesture-help[open]){flex-wrap:wrap}
+  .studio-canvas-foot #canvas-size{display:none}
+  .studio-app[data-mobile-panel="none"] .studio-export-help{display:none}
+  .studio-export-help summary{min-height:44px}
+}
