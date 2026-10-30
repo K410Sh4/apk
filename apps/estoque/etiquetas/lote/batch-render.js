@@ -12,27 +12,7 @@
    if(text!==undefined)el.textContent=String(text);
    return el;
  };
- function lines(text,size,w,h){
-   const limit=Math.max(1,Math.floor(w/(size*.53))),n=Math.max(1,Math.floor(h/(size*1.18)));
-   const out=[];
-   for(const paragraph of String(text??"").split("\n")){
-     let line="";
-     for(const word of paragraph.split(/\s+/)){
-       if(!word)continue;
-       if(line&&line.length+1+word.length>limit){out.push(line);line="";}
-       if(word.length>limit){
-         if(line){out.push(line);line="";}
-         for(let i=0;i<word.length;i+=limit){
-           const part=word.slice(i,i+limit);
-           if(i+limit<word.length)out.push(part);else line=part;
-         }
-       }else line=line?line+" "+word:word;
-     }
-     if(line||!out.length)out.push(line);
-     if(out.length>=n)break;
-   }
-   return out.slice(0,n);
- }
+ function lines(text,size,w,h){return M.textLayout(text,size,w,h).lines;}
  function item(g,o){
    if(o.type==="rect")g.append(s("rect",{x:o.x,y:o.y,width:o.w,height:o.h,rx:Math.min(o.radius,o.w/2,o.h/2),fill:o.fill,stroke:o.stroke,"stroke-width":o.strokeWidth}));
    else if(o.type==="ellipse")g.append(s("ellipse",{cx:o.x+o.w/2,cy:o.y+o.h/2,rx:o.w/2,ry:o.h/2,fill:o.fill,stroke:o.stroke,"stroke-width":o.strokeWidth}));
