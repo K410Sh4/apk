@@ -49,7 +49,7 @@ function setup(legacy={},handler){
  assert.equal(b.entries.size,0);
  const html=fs.readFileSync(path.join(root,"apps/meu-pc/index.html"),"utf8");
  const monitor=fs.readFileSync(path.join(root,"apps/meu-pc/monitor/index.html"),"utf8");
- for(const value of ['data-transport="usb"','data-transport="wifi"','id="mypc-form"','id="mypc-monitor-link"'])assert.ok(html.includes(value));
+ for(const value of ['data-transport="usb"','data-transport="wifi"','id="mypc-form"','id="mypc-monitor-link"','id="mypc-rgb-link"'])assert.ok(html.includes(value));
  assert.ok(monitor.includes('assets/pc-connection.js'));
  assert.ok(!monitor.includes('id="monitor-pair-form"'));
  assert.ok(fs.readFileSync(path.join(root,"assets/my-pc.js"),"utf8").includes("Ancoragem USB"));
