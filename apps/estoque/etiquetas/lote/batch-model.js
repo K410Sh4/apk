@@ -88,7 +88,7 @@
           throw Error("Código de barras inválido na linha "+(batch.rows.indexOf(row)+1)+". Use Code 39 (1–24 caracteres).");
       }
     }
-    return {layout,copies,pages:Math.ceil(copies/layout.perPage)};
+    return {layout,copies,pageCount:Math.ceil(copies/layout.perPage)};
   }
   function* items(template,batch){
     const doc=M.validate(template);
@@ -107,7 +107,7 @@
         label,position:verified.layout.positions[i]
       })));
     }
-    return {pages:result,...verified};
+    return {...verified,pages:result};
   }
   return Object.freeze({variableFields,defaultFields,fresh,validateData,calculate,count,validateForPrint,items,pages});
 });
