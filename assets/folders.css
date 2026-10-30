@@ -88,3 +88,7 @@
 .folder-search-row{margin:0 0 18px;max-width:540px}
 .folder-search-row .search-field{width:100%;max-width:none;min-height:48px}
 .folder-search-row input{font-size:16px}
+
+/* PASTA IA - extensão pontual, preservando os outros temas */
+.folder-card--ai .folder-card-art::before {background:#5aaaff}
+.folder-card--ai .folder-big-icon {background:linear-gradient(135deg,rgba(65,135,255,.23),rgba(30,95,193,.07));color:#75b5ff}
