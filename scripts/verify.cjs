@@ -240,7 +240,7 @@ new Function(js);
 assert.equal(cfg.webDir, "web");
 assert.equal(cfg.android.path, "mobile/android");
 assert.equal(pkg.main, "desktop/main.cjs");
-assert.equal(pkg.version, "0.7.6");
+assert.equal(pkg.version, "0.7.38");
 assert.match(pkg.scripts["mobile:sync"], /prepare-label-documents/);
 assert.ok(fs.existsSync(path.join(root,"scripts/prepare-release-signing.cjs")));
 assert.equal(pkg.dependencies["@capacitor/screen-orientation"], "8.0.2");
@@ -326,6 +326,9 @@ assert.match(rgbPage,/rgb-keyboard-detail/);
 assert.match(rgbPage,/rgb-fifine-detail/);
 assert.match(rgbPage,/rgb-controller-detail/);
 assert.match(rgbPage,/assets\/rgb-controller\.js/);
+assert.match(rgbPage,/assets\/rgb-direct-ui\.js/);
+assert.match(rgbPage,/assets\/rgb-direct\.css/);
+assert.match(rgbPage,/id="rgb-direct"/);
 assert.match(rgbPage,/assets\/rgb-sync-engine\.js/);
 assert.match(rgbPage,/assets\/rgb-sync-ui\.js/);
 assert.match(rgbPage,/assets\/rgb-hub-model\.js/);
@@ -374,7 +377,7 @@ for(const source of [monitorJs, pcConnection, myPcUi, lan, desktopUpdater, elect
 assert.ok(pkg.build.files.includes("configuracoes.html"));
 
 execFileSync(process.execPath, [path.join(root, "scripts/build-web.cjs")], { stdio: "inherit" });
-for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/pc-monitor-v3.css", "assets/rgb-controller.css", "assets/rgb-controller.js", "assets/rgb-sync-engine.js", "assets/rgb-sync-ui.js", "assets/rgb-sync.css", "assets/rgb-hub-model.js", "assets/rgb-hub-setup.js", "assets/rgb-hub-setup.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "apps/meu-pc/rgb/index.html", "apps/ia/index.html", "apps/ia/qwen-mod-hub/index.html", "apps/ia/qwen-mod-hub/mod-hub.js", "apps/ia/qwen-mod-hub/mod-hub.css", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
+for (const asset of ["index.html", "configuracoes.html", "assets/app-drawer.css", "assets/app-drawer.js", "assets/portal.css", "assets/personalization.css", "assets/settings.css", "assets/folders.css", "assets/launcher.css", "assets/mobile-navigation.css", "assets/pc-monitor.css", "assets/pc-monitor-v2.css", "assets/pc-monitor-v3.css", "assets/rgb-controller.css", "assets/rgb-controller.js", "assets/rgb-direct-ui.js", "assets/rgb-direct.css", "assets/rgb-sync-engine.js", "assets/rgb-sync-ui.js", "assets/rgb-sync.css", "assets/rgb-hub-model.js", "assets/rgb-hub-setup.js", "assets/rgb-hub-setup.css", "assets/portal.js", "assets/pc-monitor.js", "assets/desktop-updates.js", "assets/ota.js", "apps/primeiro-app/index.html", "apps/estoque/index.html", "apps/edicao-de-video/index.html", "apps/sistema/index.html", "apps/sistema/pc-monitor/index.html", "apps/meu-pc/index.html", "apps/meu-pc/monitor/index.html", "apps/meu-pc/rgb/index.html", "apps/ia/index.html", "apps/ia/qwen-mod-hub/index.html", "apps/ia/qwen-mod-hub/mod-hub.js", "apps/ia/qwen-mod-hub/mod-hub.css", "assets/pc-connection.js", "assets/my-pc.js", "assets/my-pc.css", "apps/estoque/etiquetas/index.html", "apps/estoque/etiquetas/model.js", "apps/estoque/etiquetas/files.js", "apps/estoque/etiquetas/editor.js", "apps/estoque/etiquetas/editor.css", "apps/estoque/etiquetas/modern.js", "apps/estoque/etiquetas/modern.css", "apps/estoque/etiquetas/gestures.js", "apps/estoque/etiquetas/lote/index.html", "apps/estoque/etiquetas/lote/batch.js", "apps/estoque/etiquetas/lote/batch-model.js", "apps/estoque/etiquetas/lote/batch-render.js", "apps/estoque/etiquetas/lote/batch.css"]) {
   assert.equal(text(asset), text(path.join("web", asset)), "Cópia divergente: " + asset);
 }
 // O EXE Windows rejeita arquivos fora desta lista. Testar o pacote REAL antes da OTA.
@@ -405,6 +408,7 @@ execFileSync(process.execPath, [path.join(root, "scripts/test-lan.cjs")], { stdi
 execFileSync(process.execPath, [path.join(root, "scripts/test-rgb.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-rgb-sync.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-rgb-hub.cjs")], { stdio: "inherit" });
+execFileSync(process.execPath, [path.join(root, "scripts/test-rgb-direct.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-gpu.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels.cjs")], { stdio: "inherit" });
 execFileSync(process.execPath, [path.join(root, "scripts/test-labels-modern.cjs")], { stdio: "inherit" });
