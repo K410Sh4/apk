@@ -343,3 +343,35 @@ test('REA multi-page production accepts 101 sheets for sparse large labels',()=>
   assert.match(native,/ACTION_CREATE_DOCUMENT/);assert.match(native,/ACTION_OPEN_DOCUMENT/);
   assert.match(source('scripts/prepare-label-documents.cjs'),/registerPlugin\(LabelDocumentsPlugin.class\)/);
 });
+
+test('Android release blocks missing persistent signing credentials and injects Gradle config idempotently',()=>{
+  const file='scripts/prepare-release-signing.cjs';
+  const gradleOriginal="android {\\n    buildTypes { release { minifyEnabled false } }\\n}\\n";
+  let written=gradleOriginal;
+  const mock={
+    statSync:()=>({isFile:()=>true}),
+    readFileSync:()=>written,
+    writeFileSync:(_p,txt)=>{written=txt;}
+  };
+  const keys={
+    APPSPACE_RELEASE_KEYSTORE_PATH:'/tmp/appspace-test.jks',
+    APPSPACE_RELEASE_STORE_PASSWORD:'testSecretStoreOnly',
+    APPSPACE_RELEASE_KEY_ALIAS:'test',
+    APPSPACE_RELEASE_KEY_PASSWORD:'testSecretKeyOnly'
+  };
+  assert.throws(()=>loadModule(file,{'node:fs':mock},{
+    __dirname:path.join(root,'scripts'),process:{env:{}}
+  }),/Assinatura de release não configurada/);
+  loadModule(file,{'node:fs':mock},{__dirname:path.join(root,'scripts'),process:{env:keys}});
+  assert.match(written,/APPSPACE_STABLE_RELEASE_SIGNING/);
+  assert.match(written,/signingConfig signingConfigs.appspaceRelease/);
+  assert.doesNotMatch(written,/testSecretStoreOnly|testSecretKeyOnly/);
+  const once=written;
+  loadModule(file,{'node:fs':mock},{__dirname:path.join(root,'scripts'),process:{env:keys}});
+  assert.equal(written,once);
+  const workflow=source('.github/workflows/appspace-native-release.yml');
+  assert.match(workflow,/assembleRelease/);
+  assert.match(workflow,/apksigner/);
+  assert.match(workflow,/secrets.APPSPACE_ANDROID_KEYSTORE_BASE64/);
+  assert.doesNotMatch(workflow,/assembleDebug/);
+});
