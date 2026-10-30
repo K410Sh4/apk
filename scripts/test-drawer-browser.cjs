@@ -98,6 +98,30 @@ const server=http.createServer((req,res)=>{
   assert.equal(await racePage.locator('#mypc-status').innerText(),'Não conectado');
   assert.equal(await racePage.evaluate(()=>localStorage.getItem('appspace.pc.connection.v1')),null);
   assertions+=3;await race.close();
+
+  // Editor de etiquetas e fluxo A4: controles reais em mobile e desktop.
+  const labelsContext=await browser.newContext({viewport:{width:412,height:915},isMobile:true,hasTouch:true});
+  const labelsPage=await labelsContext.newPage();labelsPage.on('pageerror',e=>errors.push(e.message));
+  for(const [width,height] of [[320,640],[412,915],[1280,800]]){
+    await labelsPage.setViewportSize({width,height});
+    await labelsPage.goto(base+'/apps/estoque/etiquetas/index.html');
+    await labelsPage.locator('#studio-grid').click();
+    assert.equal(await labelsPage.locator('#studio-grid').getAttribute('aria-pressed'),'true');
+    await labelsPage.locator('#studio-snap').click();
+    assert.equal(await labelsPage.locator('#studio-snap').getAttribute('aria-pressed'),'true');
+    if(width===412)await labelsPage.screenshot({path:path.join(output,'etiqueta-editor-mobile.png'),fullPage:true});
+    await labelsPage.goto(base+'/apps/estoque/etiquetas/lote/index.html');
+    await labelsPage.locator('#next-list').click();
+    await labelsPage.locator('#next-preview').click();
+    await labelsPage.locator('#layout-start-slot').fill('2');
+    await labelsPage.locator('#layout-start-slot').press('Tab');
+    await labelsPage.waitForFunction(()=>document.getElementById('batch-layout-result').textContent.includes('posição inicial 2'));
+    assert.ok(await labelsPage.locator('#batch-paper svg').count()>0);
+    assert.ok(await labelsPage.locator('#batch-download').isEnabled());
+    if(width===412)await labelsPage.screenshot({path:path.join(output,'etiqueta-lote-a4-mobile.png'),fullPage:true});
+    assertions+=4;
+  }
+  await labelsContext.close();
   // Local files keep the folder and editor available without networking.
   const offline=await browser.newContext({offline:true,viewport:{width:412,height:915}});
   const local=await offline.newPage();local.on('pageerror',e=>errors.push(e.message));
