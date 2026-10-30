@@ -1,4 +1,4 @@
 {
-  "version": "0.7.0",
-  "notes": "Corrige cores SVG e visualização proporcional A4 do Etiqueta Studio. Ativa seletor de impressoras Wi-Fi via PrintManager Android."
+  "version": "0.7.3",
+  "notes": "Correções PR #1: pareamento, OTA, versionamento, monitor; Etiqueta Studio: Code39 seguro, backup Android em Arquivos/Drive e A4 multipágina."
 }
