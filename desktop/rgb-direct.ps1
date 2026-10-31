@@ -56,6 +56,12 @@ namespace AppSpaceRgb {
   public string usagePage {get;set;}
   public string usage {get;set;}
   public int featureReportBytes {get;set;}
+  public int inputReportBytes {get;set;}
+  public int outputReportBytes {get;set;}
+  public int outputButtonCaps {get;set;}
+  public int outputValueCaps {get;set;}
+  public int featureButtonCaps {get;set;}
+  public int featureValueCaps {get;set;}
   public string result {get;set;}
   public int errorCode {get;set;}
  }
@@ -142,10 +148,16 @@ namespace AppSpaceRgb {
         probe.usagePage="0x"+caps.UsagePage.ToString("X4");
         probe.usage="0x"+caps.Usage.ToString("X4");
         probe.featureReportBytes=caps.FeatureReportByteLength;
+       probe.inputReportBytes=caps.InputReportByteLength;
+       probe.outputReportBytes=caps.OutputReportByteLength;
+       probe.outputButtonCaps=caps.NumberOutputButtonCaps;
+       probe.outputValueCaps=caps.NumberOutputValueCaps;
+       probe.featureButtonCaps=caps.NumberFeatureButtonCaps;
+       probe.featureValueCaps=caps.NumberFeatureValueCaps;
         if(caps.UsagePage==0xFFA0&&caps.FeatureReportByteLength==16){
          probe.result="rgb_candidate";found.paths.Add(path);
         }else if(caps.UsagePage!=0xFFA0)probe.result="different_usage_page";
-        else probe.result="different_report_length";
+        else probe.result=caps.FeatureReportByteLength==0?"no_feature_report":"different_report_length";
        }else{
         probe.errorCode=error;
        }
@@ -185,6 +197,8 @@ namespace AppSpaceRgb {
     status=paths.Count==1?"detected":paths.Count==0?"not_found":"ambiguous",
     writable=paths.Count==1,reason=paths.Count==1?"Interface RGB validada por VID/PID, uso FFA0 e Feature Report de 16 bytes.":
       paths.Count>1?"Multiplas colecoes RGB compativeis; escrita bloqueada.":
+      scan.probes.Exists(p=>p.usagePage=="0xFFA0"&&p.featureReportBytes==0)?
+        "Colecao HID RGB FFA0 encontrada, mas o Windows informa Feature Report = 0. Este driver usa HID Feature; escrita bloqueada. Verifique tamanhos de Output/Input no diagnostico.":
       scan.targetCollections>0?"Mouse 04D9:FC30 detectado, mas nenhuma colecao corresponde ao protocolo RGB FFA0 / 16 bytes.":
       "Nenhuma colecao HID com VID 04D9 e PID FC30 foi encontrada. O Windows pode identificar o mouse por outra interface.",
     transport="Windows HID nativo",effects=new[]{"static","breathing","rainbow","wave","flashing"},
