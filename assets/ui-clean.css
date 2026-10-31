@@ -49,6 +49,12 @@ body.page-home .folder-card-details{padding:0}
 body.page-home .folder-card-details h3{font-size:16px;margin:0 0 4px;letter-spacing:-.35px}
 body.page-home .folder-card-details p{font-size:11px;line-height:1.55;margin:0 0 10px;max-width:32ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 body.page-home .folder-card-footer{padding-top:10px;border-top:1px solid var(--stroke);font-size:11px}
+/* Re-enable the compact quick-app library previously globally hidden by launcher.css.
+   Do not duplicate cards while launcher or minimal mobile navigation is active. */
+:root:not([data-library-view="launcher"]) body.page-home .library{display:block!important}
+@media(max-width:850px){
+ :root[data-mobile-nav-style="minimal"] body.page-home .library{display:none!important}
+}
 body.page-home .library{margin-top:27px}
 body.page-home .app-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,236px),1fr));gap:12px}
 body.page-home .app-card{border-radius:var(--as-radius);min-height:0;box-shadow:none;transition:transform .15s,border-color .15s}
