@@ -22,9 +22,21 @@ function parse(stdout){
     !["detected","not_found","ambiguous"].includes(x.status)||
     typeof x.writable!=="boolean"||typeof x.reason!=="string")
   throw Error("Resposta RGB não reconhecida");
+ const n=v=>Number.isInteger(v)&&v>=0&&v<=1024?v:0;
+ const diagnostics=(Array.isArray(x.diagnostics)?x.diagnostics:[]).slice(0,24)
+  .filter(p=>p&&typeof p==="object"&&!Array.isArray(p))
+  .map(p=>({
+   number:n(p.number),usagePage:/^0x[0-9A-F]{4}$|^unknown$/.test(p.usagePage)?p.usagePage:"unknown",
+   usage:/^0x[0-9A-F]{4}$|^unknown$/.test(p.usage)?p.usage:"unknown",
+   featureReportBytes:n(p.featureReportBytes),
+   result:["rgb_candidate","caps_unavailable","different_usage_page","different_report_length"].includes(p.result)?p.result:"unknown",
+   errorCode:Number.isInteger(p.errorCode)?p.errorCode:0
+  }));
  return {available:true,device:"redragon-m711",name:x.device,status:x.status,
   writable:x.writable&&x.status==="detected",
-  reason:x.reason.slice(0,180),transport:"Windows HID nativo",
+  reason:x.reason.slice(0,200),transport:"Windows HID nativo",
+  hidCollectionsSeen:n(x.hidCollectionsSeen),targetCollectionsSeen:n(x.targetCollectionsSeen),
+  diagnostics,
   effects:MODES,profiles:5,lastAction:x.lastAction==="sent"?"sent":"none"};
 }
 function createRgbDirect(options={}){
@@ -62,7 +74,7 @@ function createRgbDirect(options={}){
   writing=true;cached=null;
   try{
    if(readPending)await readPending.catch(()=>{});
-   // Do not infer from VID/PID alone: native code validates HID usage FFA0 and MI_02.
+   // Never infer from VID/PID alone: native code validates HID usage FFA0 and 16-byte feature report.
    const result=await invoke(["-Operation","set","-Color",data.color,"-Effect",data.effect,"-Profile",String(data.profile)]);
    if(result.lastAction!=="sent")throw Error("O Windows não confirmou o envio HID");
    lastWrite=now();
