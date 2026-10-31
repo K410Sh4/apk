@@ -6,7 +6,8 @@ param(
 )
 $ErrorActionPreference="Stop"
 # AppSpace RGB Direct. Windows built-in HID/SetupAPI only. No external app/driver.
-# Write gate: exact 04D9:FC30, MI_02, HID usage page FFA0, 16-byte feature report.
+# Write gate: exact 04D9:FC30, HID vendor usage page FFA0, 16-byte feature report.
+# Device interface paths are opaque: do NOT parse MI_02 from strings as a prerequisite.
 # No firmware, DPI, fan PWM, arbitrary device paths, or unknown VID/PID writes.
 $source=@'
 using System;
@@ -46,6 +47,23 @@ namespace AppSpaceRgb {
   public string[] effects {get;set;}
   public int profiles {get;set;}
   public string lastAction {get;set;}
+  public int hidCollectionsSeen {get;set;}
+  public int targetCollectionsSeen {get;set;}
+  public InterfaceProbe[] diagnostics {get;set;}
+ }
+ public class InterfaceProbe {
+  public int number {get;set;}
+  public string usagePage {get;set;}
+  public string usage {get;set;}
+  public int featureReportBytes {get;set;}
+  public string result {get;set;}
+  public int errorCode {get;set;}
+ }
+ internal class ScanResult {
+  public List<string> paths=new List<string>();
+  public List<InterfaceProbe> probes=new List<InterfaceProbe>();
+  public int hidCollections=0;
+  public int targetCollections=0;
  }
  public static class Driver {
   [DllImport("hid.dll")] private static extern void HidD_GetHidGuid(out Guid hidGuid);
@@ -63,31 +81,41 @@ namespace AppSpaceRgb {
   [DllImport("setupapi.dll",SetLastError=true)] private static extern bool SetupDiDestroyDeviceInfoList(IntPtr info);
   [DllImport("kernel32.dll",EntryPoint="CreateFileW",SetLastError=true,CharSet=CharSet.Unicode)]
   private static extern SafeFileHandle CreateFile(string path,uint access,uint share,IntPtr security,uint disposition,uint flags,IntPtr template);
-  private static bool Compatible(string path,SafeFileHandle handle){
-   // Ignore keyboard and generic mouse HID collections even with identical VID/PID.
-   if(path.IndexOf("mi_02",StringComparison.OrdinalIgnoreCase)<0)return false;
-   var attr=new HID_ATTRIBUTES();attr.Size=Marshal.SizeOf(typeof(HID_ATTRIBUTES));
-   if(!HidD_GetAttributes(handle,ref attr)||attr.VendorID!=0x04D9||attr.ProductID!=0xFC30)return false;
-   IntPtr raw;
-   if(!HidD_GetPreparsedData(handle,out raw))return false;
-   try {
-    var caps=new HIDP_CAPS();caps.Reserved=new ushort[17];
+  private static bool GetCapsForTarget(SafeFileHandle handle,out HIDP_CAPS caps,out int error){
+   caps=new HIDP_CAPS();caps.Reserved=new ushort[17];error=0;
+   IntPtr raw=IntPtr.Zero;
+   if(!HidD_GetPreparsedData(handle,out raw)){
+    error=Marshal.GetLastWin32Error();return false;
+   }
+   try{
     int code=HidP_GetCaps(raw,ref caps);
-    return code>=0 && caps.UsagePage==0xFFA0 && caps.FeatureReportByteLength==16;
-   } finally{HidD_FreePreparsedData(raw);}
+    if(code<0){error=code;return false;}
+    return true;
+   }finally{HidD_FreePreparsedData(raw);}
   }
-  private static string[] Find(){
-   var matches=new List<string>();Guid guid;HidD_GetHidGuid(out guid);
+  private static bool Compatible(SafeFileHandle handle){
+   var attributes=new HID_ATTRIBUTES();
+   attributes.Size=Marshal.SizeOf(typeof(HID_ATTRIBUTES));
+   if(!HidD_GetAttributes(handle,ref attributes)||
+     attributes.VendorID!=0x04D9||attributes.ProductID!=0xFC30)return false;
+   HIDP_CAPS caps;int error;
+   return GetCapsForTarget(handle,out caps,out error)&&
+          caps.UsagePage==0xFFA0&&caps.FeatureReportByteLength==16;
+  }
+  private static ScanResult Find(){
+   var found=new ScanResult();
+   Guid guid;HidD_GetHidGuid(out guid);
    var info=SetupDiGetClassDevs(ref guid,IntPtr.Zero,IntPtr.Zero,0x12); // PRESENT|DEVICEINTERFACE
    if(info==new IntPtr(-1))throw new Win32Exception(Marshal.GetLastWin32Error());
    try{
-    for(uint i=0;i<512;i++){
+    for(uint i=0;i<1024;i++){
      var entry=new SP_DEVICE_INTERFACE_DATA();
      entry.cbSize=Marshal.SizeOf(typeof(SP_DEVICE_INTERFACE_DATA));
      if(!SetupDiEnumDeviceInterfaces(info,IntPtr.Zero,ref guid,i,ref entry)){
-      if(Marshal.GetLastWin32Error()==259)break; // ERROR_NO_MORE_ITEMS
+      if(Marshal.GetLastWin32Error()==259)break;
       continue;
      }
+     found.hidCollections++;
      uint need;
      SetupDiGetDeviceInterfaceDetail(info,ref entry,IntPtr.Zero,0,out need,IntPtr.Zero);
      if(need<8||need>8192)continue;
@@ -96,17 +124,37 @@ namespace AppSpaceRgb {
       Marshal.WriteInt32(memory,IntPtr.Size==8?8:6);
       uint actual;
       if(!SetupDiGetDeviceInterfaceDetail(info,ref entry,memory,need,out actual,IntPtr.Zero))continue;
-      var path=Marshal.PtrToStringUni(new IntPtr(memory.ToInt64()+4));
-      if(String.IsNullOrEmpty(path)||path.IndexOf("vid_04d9",StringComparison.OrdinalIgnoreCase)<0||
-       path.IndexOf("pid_fc30",StringComparison.OrdinalIgnoreCase)<0||
-       path.IndexOf("mi_02",StringComparison.OrdinalIgnoreCase)<0)continue;
+      // The symbolic path is *only* passed to CreateFile; never used to identify VID/PID/MI.
+      string path=Marshal.PtrToStringUni(new IntPtr(memory.ToInt64()+4));
+      if(String.IsNullOrEmpty(path))continue;
       using(var h=CreateFile(path,0,3,IntPtr.Zero,3,0,IntPtr.Zero)){
-       if(!h.IsInvalid&&Compatible(path,h))matches.Add(path);
+       if(h.IsInvalid)continue;
+       var a=new HID_ATTRIBUTES();a.Size=Marshal.SizeOf(typeof(HID_ATTRIBUTES));
+       if(!HidD_GetAttributes(h,ref a)||a.VendorID!=0x04D9||a.ProductID!=0xFC30)continue;
+       found.targetCollections++;
+       var probe=new InterfaceProbe();
+       probe.number=found.targetCollections;
+       probe.usagePage="unknown";probe.usage="unknown";
+       probe.featureReportBytes=0;
+       probe.result="caps_unavailable";
+       HIDP_CAPS caps;int error;
+       if(GetCapsForTarget(h,out caps,out error)){
+        probe.usagePage="0x"+caps.UsagePage.ToString("X4");
+        probe.usage="0x"+caps.Usage.ToString("X4");
+        probe.featureReportBytes=caps.FeatureReportByteLength;
+        if(caps.UsagePage==0xFFA0&&caps.FeatureReportByteLength==16){
+         probe.result="rgb_candidate";found.paths.Add(path);
+        }else if(caps.UsagePage!=0xFFA0)probe.result="different_usage_page";
+        else probe.result="different_report_length";
+       }else{
+        probe.errorCode=error;
+       }
+       if(found.probes.Count<24)found.probes.Add(probe);
       }
      }finally{Marshal.FreeHGlobal(memory);}
     }
    }finally{SetupDiDestroyDeviceInfoList(info);}
-   return matches.ToArray();
+   return found;
   }
   private static byte[] Packet(int address,byte[] values){
    var buf=new byte[16];
@@ -130,14 +178,20 @@ namespace AppSpaceRgb {
    }
   }
   public static Status Execute(string operation,string hex,string effect,int profile){
-   var paths=Find();
+   var scan=Find();
+   var paths=scan.paths;
    var state=new Status{
     available=true,device="Redragon M711 Cobra (04D9:FC30)",
-    status=paths.Length==1?"detected":paths.Length==0?"not_found":"ambiguous",
-    writable=paths.Length==1,reason=paths.Length==1?"Interface HID validada (MI_02 / FFA0).":
-      paths.Length==0?"Interface RGB compativel nao encontrada.":"Multiplas interfaces RGB; comando bloqueado.",
+    status=paths.Count==1?"detected":paths.Count==0?"not_found":"ambiguous",
+    writable=paths.Count==1,reason=paths.Count==1?"Interface RGB validada por VID/PID, uso FFA0 e Feature Report de 16 bytes.":
+      paths.Count>1?"Multiplas colecoes RGB compativeis; escrita bloqueada.":
+      scan.targetCollections>0?"Mouse 04D9:FC30 detectado, mas nenhuma colecao corresponde ao protocolo RGB FFA0 / 16 bytes.":
+      "Nenhuma colecao HID com VID 04D9 e PID FC30 foi encontrada. O Windows pode identificar o mouse por outra interface.",
     transport="Windows HID nativo",effects=new[]{"static","breathing","rainbow","wave","flashing"},
-    profiles=5,lastAction="none"
+    profiles=5,lastAction="none",
+    hidCollectionsSeen=scan.hidCollections,
+    targetCollectionsSeen=scan.targetCollections,
+    diagnostics=scan.probes.ToArray()
    };
    if(operation=="scan")return state;
    if(operation!="set")throw new ArgumentException("Operacao nao permitida");
@@ -152,7 +206,7 @@ namespace AppSpaceRgb {
    int addr=0x0449+(profile-1)*8;
    using(var handle=CreateFile(paths[0],0x40000000,3,IntPtr.Zero,3,0,IntPtr.Zero)){
     if(handle.IsInvalid)throw new Win32Exception(Marshal.GetLastWin32Error(),"Sem acesso a interface HID");
-    if(!Compatible(paths[0],handle))throw new InvalidOperationException("Interface HID mudou; escrita bloqueada");
+    if(!Compatible(handle))throw new InvalidOperationException("Interface HID mudou; escrita bloqueada");
     Send(handle,Packet(addr,new byte[]{(byte)r,(byte)g,(byte)b,0x01,0x00,mode}));
     var apply=new byte[16];apply[0]=0x02;apply[1]=0xF1;apply[2]=0x02;apply[3]=0x04;
     Send(handle,apply);
@@ -166,7 +220,7 @@ namespace AppSpaceRgb {
 '@
 try{
  Add-Type -TypeDefinition $source -ErrorAction Stop
- [AppSpaceRgb.Driver]::Execute($Operation,$Color,$Effect,$Profile) | ConvertTo-Json -Compress -Depth 4
+ [AppSpaceRgb.Driver]::Execute($Operation,$Color,$Effect,$Profile) | ConvertTo-Json -Compress -Depth 6
 }catch{
  [Console]::Error.WriteLine("RGB nativo: "+$_.Exception.Message)
  exit 1
