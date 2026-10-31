@@ -29,7 +29,13 @@ function parse(stdout){
    number:n(p.number),usagePage:/^0x[0-9A-F]{4}$|^unknown$/.test(p.usagePage)?p.usagePage:"unknown",
    usage:/^0x[0-9A-F]{4}$|^unknown$/.test(p.usage)?p.usage:"unknown",
    featureReportBytes:n(p.featureReportBytes),
-   result:["rgb_candidate","caps_unavailable","different_usage_page","different_report_length"].includes(p.result)?p.result:"unknown",
+   inputReportBytes:n(p.inputReportBytes),
+   outputReportBytes:n(p.outputReportBytes),
+   outputButtonCaps:n(p.outputButtonCaps),
+   outputValueCaps:n(p.outputValueCaps),
+   featureButtonCaps:n(p.featureButtonCaps),
+   featureValueCaps:n(p.featureValueCaps),
+   result:["rgb_candidate","caps_unavailable","different_usage_page","different_report_length","no_feature_report"].includes(p.result)?p.result:"unknown",
    errorCode:Number.isInteger(p.errorCode)?p.errorCode:0
   }));
  return {available:true,device:"redragon-m711",name:x.device,status:x.status,
