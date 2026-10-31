@@ -41,7 +41,7 @@ function setupSettings(){
    event.preventDefault();
    const group=groups.get(d.id);
    for(const [name,other] of groups)other.open=name===d.id;
-   group.scrollIntoView({block:"start",behavior:"instant"});
+   group.scrollIntoView({block:"start",behavior:"auto"});
    history.replaceState(null,"",link.getAttribute("href"));
    const summary=group.querySelector("summary");summary?.focus?.({preventScroll:true});
   });
