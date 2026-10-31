@@ -9,14 +9,19 @@ function diagnosticReport(state){
  const mouse=Number.isInteger(state.targetCollectionsSeen)?state.targetCollectionsSeen:0;
  const reports=Array.isArray(state.diagnostics)?state.diagnostics:[];
  const labels={rgb_candidate:"Colecao RGB compativel",different_usage_page:"Pagina HID diferente de FFA0",
-  different_report_length:"Tamanho de feature report diferente de 16",caps_unavailable:"Descritor HID inacessivel"};
+  different_report_length:"Feature Report diferente de 16",
+  no_feature_report:"Feature Report nao declarado; escrita bloqueada",
+  caps_unavailable:"Descritor HID inacessivel"};
  return [
   "AppSpace RGB — diagnostico somente leitura",
   "HID enumerados: "+hid,
   "Colecoes 04D9:FC30: "+mouse,
   "Estado: "+String(state.status||"indisponivel"),
   ...reports.map(p=>"#"+p.number+" | pagina="+p.usagePage+" | uso="+p.usage+
-   " | bytes="+p.featureReportBytes+" | "+(labels[p.result]||"Nao classificado")+
+   " | feature="+p.featureReportBytes+" | output="+p.outputReportBytes+" | input="+p.inputReportBytes+
+   " | outputCaps="+p.outputButtonCaps+"/"+p.outputValueCaps+
+   " | featureCaps="+p.featureButtonCaps+"/"+p.featureValueCaps+
+   " | "+(labels[p.result]||"Nao classificado")+
    (p.errorCode?" | erro="+p.errorCode:"")),
   mouse===0?"Nenhuma colecao HID desse mouse foi localizada pelo Windows.":""
  ].filter(Boolean).join("\n");
@@ -61,7 +66,9 @@ async function refresh(){
   const state=await request();
   present=state.status==="detected"&&state.writable===true;
   showDiagnostics(state);
-  text("rgb-direct-status",present?"Interface RGB identificada":state.status==="ambiguous"?"Dispositivo ambíguo":"Não encontrado");
+  text("rgb-direct-status",present?"Interface RGB identificada":
+    state.status==="ambiguous"?"Dispositivo ambíguo":
+    Number(state.targetCollectionsSeen)>0?"Mouse encontrado · protocolo pendente":"Mouse não encontrado");
   text("rgb-direct-message",state.reason||"Interface USB não disponível");
  }catch(e){
   if($("rgb-direct-diagnostic-details"))$("rgb-direct-diagnostic-details").hidden=true;
