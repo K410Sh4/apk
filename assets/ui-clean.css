@@ -178,13 +178,27 @@ body.page-settings .settings-bottom{max-width:950px}
  .rgb-page .rgb-direct-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:480px){
- body.page-home .hero{padding:19px 16px}
+ body.page-home .hero{padding:18px 16px}
+ body.page-home .hero .eyebrow{display:none}
+ body.page-home .hero p{display:none}
+ body.page-home .hero-actions{margin-top:13px}
  body.page-home .hero h1{font-size:26px}
  body.page-home .hero p{font-size:12px}
  body.page-home .hero-actions{gap:9px}
  body.page-home .hero-hint{font-size:10px}
  body.page-home .folder-card-footer>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- body.page-home .app-grid{grid-template-columns:1fr}
+ body.page-home .app-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ body.page-home .app-card{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;min-width:0;min-height:116px;padding:12px 5px
+ }
+ body.page-home .app-card .card-top{padding:0;justify-content:center}
+ body.page-home .app-card .app-logo{width:44px;height:44px;margin:0 auto}
+ body.page-home .app-card .status-pill,
+ body.page-home .app-card .app-category,
+ body.page-home .app-card .card-footer{display:none}
+ body.page-home .app-card .card-body{padding:8px 1px 0;width:100%}
+ body.page-home .app-card .card-body h3{font-size:11px;line-height:1.25;overflow-wrap:anywhere}
  body.page-settings .option-row{gap:7px}
  body.page-settings .choice-tile{padding:10px}
  .rgb-page .rgb-tabs button{padding:9px 12px;font-size:11px}
