@@ -15,3 +15,10 @@
 .rgb-direct-footnote{color:#b0bfdd;font-size:12px;line-height:1.6;margin:10px 0}
 @media(max-width:740px){.rgb-direct-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:355px){.rgb-direct-grid{grid-template-columns:1fr}}
+
+.rgb-direct-diagnostics{margin-top:14px;padding:12px 14px;border:1px solid #344f77;background:#0d192c;border-radius:13px;color:#cee0ff}
+.rgb-direct-diagnostics[hidden]{display:none}
+.rgb-direct-diagnostics summary{cursor:pointer;font-size:12px;font-weight:750;color:#b8ccff}
+.rgb-direct-diagnostics p{font-size:12px;line-height:1.6;color:#b8c8e0}
+.rgb-direct-diagnostics pre{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.6 ui-monospace,Consolas,monospace;color:#d8e3ff;background:#081321;padding:12px;border-radius:8px}
+.rgb-direct-diagnostics button{font-size:12px;font-weight:700;border:1px solid #647c9e;background:#20304c;color:#fff;border-radius:10px;padding:9px 13px;cursor:pointer}
