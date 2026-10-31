@@ -325,10 +325,17 @@ const server=http.createServer((req,res)=>{
   const rgbPage=await rgbCtx.newPage();rgbPage.on('pageerror',e=>errors.push(e.message));
   await rgbPage.goto(base+'/apps/meu-pc/rgb/index.html');
   await rgbPage.waitForFunction(()=>document.querySelector('[data-device-status="fifine"]')?.textContent==='Detectado');
+  await rgbPage.waitForSelector('[data-as-rgb-panel="control"]');
+  assert.equal(await rgbPage.locator('.rgb-tabs [role="tab"]').count(),4);
+  await rgbPage.locator('#as-rgb-tab-devices').click();
+  assert.equal(await rgbPage.locator('[data-as-rgb-panel="devices"]').isVisible(),true);
+  assert.equal(await rgbPage.locator('[data-as-rgb-panel="control"]').isVisible(),false);
   assert.equal(await rgbPage.locator('[data-device-status="keyboard"]').innerText(),'Detectado');
   assert.equal(await rgbPage.locator('[data-device-status="controller"]').innerText(),'Não identificado');
   assert.ok((await rgbPage.locator('#rgb-keyboard-detail').innerText()).includes('HID do fabricante'));
   // O motor de sincronização é funcional na prévia sem enviar comandos ao PC.
+  await rgbPage.locator('#as-rgb-tab-preview').click();
+  assert.equal(await rgbPage.locator('[data-as-rgb-panel="preview"]').isVisible(),true);
   await rgbPage.waitForSelector('#rgb-sync-preview .rgb-sync-tile');
   assert.equal(await rgbPage.locator('.rgb-sync-tile').count(),4);
   await rgbPage.locator('#rgb-sync-effect').selectOption('rainbow');
@@ -345,6 +352,7 @@ const server=http.createServer((req,res)=>{
   assert.equal(await rgbPage.locator('#rgb-sync-start').innerText(),'Iniciar prévia');
   assert.ok((await rgbPage.locator('.rgb-sync-footnote').innerText()).includes('virtuais'));
   // Conexões reais: SATA alimenta, CFAN controla ventoinhas, ARGB precisa de fonte própria.
+  await rgbPage.locator('#as-rgb-tab-advanced').click();
   await rgbPage.waitForSelector('#rgb-hub-form');
   assert.equal(await rgbPage.locator('#rgb-hub-power').inputValue(),'sata');
   assert.equal(await rgbPage.locator('#rgb-hub-fan').inputValue(),'cfan');
@@ -356,6 +364,7 @@ const server=http.createServer((req,res)=>{
   assert.equal(await rgbPage.locator('#rgb-hub-form').getAttribute('data-hardware-control'),'false');
   await rgbPage.locator('#rgb-hub-save').click();
   await rgbPage.reload();
+  await rgbPage.waitForSelector('#as-rgb-tab-advanced[aria-selected="true"]');
   await rgbPage.waitForSelector('#rgb-hub-form');
   assert.equal(await rgbPage.locator('#rgb-hub-argb').inputValue(),'usb-bridge');
   await rgbPage.locator('#rgb-hub-argb').selectOption('motherboard');
@@ -370,7 +379,7 @@ const server=http.createServer((req,res)=>{
   await rgbPage.setViewportSize({width:1280,height:800});
   assert.ok(await rgbPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await rgbPage.screenshot({path:path.join(output,'rgb-controller-desktop.png'),fullPage:true});
-  assertions+=27;await rgbCtx.close();
+  assertions+=32;await rgbCtx.close();
   // Reproduzir captura real: GUI RGB nova + AppSpacePC antigo da OTA 0.7.30
   // cuja allowlist rejeita /rgb/devices. Desktop deve usar API interna.
   const rgbDesktopCtx=await browser.newContext({viewport:{width:1280,height:740}});
