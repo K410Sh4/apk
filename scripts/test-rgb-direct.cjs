@@ -19,6 +19,16 @@ const detected=JSON.stringify({available:true,device:"Redragon M711 Cobra (04D9:
  status:"detected",writable:true,reason:"Interface validada",lastAction:"none"});
 assert.equal(parse(detected).writable,true);
 assert.equal(parse(detected).lastAction,"none");
+const probeFixture=JSON.stringify({...JSON.parse(detected),status:"not_found",writable:false,
+ hidCollectionsSeen:30,targetCollectionsSeen:2,
+ diagnostics:[{number:1,usagePage:"0x0001",usage:"0x0002",featureReportBytes:16,result:"different_usage_page",errorCode:0},
+ {number:2,usagePage:"0xFFA0",usage:"0x0001",featureReportBytes:64,result:"different_report_length",errorCode:0}]});
+const inspected=parse(probeFixture);
+assert.equal(inspected.targetCollectionsSeen,2);
+assert.equal(inspected.writable,false);
+assert.equal(inspected.diagnostics.length,2);
+assert.equal(inspected.diagnostics[1].featureReportBytes,64);
+assert.equal(inspected.diagnostics[1].result,"different_report_length");
 assert.equal(parse(JSON.stringify({...JSON.parse(detected),status:"ambiguous"})).writable,false);
 assert.throws(()=>parse("no"));
 assert.throws(()=>parse(JSON.stringify({...JSON.parse(detected),device:"Other"})));
@@ -27,7 +37,10 @@ assert.match(native,/HidD_SetFeature/);
 assert.match(native,/HidP_GetCaps/);
 assert.match(native,/0xFFA0/);
 assert.match(native,/0xFC30/);
-assert.match(native,/mi_02/i);
+assert.doesNotMatch(native,/IndexOf\("mi_02"/i,"An opaque Windows device path must not be parsed for MI_02");
+assert.match(native,/HidD_GetAttributes/);
+assert.match(native,/targetCollectionsSeen/);
+assert.match(native,/UsagePage==0xFFA0/);
 assert.match(native,/0x0449/);
 assert.match(native,/0xF3/);
 assert.match(native,/0xF1/);
@@ -37,7 +50,7 @@ for(const key of ["rgb-direct-color","rgb-direct-effect","rgb-direct-profile","r
  assert.ok(page.includes('id="'+key+'"'));
 assert.ok(!page.includes('id="rgb-openrgb-status"'),"No dependency on OpenRGB UI");
 const client=fs.readFileSync(path.join(__dirname,"../assets/rgb-direct-ui.js"),"utf8");
-new Function(client);assert.ok(client.includes('"/__api/rgb/direct"'));
+new Function(client);assert.ok(client.includes("diagnosticReport"));assert.ok(client.includes("rgb-direct-copy"));assert.ok(client.includes('"/__api/rgb/direct"'));
 const lan=fs.readFileSync(path.join(__dirname,"../desktop/lan.cjs"),"utf8");
 assert.ok(lan.includes('authorized(req)')&&lan.includes('"/rgb/direct"'));
 (async()=>{
