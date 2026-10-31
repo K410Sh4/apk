@@ -22,13 +22,16 @@ assert.equal(parse(detected).lastAction,"none");
 const probeFixture=JSON.stringify({...JSON.parse(detected),status:"not_found",writable:false,
  hidCollectionsSeen:30,targetCollectionsSeen:2,
  diagnostics:[{number:1,usagePage:"0x0001",usage:"0x0002",featureReportBytes:16,result:"different_usage_page",errorCode:0},
- {number:2,usagePage:"0xFFA0",usage:"0x0001",featureReportBytes:64,result:"different_report_length",errorCode:0}]});
+ {number:2,usagePage:"0xFFA0",usage:"0x0001",featureReportBytes:0,inputReportBytes:65,outputReportBytes:65,
+  outputButtonCaps:1,outputValueCaps:2,featureButtonCaps:0,featureValueCaps:0,result:"no_feature_report",errorCode:0}]});
 const inspected=parse(probeFixture);
 assert.equal(inspected.targetCollectionsSeen,2);
 assert.equal(inspected.writable,false);
 assert.equal(inspected.diagnostics.length,2);
-assert.equal(inspected.diagnostics[1].featureReportBytes,64);
-assert.equal(inspected.diagnostics[1].result,"different_report_length");
+assert.equal(inspected.diagnostics[1].featureReportBytes,0);
+assert.equal(inspected.diagnostics[1].inputReportBytes,65);
+assert.equal(inspected.diagnostics[1].outputReportBytes,65);
+assert.equal(inspected.diagnostics[1].result,"no_feature_report");
 assert.equal(parse(JSON.stringify({...JSON.parse(detected),status:"ambiguous"})).writable,false);
 assert.throws(()=>parse("no"));
 assert.throws(()=>parse(JSON.stringify({...JSON.parse(detected),device:"Other"})));
@@ -40,6 +43,10 @@ assert.match(native,/0xFC30/);
 assert.doesNotMatch(native,/IndexOf\("mi_02"/i,"An opaque Windows device path must not be parsed for MI_02");
 assert.match(native,/HidD_GetAttributes/);
 assert.match(native,/targetCollectionsSeen/);
+assert.match(native,/OutputReportByteLength/);
+assert.match(native,/InputReportByteLength/);
+assert.match(native,/FeatureReportByteLength==0/);
+assert.match(native,/no_feature_report/);
 assert.match(native,/UsagePage==0xFFA0/);
 assert.match(native,/0x0449/);
 assert.match(native,/0xF3/);
@@ -50,7 +57,7 @@ for(const key of ["rgb-direct-color","rgb-direct-effect","rgb-direct-profile","r
  assert.ok(page.includes('id="'+key+'"'));
 assert.ok(!page.includes('id="rgb-openrgb-status"'),"No dependency on OpenRGB UI");
 const client=fs.readFileSync(path.join(__dirname,"../assets/rgb-direct-ui.js"),"utf8");
-new Function(client);assert.ok(client.includes("diagnosticReport"));assert.ok(client.includes("rgb-direct-copy"));assert.ok(client.includes('"/__api/rgb/direct"'));
+new Function(client);assert.ok(client.includes("diagnosticReport"));assert.ok(client.includes("outputReportBytes"));assert.ok(client.includes("inputReportBytes"));assert.ok(client.includes("rgb-direct-copy"));assert.ok(client.includes('"/__api/rgb/direct"'));
 const lan=fs.readFileSync(path.join(__dirname,"../desktop/lan.cjs"),"utf8");
 assert.ok(lan.includes('authorized(req)')&&lan.includes('"/rgb/direct"'));
 (async()=>{
