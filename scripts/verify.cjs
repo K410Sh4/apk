@@ -148,7 +148,7 @@ assert.match(js, /\[\.\.\.folderCards\]\.sort\(compareCards\)\.forEach/);
 assert.match(js, /createLauncherTile\(card, true\)/);
 assert.doesNotMatch(js, /\[\.\.\.folderCards, \.\.\.appCards\]\.sort\(compareCards\)/);
 assert.match(launcherCss, /body\.page-home \.library\{display:none!important\}/);
-assert.match(home, /<h3>PC Monitor<\/h3>/);
+assert.match(home, /class="app-card" href="\.\/apps\/meu-pc\/index\.html"[\s\S]*?<h3>Meu PC<\/h3>/);
 assert.match(home, /href="\.\/apps\/ia\/index\.html"/);
 assert.match(home, /href="\.\/apps\/ia\/qwen-mod-hub\/index\.html"/);
 assert.match(aiFolder, /data-app-drawer="ia"/);
