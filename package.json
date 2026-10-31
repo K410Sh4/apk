@@ -1,6 +1,6 @@
 {
   "name": "appspace-portal",
-  "version": "0.7.40",
+  "version": "0.7.41",
   "private": true,
   "description": "AppSpace: portal offline de aplicativos para desktop Electron e Android Capacitor",
   "main": "desktop/main.cjs",

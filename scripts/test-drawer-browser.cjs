@@ -325,10 +325,17 @@ const server=http.createServer((req,res)=>{
   const rgbPage=await rgbCtx.newPage();rgbPage.on('pageerror',e=>errors.push(e.message));
   await rgbPage.goto(base+'/apps/meu-pc/rgb/index.html');
   await rgbPage.waitForFunction(()=>document.querySelector('[data-device-status="fifine"]')?.textContent==='Detectado');
+  await rgbPage.waitForSelector('[data-as-rgb-panel="control"]');
+  assert.equal(await rgbPage.locator('.rgb-tabs [role="tab"]').count(),4);
+  await rgbPage.locator('#as-rgb-tab-devices').click();
+  assert.equal(await rgbPage.locator('[data-as-rgb-panel="devices"]').isVisible(),true);
+  assert.equal(await rgbPage.locator('[data-as-rgb-panel="control"]').isVisible(),false);
   assert.equal(await rgbPage.locator('[data-device-status="keyboard"]').innerText(),'Detectado');
   assert.equal(await rgbPage.locator('[data-device-status="controller"]').innerText(),'Não identificado');
   assert.ok((await rgbPage.locator('#rgb-keyboard-detail').innerText()).includes('HID do fabricante'));
   // O motor de sincronização é funcional na prévia sem enviar comandos ao PC.
+  await rgbPage.locator('#as-rgb-tab-preview').click();
+  assert.equal(await rgbPage.locator('[data-as-rgb-panel="preview"]').isVisible(),true);
   await rgbPage.waitForSelector('#rgb-sync-preview .rgb-sync-tile');
   assert.equal(await rgbPage.locator('.rgb-sync-tile').count(),4);
   await rgbPage.locator('#rgb-sync-effect').selectOption('rainbow');
@@ -345,6 +352,7 @@ const server=http.createServer((req,res)=>{
   assert.equal(await rgbPage.locator('#rgb-sync-start').innerText(),'Iniciar prévia');
   assert.ok((await rgbPage.locator('.rgb-sync-footnote').innerText()).includes('virtuais'));
   // Conexões reais: SATA alimenta, CFAN controla ventoinhas, ARGB precisa de fonte própria.
+  await rgbPage.locator('#as-rgb-tab-advanced').click();
   await rgbPage.waitForSelector('#rgb-hub-form');
   assert.equal(await rgbPage.locator('#rgb-hub-power').inputValue(),'sata');
   assert.equal(await rgbPage.locator('#rgb-hub-fan').inputValue(),'cfan');
@@ -356,6 +364,7 @@ const server=http.createServer((req,res)=>{
   assert.equal(await rgbPage.locator('#rgb-hub-form').getAttribute('data-hardware-control'),'false');
   await rgbPage.locator('#rgb-hub-save').click();
   await rgbPage.reload();
+  await rgbPage.waitForSelector('#as-rgb-tab-advanced[aria-selected="true"]');
   await rgbPage.waitForSelector('#rgb-hub-form');
   assert.equal(await rgbPage.locator('#rgb-hub-argb').inputValue(),'usb-bridge');
   await rgbPage.locator('#rgb-hub-argb').selectOption('motherboard');
@@ -370,7 +379,7 @@ const server=http.createServer((req,res)=>{
   await rgbPage.setViewportSize({width:1280,height:800});
   assert.ok(await rgbPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await rgbPage.screenshot({path:path.join(output,'rgb-controller-desktop.png'),fullPage:true});
-  assertions+=27;await rgbCtx.close();
+  assertions+=32;await rgbCtx.close();
   // Reproduzir captura real: GUI RGB nova + AppSpacePC antigo da OTA 0.7.30
   // cuja allowlist rejeita /rgb/devices. Desktop deve usar API interna.
   const rgbDesktopCtx=await browser.newContext({viewport:{width:1280,height:740}});
@@ -414,6 +423,39 @@ const server=http.createServer((req,res)=>{
   assert.ok(await rgbNative.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await rgbNative.screenshot({path:path.join(output,'rgb-controller-desktop-stale-ota-fixed.png'),fullPage:true});
   assertions+=6;await rgbDesktopCtx.close();
+  // AppSpace Clean: desktop/mobile dashboard and accessible settings disclosure.
+  const cleanCtx=await browser.newContext({viewport:{width:1280,height:800},reducedMotion:'reduce'});
+  const cleanHome=await cleanCtx.newPage();cleanHome.on('pageerror',e=>errors.push(e.message));
+  await cleanHome.goto(base+'/index.html');
+  assert.ok(await cleanHome.locator('.hero').isVisible());
+  assert.ok((await cleanHome.locator('.hero').boundingBox()).height<290,'Home should not have a huge hero');
+  assert.ok(!(await cleanHome.locator('.stats-grid').isVisible()),'Duplicate statistics should not consume space');
+  assert.equal(await cleanHome.locator('.folder-card:visible').count(),4);
+  assert.equal(await cleanHome.locator('.app-card:visible').count(),3);
+  assert.ok((await cleanHome.locator('.hero-actions .primary-button').getAttribute('href')).endsWith('#apps'),
+    'Apps quick action must navigate to visible Apps section');
+  assert.ok(await cleanHome.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await cleanHome.screenshot({path:path.join(output,'appspace-clean-home-desktop.png'),fullPage:true});
+  await cleanHome.setViewportSize({width:412,height:915});
+  assert.ok(await cleanHome.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await cleanHome.screenshot({path:path.join(output,'appspace-clean-home-mobile.png'),fullPage:true});
+  const cleanSettings=await cleanCtx.newPage();cleanSettings.on('pageerror',e=>errors.push(e.message));
+  await cleanSettings.goto(base+'/configuracoes.html');
+  await cleanSettings.waitForSelector('.as-settings-group');
+  assert.equal(await cleanSettings.locator('.as-settings-group').count(),4);
+  assert.ok(await cleanSettings.locator('#as-settings-appearance').evaluate(el=>el.open));
+  assert.ok(!(await cleanSettings.locator('.settings-preview').isVisible()));
+  await cleanSettings.locator('[href="#as-settings-updates"]').click();
+  assert.ok(await cleanSettings.locator('#as-settings-updates').evaluate(el=>el.open));
+  assert.ok(!(await cleanSettings.locator('#as-settings-appearance').evaluate(el=>el.open)));
+  await cleanSettings.locator('[href="#as-settings-mobile"]').click();
+  assert.ok(await cleanSettings.locator('#navegacao-mobile').isVisible());
+  assert.ok(await cleanSettings.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await cleanSettings.screenshot({path:path.join(output,'appspace-clean-settings-desktop.png'),fullPage:true});
+  await cleanSettings.setViewportSize({width:412,height:915});
+  assert.ok(await cleanSettings.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await cleanSettings.screenshot({path:path.join(output,'appspace-clean-settings-mobile.png'),fullPage:true});
+  assertions+=18;await cleanCtx.close();
   // Local files keep the folder and editor available without networking.
   const offline=await browser.newContext({offline:true,viewport:{width:412,height:915}});
   const local=await offline.newPage();local.on('pageerror',e=>errors.push(e.message));
