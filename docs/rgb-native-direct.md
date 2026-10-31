@@ -52,3 +52,13 @@ A versão atual faz alterações físicas **somente mediante confirmação expl�
 A descoberta deixou de interpretar o texto do caminho simbólico HID para encontrar `MI_02`. O Win32 SetupAPI enumera todas as interfaces HID e `HidD_GetAttributes` compara o VID/PID reais. A coleção RGB só é selecionada quando apresenta usage page `FFA0` e Feature Report de 16 bytes. A janela mostra um diagnóstico **somente leitura**, incluindo a quantidade de coleções HID vistas, coleções do mouse e suas capacidades; não exporta caminhos USB nem números de série. A correção é compatível com as recomendações da Microsoft de que caminhos simbólicos de dispositivo são opacos. Todos os comandos de escrita permanecem bloqueados em dispositivos desconhecidos ou interfaces ambíguas.
 
 O EXE anterior `0.7.38` pode mostrar um falso negativo se a identificação dependia do nome textual do caminho HID. O diagnóstico só está disponível no novo `0.7.39`.
+
+## Diagnóstico 0.7.40 — HID FFA0 detectada com Feature Report 0
+
+No hardware observado, o Windows enumera 13 coleções HID e quatro coleções do mouse 04D9:FC30, incluindo a coleção FFA0/0001. O campo `FeatureReportByteLength` aparece como zero em todas, inclusive FFA0. Isso **não prova compatibilidade de envio de dados**, e o driver mantém os comandos desabilitados.
+
+A partir da versão 0.7.40 o AppSpace também consulta via `HidP_GetCaps` os comprimentos declarados dos relatórios HID de **entrada** (`InputReportByteLength`) e **saída** (`OutputReportByteLength`), e os contadores de capacidades de Output e Feature. Essas informações aparecem no painel de diagnóstico USB/HID e no relatório copiado. A leitura não envia relatórios nem configura periféricos, mantendo o mesmo isolamento sem softwares externos.
+
+A UI agora distingue claramente `Mouse encontrado · protocolo pendente` de `Mouse não encontrado`. Se o Output Report for anunciado, o próximo passo será estudar o respectivo protocolo real **antes de implementar escrita**. Não habilitar via tentativa/erro pacotes originalmente definidos para Feature Report na interface Output.
+
+Referência: https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/hidpi/ns-hidpi-_hidp_caps
