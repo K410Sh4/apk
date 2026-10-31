@@ -3,7 +3,29 @@
 "use strict";
 const PC=window.AppSpacePC,$=id=>document.getElementById(id);
 if(!$("rgb-direct"))return;
-let present=false,busy=false;
+let present=false,busy=false,lastReport="";
+function diagnosticReport(state){
+ const hid=Number.isInteger(state.hidCollectionsSeen)?state.hidCollectionsSeen:0;
+ const mouse=Number.isInteger(state.targetCollectionsSeen)?state.targetCollectionsSeen:0;
+ const reports=Array.isArray(state.diagnostics)?state.diagnostics:[];
+ const labels={rgb_candidate:"Colecao RGB compativel",different_usage_page:"Pagina HID diferente de FFA0",
+  different_report_length:"Tamanho de feature report diferente de 16",caps_unavailable:"Descritor HID inacessivel"};
+ return [
+  "AppSpace RGB — diagnostico somente leitura",
+  "HID enumerados: "+hid,
+  "Colecoes 04D9:FC30: "+mouse,
+  "Estado: "+String(state.status||"indisponivel"),
+  ...reports.map(p=>"#"+p.number+" | pagina="+p.usagePage+" | uso="+p.usage+
+   " | bytes="+p.featureReportBytes+" | "+(labels[p.result]||"Nao classificado")+
+   (p.errorCode?" | erro="+p.errorCode:"")),
+  mouse===0?"Nenhuma colecao HID desse mouse foi localizada pelo Windows.":""
+ ].filter(Boolean).join("\n");
+}
+function showDiagnostics(state){
+ lastReport=diagnosticReport(state);
+ if($("rgb-direct-diagnostic-content"))$("rgb-direct-diagnostic-content").textContent=lastReport;
+ if($("rgb-direct-diagnostic-details"))$("rgb-direct-diagnostic-details").hidden=false;
+}
 const controls=["rgb-direct-color","rgb-direct-effect","rgb-direct-profile","rgb-direct-accept"];
 function text(id,value){if($(id))$(id).textContent=String(value)}
 function sync(){
@@ -38,9 +60,11 @@ async function refresh(){
  try{
   const state=await request();
   present=state.status==="detected"&&state.writable===true;
+  showDiagnostics(state);
   text("rgb-direct-status",present?"Interface RGB identificada":state.status==="ambiguous"?"Dispositivo ambíguo":"Não encontrado");
   text("rgb-direct-message",state.reason||"Interface USB não disponível");
  }catch(e){
+  if($("rgb-direct-diagnostic-details"))$("rgb-direct-diagnostic-details").hidden=true;
   text("rgb-direct-status","Driver indisponível");
   text("rgb-direct-message","Não foi possível verificar o HID: "+String(e.message||e).slice(0,155)+". O EXE Windows precisa incluir o driver RGB nativo.");
  }finally{busy=false;sync()}
@@ -63,5 +87,17 @@ async function apply(){
 $("rgb-direct-refresh").addEventListener("click",()=>void refresh());
 $("rgb-direct-apply").addEventListener("click",()=>void apply());
 $("rgb-direct-accept").addEventListener("change",sync);
+$("rgb-direct-copy")?.addEventListener("click",()=>{
+ if(!lastReport)return;
+ if(!navigator.clipboard?.writeText){
+  text("rgb-direct-message","Copie o texto do diagnostico exibido abaixo.");
+  return;
+ }
+ navigator.clipboard.writeText(lastReport).then(()=>{
+  text("rgb-direct-message","Diagnostico HID copiado. O texto nao inclui caminho USB, numero de serie ou informacoes pessoais.");
+ }).catch(()=>{
+  text("rgb-direct-message","Selecione o texto do diagnostico para copiar.");
+ });
+});
 sync();void refresh();
 })();
