@@ -21,6 +21,8 @@ function diagnosticReport(state){
    " | feature="+p.featureReportBytes+" | output="+p.outputReportBytes+" | input="+p.inputReportBytes+
    " | outputCaps="+p.outputButtonCaps+"/"+p.outputValueCaps+
    " | featureCaps="+p.featureButtonCaps+"/"+p.featureValueCaps+
+   (Array.isArray(p.featureValueReportIds)&&p.featureValueReportIds.length?" | featureIDs="+p.featureValueReportIds.join(","):"")+
+   (p.featureCapsStatus&&p.featureCapsStatus!=="not_checked"?" | capsStatus="+p.featureCapsStatus:"")+
    " | "+(labels[p.result]||"Nao classificado")+
    (p.errorCode?" | erro="+p.errorCode:"")),
   mouse===0?"Nenhuma colecao HID desse mouse foi localizada pelo Windows.":""
