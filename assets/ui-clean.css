@@ -33,8 +33,11 @@ body.page-home .section-head p{font-size:12px;line-height:1.5;margin-top:4px}
 body.page-home .section-kicker{font-size:10px}
 body.page-home .folder-search-row{margin:0 0 14px}
 body.page-home .folder-grid{gap:12px}
+@media(min-width:1100px){
+ body.page-home .folder-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
 body.page-home .folder-card{
- min-height:0;padding:15px 16px;border-radius:var(--as-radius);
+ min-height:152px;padding:15px 16px;border-radius:var(--as-radius);
  display:grid;grid-template-rows:auto 1fr auto;box-shadow:none;transition:transform .15s,border-color .15s
 }
 body.page-home .folder-card-art{min-height:0;height:auto;padding:0;margin-bottom:10px;background:transparent;border:0}
@@ -47,8 +50,9 @@ body.page-home .folder-big-icon{
 body.page-home .folder-big-icon svg{width:25px;height:25px}
 body.page-home .folder-card-details{padding:0}
 body.page-home .folder-card-details h3{font-size:16px;margin:0 0 4px;letter-spacing:-.35px}
-body.page-home .folder-card-details p{font-size:11px;line-height:1.55;margin:0 0 10px;max-width:32ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-body.page-home .folder-card-footer{padding-top:10px;border-top:1px solid var(--stroke);font-size:11px}
+body.page-home .folder-card-details p{display:none}
+body.page-home .folder-card-footer{padding-top:10px;border-top:1px solid var(--stroke);font-size:10px}
+body.page-home .folder-card-footer>span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100% - 28px)}
 /* Re-enable the compact quick-app library previously globally hidden by launcher.css.
    Do not duplicate cards while launcher or minimal mobile navigation is active. */
 :root:not([data-library-view="launcher"]) body.page-home .library{display:block!important}
@@ -62,7 +66,7 @@ body.page-home .app-card .app-preview{display:none}
 body.page-home .app-card .card-top{padding:16px 16px 5px}
 body.page-home .app-card .card-body{padding:9px 16px 14px}
 body.page-home .app-card .card-body h3{font-size:16px;letter-spacing:-.35px}
-body.page-home .app-card .card-body p{font-size:11px;line-height:1.5;margin-top:6px}
+body.page-home .app-card .card-body p{display:none}
 body.page-home .app-card .card-footer{padding:10px 16px;font-size:11px}
 body.page-home .status-pill{font-size:10px}
 body.page-home .site-footer{padding-top:18px;margin-top:24px}
