@@ -17,6 +17,8 @@
 <script src="../../../assets/rgb-sync-ui.js" defer></script>
 <script src="../../../assets/rgb-hub-model.js" defer></script>
 <script src="../../../assets/rgb-hub-setup.js" defer></script>
+<link rel="stylesheet" href="../../../assets/ui-clean.css">
+<script src="../../../assets/ui-clean.js" defer></script>
 </head>
 <body class="rgb-page">
 <div class="rgb-app">
@@ -32,7 +34,7 @@
     <div class="rgb-intro">
       <div><span class="rgb-eyebrow">INVENTÁRIO DE HARDWARE</span>
       <h1>Controle RGB</h1>
-      <p>Controle físico próprio por HID nativo do Windows, sem instalar programas ou drivers de terceiros. Dispositivos sem protocolo confirmado permanecem bloqueados.</p></div>
+      <p>Configure o RGB, veja seus dispositivos ou consulte os detalhes técnicos em abas separadas.</p></div>
       <button id="rgb-refresh" class="rgb-refresh" type="button">↻ Atualizar</button>
     </div>
     <section id="rgb-alert" class="rgb-alert" role="status" aria-live="polite">Conectando ao computador...</section>
@@ -41,7 +43,7 @@
         <div><span class="rgb-eyebrow">CONTROLE FÍSICO · WINDOWS HID NATIVO</span><h2 id="rgb-direct-title">RGB real do mouse</h2></div>
         <span id="rgb-direct-status" class="rgb-pill">Verificando HID</span>
       </div>
-      <p>Driver integrado ao AppSpace para <strong>Redragon M711 Cobra (04D9:FC30)</strong>. O aplicativo identifica as coleções HID por <strong>VID/PID + uso FFA0 + relatório de 16 bytes</strong> e não usa OpenRGB, serviços externos nem bibliotecas USB de terceiros.</p>
+      <p><strong>Redragon M711 Cobra (04D9:FC30).</strong> As opções serão liberadas somente quando o protocolo físico for validado. Sem aplicativos de terceiros.</p>
       <div class="rgb-direct-grid">
         <label class="rgb-direct-field">Cor dos LEDs
           <input id="rgb-direct-color" type="color" value="#8d6aff" disabled aria-label="Cor física do mouse">
@@ -78,7 +80,7 @@
         <pre id="rgb-direct-diagnostic-content"></pre>
         <button id="rgb-direct-copy" type="button">Copiar diagnóstico</button>
       </details>
-      <p class="rgb-direct-footnote">Somente o mouse M711 recebe comandos nesta etapa. O comando pode ser aceito sem que o LED mude, por exemplo, se outro perfil estiver ativo; confirme visualmente. Não modifica DPI, botões, firmware ou ventoinhas.</p>
+      <p class="rgb-direct-footnote">Ações físicas exigem interface compatível e autorização. Verifique visualmente os LEDs após aplicar.</p>
     </section>
     <section class="rgb-grid" aria-label="Dispositivos identificados">
       <article class="rgb-device rgb-controller" data-rgb-kind="controller">
