@@ -32,7 +32,7 @@ Fontes:
 
 ## Como validar no Windows
 
-1. Instalar o EXE AppSpace gerado pela pipeline da PR (versão experimental `0.7.38`).
+1. Instalar o EXE AppSpace gerado pela pipeline da PR (versão experimental `0.7.39`).
 2. Em **Meu PC → RGB Controller**, clicar em **Verificar conexão**.
 3. Se a interface RGB aparecer como identificada, selecionar **Perfil 1**, **Cor fixa**, definir uma cor, autorizar no checkbox e clicar **Aplicar RGB no mouse**.
 4. Verificar se os LEDs mudaram. Se não, conferir o perfil ativo no mouse antes de testar outro perfil.
@@ -46,3 +46,9 @@ powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -File desktop/
 ```
 
 A versão atual faz alterações físicas **somente mediante confirmação explícita no aplicativo**.
+
+## Atualização de diagnóstico 0.7.39
+
+A descoberta deixou de interpretar o texto do caminho simbólico HID para encontrar `MI_02`. O Win32 SetupAPI enumera todas as interfaces HID e `HidD_GetAttributes` compara o VID/PID reais. A coleção RGB só é selecionada quando apresenta usage page `FFA0` e Feature Report de 16 bytes. A janela mostra um diagnóstico **somente leitura**, incluindo a quantidade de coleções HID vistas, coleções do mouse e suas capacidades; não exporta caminhos USB nem números de série. A correção é compatível com as recomendações da Microsoft de que caminhos simbólicos de dispositivo são opacos. Todos os comandos de escrita permanecem bloqueados em dispositivos desconhecidos ou interfaces ambíguas.
+
+O EXE anterior `0.7.38` pode mostrar um falso negativo se a identificação dependia do nome textual do caminho HID. O diagnóstico só está disponível no novo `0.7.39`.
