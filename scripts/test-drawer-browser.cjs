@@ -432,6 +432,8 @@ const server=http.createServer((req,res)=>{
   assert.ok(!(await cleanHome.locator('.stats-grid').isVisible()),'Duplicate statistics should not consume space');
   assert.equal(await cleanHome.locator('.folder-card:visible').count(),4);
   assert.equal(await cleanHome.locator('.app-card:visible').count(),3);
+  assert.ok((await cleanHome.locator('.hero-actions .primary-button').getAttribute('href')).endsWith('#apps'),
+    'Apps quick action must navigate to visible Apps section');
   assert.ok(await cleanHome.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await cleanHome.screenshot({path:path.join(output,'appspace-clean-home-desktop.png'),fullPage:true});
   await cleanHome.setViewportSize({width:412,height:915});
@@ -453,7 +455,7 @@ const server=http.createServer((req,res)=>{
   await cleanSettings.setViewportSize({width:412,height:915});
   assert.ok(await cleanSettings.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await cleanSettings.screenshot({path:path.join(output,'appspace-clean-settings-mobile.png'),fullPage:true});
-  assertions+=17;await cleanCtx.close();
+  assertions+=18;await cleanCtx.close();
   // Local files keep the folder and editor available without networking.
   const offline=await browser.newContext({offline:true,viewport:{width:412,height:915}});
   const local=await offline.newPage();local.on('pageerror',e=>errors.push(e.message));
