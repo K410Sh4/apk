@@ -334,11 +334,16 @@
     const brand = document.querySelector("a.mobile-brand, a.brand");
     if (!brand) return;
     const home = new URL(brand.getAttribute("href"), location.href);
-    const hash = active ? "#launcher" : "#pastas";
+    // Preserve explicit Apps links in card mode; use Launcher only when it is visible.
+    // Store the original target so changing mobile layout can restore it later.
+    const hash = active ? "#launcher" : (location.hash === "#apps" ? "#apps" : "#pastas");
     for (const link of document.querySelectorAll("a[href]")) {
       const url = new URL(link.getAttribute("href"), location.href);
       if (url.origin === home.origin && url.pathname === home.pathname && ["#apps", "#pastas", "#launcher"].includes(url.hash)) {
-        url.hash = hash; link.href = url.href;
+        const original = link.dataset.appspaceOriginalHash || url.hash;
+        if (!link.dataset.appspaceOriginalHash) link.dataset.appspaceOriginalHash = original;
+        url.hash = active ? "#launcher" : original === "#apps" ? "#apps" : "#pastas";
+        link.href = url.href;
       }
     }
     const isHome = document.body.classList.contains("page-home");
