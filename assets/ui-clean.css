@@ -164,7 +164,9 @@ body.page-settings .settings-bottom{max-width:950px}
  body.page-home .folder-big-icon{width:40px;height:40px}
  body.page-home .folder-card-details p{display:none}
  body.page-home .folder-card-details h3{font-size:14px}
- body.page-home .folder-card-footer{font-size:10px}
+ body.page-home .folder-card-footer{display:none}
+ body.page-home .folder-card{min-height:110px;justify-content:center}
+ body.page-home .folder-card-art{margin-bottom:7px}
  body.page-home .app-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  body.page-home .app-card .card-body p{display:none}
  body.page-settings .settings-main{padding-bottom:100px}
