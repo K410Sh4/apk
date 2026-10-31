@@ -107,7 +107,7 @@ function createRgbInventory(options={}){
  const platform=options.platform??process.platform;
  const exec=options.execFileFn||execFile;
  const clock=options.clock||Date.now;
- const openRGB=options.openRGB||readOpenRGB;
+ const openRGB=options.openRGB||(async()=>({connected:false,devices:[],note:"Driver RGB nativo, sem SDK externo"}));
  let cached=null,pending=null,last=0;
  async function scan(force=false){
   if(platform!=="win32")return {available:false,devices:[],openRGB:{connected:false,devices:[]},reason:"Disponível no EXE Windows"};

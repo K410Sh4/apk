@@ -4,6 +4,7 @@ const http = require("node:http");
 const os = require("node:os");
 const {createGpuSampler}=require("./gpu.cjs");
 const {createRgbInventory}=require("./rgb.cjs");
+const {createRgbDirect}=require("./rgb-direct.cjs");
 const { randomInt, randomBytes, timingSafeEqual } = require("node:crypto");
 const PORT = 38473;
 const ALLOWED_ORIGINS = new Set(["https://localhost", "http://localhost", "capacitor://localhost", "appspace://portal"]);
@@ -21,6 +22,7 @@ function startLanServer() {
   const secret = randomBytes(32).toString("hex");
   const attempts = new Map();
   const rgb=createRgbInventory();
+  const rgbDirect=createRgbDirect();
   const gpuSampler=createGpuSampler();
   gpuSampler.start();
   let previous = cpuTimes();
@@ -91,6 +93,30 @@ function startLanServer() {
         .catch(()=>respond(res,503,{error:"Inventário RGB indisponível"},origin));
       return;
     }
+    if (req.url==="/rgb/direct") {
+      if(!authorized(req))return respond(res,401,{error:"Pareamento necessário"},origin);
+      if(req.method==="GET"){
+        void rgbDirect.scan().then(data=>respond(res,200,data,origin))
+          .catch(()=>respond(res,503,{error:"Leitura HID nativa indisponível"},origin));
+        return;
+      }
+      if(req.method==="POST"){
+        if(!/^application\/json(?:\s*;|$)/i.test(String(req.headers["content-type"]||"")))
+          return respond(res,415,{error:"Envie JSON"},origin);
+        let raw="",tooLarge=false;
+        req.on("data",chunk=>{raw+=chunk.toString("utf8");
+         if(raw.length>512){tooLarge=true;req.destroy();}
+        });
+        req.on("end",()=>{
+         if(tooLarge)return;
+         let data;try{data=JSON.parse(raw)}catch(_){return respond(res,400,{error:"JSON inválido"},origin)}
+         void rgbDirect.set(data).then(result=>respond(res,200,result,origin))
+          .catch(e=>respond(res,e instanceof RangeError?400:
+            /Aguarde|em andamento/.test(e.message)?409:503,{error:String(e.message).slice(0,160)},origin));
+        });return;
+      }
+      return respond(res,405,{error:"Método não permitido"},origin);
+    }
     if (req.url==="/metrics" && req.method==="GET") {
       if(!authorized(req))return respond(res,401,{error:"Pareamento necessário"},origin);
       return respond(res,200,sample(),origin);
@@ -101,7 +127,7 @@ function startLanServer() {
   server.on("error",e=>{error="Porta "+port+" indisponível ("+e.code+")";});
   server.listen(PORT,"0.0.0.0");
   server.unref();
-  return {status,sample,rgb,stop:()=>{gpuSampler.stop();server.close();}};
+  return {status,sample,rgb,rgbDirect,stop:()=>{gpuSampler.stop();server.close();}};
 }
 module.exports={startLanServer};
 

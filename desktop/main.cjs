@@ -25,11 +25,17 @@ async function api(request,url) {
     if(route==="/__api/desktop")return json({...updater.status(),lan:lan.status()});
     if(route==="/__api/metrics")return json(lan.sample());
     if(route==="/__api/rgb/devices")return json(await lan.rgb.scan());
+    if(route==="/__api/rgb/direct")return json(await lan.rgbDirect.scan());
   }
   if(request.method==="POST"){
     if(route==="/__api/check")return json(await updater.check());
     if(route==="/__api/install")return json(await updater.install());
     if(route==="/__api/reset")return json(await updater.reset());
+    if(route==="/__api/rgb/direct"){
+      let body;try{body=await request.json()}catch(_){return json({error:"JSON inválido"},400)}
+      try{return json(await lan.rgbDirect.set(body))}
+      catch(e){return json({error:String(e.message).slice(0,160)},e instanceof RangeError?400:503)}
+    }
   }
   return json({error:"Recurso inexistente"},404);
 }

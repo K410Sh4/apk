@@ -1,0 +1,112 @@
+/* AppSpace RGB Direct: only sends a command after explicit user action. */
+(()=>{
+"use strict";
+const PC=window.AppSpacePC,$=id=>document.getElementById(id);
+if(!$("rgb-direct"))return;
+let present=false,busy=false,lastReport="";
+function diagnosticReport(state){
+ const hid=Number.isInteger(state.hidCollectionsSeen)?state.hidCollectionsSeen:0;
+ const mouse=Number.isInteger(state.targetCollectionsSeen)?state.targetCollectionsSeen:0;
+ const reports=Array.isArray(state.diagnostics)?state.diagnostics:[];
+ const labels={rgb_candidate:"Colecao RGB compativel",different_usage_page:"Pagina HID diferente de FFA0",
+  different_report_length:"Feature Report diferente de 16",
+  no_feature_report:"Feature Report nao declarado; escrita bloqueada",
+  caps_unavailable:"Descritor HID inacessivel"};
+ return [
+  "AppSpace RGB — diagnostico somente leitura",
+  "HID enumerados: "+hid,
+  "Colecoes 04D9:FC30: "+mouse,
+  "Estado: "+String(state.status||"indisponivel"),
+  ...reports.map(p=>"#"+p.number+" | pagina="+p.usagePage+" | uso="+p.usage+
+   " | feature="+p.featureReportBytes+" | output="+p.outputReportBytes+" | input="+p.inputReportBytes+
+   " | outputCaps="+p.outputButtonCaps+"/"+p.outputValueCaps+
+   " | featureCaps="+p.featureButtonCaps+"/"+p.featureValueCaps+
+   (Array.isArray(p.featureValueReportIds)&&p.featureValueReportIds.length?" | featureIDs="+p.featureValueReportIds.join(","):"")+
+   (p.featureCapsStatus&&p.featureCapsStatus!=="not_checked"?" | capsStatus="+p.featureCapsStatus:"")+
+   " | "+(labels[p.result]||"Nao classificado")+
+   (p.errorCode?" | erro="+p.errorCode:"")),
+  mouse===0?"Nenhuma colecao HID desse mouse foi localizada pelo Windows.":""
+ ].filter(Boolean).join("\n");
+}
+function showDiagnostics(state){
+ lastReport=diagnosticReport(state);
+ if($("rgb-direct-diagnostic-content"))$("rgb-direct-diagnostic-content").textContent=lastReport;
+ if($("rgb-direct-diagnostic-details"))$("rgb-direct-diagnostic-details").hidden=false;
+}
+const controls=["rgb-direct-color","rgb-direct-effect","rgb-direct-profile","rgb-direct-accept"];
+function text(id,value){if($(id))$(id).textContent=String(value)}
+function sync(){
+ const ready=present&&!busy;
+ for(const id of controls)$(id).disabled=!ready;
+ $("rgb-direct-apply").disabled=!ready||!$("rgb-direct-accept").checked;
+ $("rgb-direct-refresh").disabled=busy;
+}
+async function request(method="GET",payload){
+ const local=PC?.isDesktop||location.protocol==="appspace:";
+ if(!local)return PC.request("/rgb/direct",payload?{method,data:payload}:{});
+ const abort=new AbortController(),timeout=setTimeout(()=>abort.abort(),14000);
+ try{
+  const response=await fetch("/__api/rgb/direct",{method,
+   headers:{"Accept":"application/json",...(payload?{"Content-Type":"application/json"}:{})},
+   body:payload?JSON.stringify(payload):undefined,signal:abort.signal,cache:"no-store"});
+  let data;try{data=await response.json()}catch(_){data={}}
+  if(!response.ok)throw Error(data.error||"Serviço HID indisponível");
+  return data;
+ }finally{clearTimeout(timeout)}
+}
+async function refresh(){
+ if(busy)return;
+ if(!PC?.get?.()){
+  text("rgb-direct-status","PC não conectado");
+  text("rgb-direct-message","Conecte o computador na pasta Meu PC.");
+  return;
+ }
+ busy=true;present=false;sync();
+ text("rgb-direct-status","Verificando HID");
+ text("rgb-direct-message","Procurando o mouse Redragon M711 pela interface RGB nativa...");
+ try{
+  const state=await request();
+  present=state.status==="detected"&&state.writable===true;
+  showDiagnostics(state);
+  text("rgb-direct-status",present?"Interface RGB identificada":
+    state.status==="ambiguous"?"Dispositivo ambíguo":
+    Number(state.targetCollectionsSeen)>0?"Mouse encontrado · protocolo pendente":"Mouse não encontrado");
+  text("rgb-direct-message",state.reason||"Interface USB não disponível");
+ }catch(e){
+  if($("rgb-direct-diagnostic-details"))$("rgb-direct-diagnostic-details").hidden=true;
+  text("rgb-direct-status","Driver indisponível");
+  text("rgb-direct-message","Não foi possível verificar o HID: "+String(e.message||e).slice(0,155)+". O EXE Windows precisa incluir o driver RGB nativo.");
+ }finally{busy=false;sync()}
+}
+async function apply(){
+ if(!present||busy||!$("rgb-direct-accept").checked)return;
+ busy=true;sync();text("rgb-direct-message","Enviando comando RGB para o mouse...");
+ try{
+  const result=await request("POST",{device:"redragon-m711",
+   color:$("rgb-direct-color").value,effect:$("rgb-direct-effect").value,
+   profile:Number($("rgb-direct-profile").value)});
+  if(result.lastAction!=="sent")throw Error("O comando não foi confirmado pelo host");
+  text("rgb-direct-message","Comando HID enviado ao mouse. Verifique visualmente se os LEDs mudaram. O perfil selecionado pode não ser o ativo.");
+  text("rgb-direct-status","Comando enviado");
+ }catch(e){
+  text("rgb-direct-message","Não foi possível aplicar: "+String(e.message||e).slice(0,160));
+  text("rgb-direct-status","Falha de envio");
+ }finally{busy=false;sync()}
+}
+$("rgb-direct-refresh").addEventListener("click",()=>void refresh());
+$("rgb-direct-apply").addEventListener("click",()=>void apply());
+$("rgb-direct-accept").addEventListener("change",sync);
+$("rgb-direct-copy")?.addEventListener("click",()=>{
+ if(!lastReport)return;
+ if(!navigator.clipboard?.writeText){
+  text("rgb-direct-message","Copie o texto do diagnostico exibido abaixo.");
+  return;
+ }
+ navigator.clipboard.writeText(lastReport).then(()=>{
+  text("rgb-direct-message","Diagnostico HID copiado. O texto nao inclui caminho USB, numero de serie ou informacoes pessoais.");
+ }).catch(()=>{
+  text("rgb-direct-message","Selecione o texto do diagnostico para copiar.");
+ });
+});
+sync();void refresh();
+})();
