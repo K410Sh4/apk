@@ -62,6 +62,8 @@ namespace AppSpaceRgb {
   public int outputValueCaps {get;set;}
   public int featureButtonCaps {get;set;}
   public int featureValueCaps {get;set;}
+  public string[] featureValueReportIds {get;set;}
+  public string featureCapsStatus {get;set;}
   public string result {get;set;}
   public int errorCode {get;set;}
  }
@@ -77,6 +79,7 @@ namespace AppSpaceRgb {
   [DllImport("hid.dll",SetLastError=true)] private static extern bool HidD_GetPreparsedData(SafeFileHandle handle,out IntPtr data);
   [DllImport("hid.dll",SetLastError=true)] private static extern bool HidD_FreePreparsedData(IntPtr data);
   [DllImport("hid.dll")] private static extern int HidP_GetCaps(IntPtr data,ref HIDP_CAPS caps);
+  [DllImport("hid.dll")] private static extern int HidP_GetValueCaps(int reportType,IntPtr valueCaps,ref ushort valueCapsLength,IntPtr preparsedData);
   [DllImport("hid.dll",SetLastError=true)] private static extern bool HidD_SetFeature(SafeFileHandle handle,byte[] bytes,int length);
   [DllImport("setupapi.dll",SetLastError=true,CharSet=CharSet.Unicode)]
   private static extern IntPtr SetupDiGetClassDevs(ref Guid classGuid,IntPtr enumerator,IntPtr hwnd,uint flags);
@@ -97,6 +100,30 @@ namespace AppSpaceRgb {
     int code=HidP_GetCaps(raw,ref caps);
     if(code<0){error=code;return false;}
     return true;
+   }finally{HidD_FreePreparsedData(raw);}
+  }
+  // Reads only the Windows HID report parser's metadata. Never sends or retrieves USB reports.
+  // HIDP_VALUE_CAPS is 72 bytes on Windows; ReportID occupies byte offset 2 (WinSDK hidpi.h).
+  private static string[] FeatureReportIds(SafeFileHandle handle,ushort declaredCount,out string status){
+   status="none";
+   if(declaredCount==0)return new string[0];
+   if(declaredCount>64){status="too_many_caps";return new string[0];}
+   IntPtr raw=IntPtr.Zero;
+   if(!HidD_GetPreparsedData(handle,out raw)){status="no_descriptor";return new string[0];}
+   try{
+    ushort count=declaredCount;
+    int capSize=72;
+    IntPtr mem=Marshal.AllocHGlobal(capSize*count);
+    try{
+     for(int k=0;k<capSize*count;k++)Marshal.WriteByte(mem,k,0);
+     int code=HidP_GetValueCaps(2,mem,ref count,raw); // 2 == HidP_Feature
+     if(code<0){status="parse_failed";return new string[0];}
+     var ids=new SortedSet<string>(StringComparer.Ordinal);
+     for(int i=0;i<count&&i<64;i++)
+      ids.Add("0x"+Marshal.ReadByte(mem,i*capSize+2).ToString("X2"));
+     status="parsed";
+     return new List<string>(ids).ToArray();
+    }finally{Marshal.FreeHGlobal(mem);}
    }finally{HidD_FreePreparsedData(raw);}
   }
   private static bool Compatible(SafeFileHandle handle){
@@ -154,6 +181,13 @@ namespace AppSpaceRgb {
        probe.outputValueCaps=caps.NumberOutputValueCaps;
        probe.featureButtonCaps=caps.NumberFeatureButtonCaps;
        probe.featureValueCaps=caps.NumberFeatureValueCaps;
+       probe.featureValueReportIds=new string[0];
+       probe.featureCapsStatus="not_checked";
+       if(caps.UsagePage==0xFFA0&&caps.NumberFeatureValueCaps>0){
+        string capsStatus;
+        probe.featureValueReportIds=FeatureReportIds(h,caps.NumberFeatureValueCaps,out capsStatus);
+        probe.featureCapsStatus=capsStatus;
+       }
         if(caps.UsagePage==0xFFA0&&caps.FeatureReportByteLength==16){
          probe.result="rgb_candidate";found.paths.Add(path);
         }else if(caps.UsagePage!=0xFFA0)probe.result="different_usage_page";
@@ -198,7 +232,7 @@ namespace AppSpaceRgb {
     writable=paths.Count==1,reason=paths.Count==1?"Interface RGB validada por VID/PID, uso FFA0 e Feature Report de 16 bytes.":
       paths.Count>1?"Multiplas colecoes RGB compativeis; escrita bloqueada.":
       scan.probes.Exists(p=>p.usagePage=="0xFFA0"&&p.featureReportBytes==0)?
-        "Colecao HID RGB FFA0 encontrada, mas o Windows informa Feature Report = 0. Este driver usa HID Feature; escrita bloqueada. Verifique tamanhos de Output/Input no diagnostico.":
+        "Colecao FFA0 presente, mas declara Feature=0 e Output=0. Driver HID RGB bloqueado. A investigacao agora e dos descritores Feature; sem escrita USB.":
       scan.targetCollections>0?"Mouse 04D9:FC30 detectado, mas nenhuma colecao corresponde ao protocolo RGB FFA0 / 16 bytes.":
       "Nenhuma colecao HID com VID 04D9 e PID FC30 foi encontrada. O Windows pode identificar o mouse por outra interface.",
     transport="Windows HID nativo",effects=new[]{"static","breathing","rainbow","wave","flashing"},
