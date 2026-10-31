@@ -41,7 +41,7 @@
         <div><span class="rgb-eyebrow">CONTROLE FÍSICO · WINDOWS HID NATIVO</span><h2 id="rgb-direct-title">RGB real do mouse</h2></div>
         <span id="rgb-direct-status" class="rgb-pill">Verificando HID</span>
       </div>
-      <p>Driver integrado ao AppSpace para <strong>Redragon M711 Cobra (04D9:FC30)</strong>. O aplicativo procura a interface RGB específica <strong>MI_02 / uso FFA0</strong> e não usa OpenRGB, serviços externos nem bibliotecas USB de terceiros.</p>
+      <p>Driver integrado ao AppSpace para <strong>Redragon M711 Cobra (04D9:FC30)</strong>. O aplicativo identifica as coleções HID por <strong>VID/PID + uso FFA0 + relatório de 16 bytes</strong> e não usa OpenRGB, serviços externos nem bibliotecas USB de terceiros.</p>
       <div class="rgb-direct-grid">
         <label class="rgb-direct-field">Cor dos LEDs
           <input id="rgb-direct-color" type="color" value="#8d6aff" disabled aria-label="Cor física do mouse">
@@ -72,6 +72,12 @@
         <button type="button" id="rgb-direct-refresh">Verificar conexão</button>
       </div>
       <p id="rgb-direct-message" class="rgb-direct-message" role="status" aria-live="polite">Aguardando interface HID...</p>
+      <details id="rgb-direct-diagnostic-details" class="rgb-direct-diagnostics" hidden>
+        <summary>Diagnóstico USB/HID (somente leitura)</summary>
+        <p>Identifica as coleções USB/HID sem alterar o mouse. Não mostra caminhos do dispositivo, números de série ou dados pessoais.</p>
+        <pre id="rgb-direct-diagnostic-content"></pre>
+        <button id="rgb-direct-copy" type="button">Copiar diagnóstico</button>
+      </details>
       <p class="rgb-direct-footnote">Somente o mouse M711 recebe comandos nesta etapa. O comando pode ser aceito sem que o LED mude, por exemplo, se outro perfil estiver ativo; confirme visualmente. Não modifica DPI, botões, firmware ou ventoinhas.</p>
     </section>
     <section class="rgb-grid" aria-label="Dispositivos identificados">
