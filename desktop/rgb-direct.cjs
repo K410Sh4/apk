@@ -35,6 +35,9 @@ function parse(stdout){
    outputValueCaps:n(p.outputValueCaps),
    featureButtonCaps:n(p.featureButtonCaps),
    featureValueCaps:n(p.featureValueCaps),
+   featureValueReportIds:Array.isArray(p.featureValueReportIds)
+    ?p.featureValueReportIds.filter(id=>typeof id==="string"&&/^0x[0-9A-F]{2}$/.test(id)).slice(0,16):[],
+   featureCapsStatus:["none","not_checked","too_many_caps","no_descriptor","parse_failed","parsed"].includes(p.featureCapsStatus)?p.featureCapsStatus:"unknown",
    result:["rgb_candidate","caps_unavailable","different_usage_page","different_report_length","no_feature_report"].includes(p.result)?p.result:"unknown",
    errorCode:Number.isInteger(p.errorCode)?p.errorCode:0
   }));
