@@ -423,6 +423,37 @@ const server=http.createServer((req,res)=>{
   assert.ok(await rgbNative.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
   await rgbNative.screenshot({path:path.join(output,'rgb-controller-desktop-stale-ota-fixed.png'),fullPage:true});
   assertions+=6;await rgbDesktopCtx.close();
+  // AppSpace Clean: desktop/mobile dashboard and accessible settings disclosure.
+  const cleanCtx=await browser.newContext({viewport:{width:1280,height:800},reducedMotion:'reduce'});
+  const cleanHome=await cleanCtx.newPage();cleanHome.on('pageerror',e=>errors.push(e.message));
+  await cleanHome.goto(base+'/index.html');
+  assert.ok(await cleanHome.locator('.hero').isVisible());
+  assert.ok((await cleanHome.locator('.hero').boundingBox()).height<290,'Home should not have a huge hero');
+  assert.ok(!(await cleanHome.locator('.stats-grid').isVisible()),'Duplicate statistics should not consume space');
+  assert.equal(await cleanHome.locator('.folder-card:visible').count(),4);
+  assert.equal(await cleanHome.locator('.app-card:visible').count(),3);
+  assert.ok(await cleanHome.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await cleanHome.screenshot({path:path.join(output,'appspace-clean-home-desktop.png'),fullPage:true});
+  await cleanHome.setViewportSize({width:412,height:915});
+  assert.ok(await cleanHome.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await cleanHome.screenshot({path:path.join(output,'appspace-clean-home-mobile.png'),fullPage:true});
+  const cleanSettings=await cleanCtx.newPage();cleanSettings.on('pageerror',e=>errors.push(e.message));
+  await cleanSettings.goto(base+'/configuracoes.html');
+  await cleanSettings.waitForSelector('.as-settings-group');
+  assert.equal(await cleanSettings.locator('.as-settings-group').count(),4);
+  assert.ok(await cleanSettings.locator('#as-settings-appearance').evaluate(el=>el.open));
+  assert.ok(!(await cleanSettings.locator('.settings-preview').isVisible()));
+  await cleanSettings.locator('[href="#as-settings-updates"]').click();
+  assert.ok(await cleanSettings.locator('#as-settings-updates').evaluate(el=>el.open));
+  assert.ok(!(await cleanSettings.locator('#as-settings-appearance').evaluate(el=>el.open)));
+  await cleanSettings.locator('[href="#as-settings-mobile"]').click();
+  assert.ok(await cleanSettings.locator('#navegacao-mobile').isVisible());
+  assert.ok(await cleanSettings.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await cleanSettings.screenshot({path:path.join(output,'appspace-clean-settings-desktop.png'),fullPage:true});
+  await cleanSettings.setViewportSize({width:412,height:915});
+  assert.ok(await cleanSettings.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+  await cleanSettings.screenshot({path:path.join(output,'appspace-clean-settings-mobile.png'),fullPage:true});
+  assertions+=17;await cleanCtx.close();
   // Local files keep the folder and editor available without networking.
   const offline=await browser.newContext({offline:true,viewport:{width:412,height:915}});
   const local=await offline.newPage();local.on('pageerror',e=>errors.push(e.message));
